@@ -41,8 +41,6 @@ flake8==7.1.1
     #   pep8-naming
 flake8-bugbear==24.10.31
     # via -r requirements_dev.in
-html5lib==1.1
-    # via pip-audit
 idna==3.10
     # via requests
 iniconfig==2.0.0
@@ -82,14 +80,16 @@ pep8-naming==0.14.1
     # via -r requirements_dev.in
 pip-api==0.0.34
     # via pip-audit
-pip-audit==2.7.3
+pip-audit==2.9.0
     # via -r requirements_dev.in
 pip-requirements-parser==32.0.1
     # via pip-audit
 pip-tools==7.4.1
     # via -r requirements_dev.in
 platformdirs==4.3.6
-    # via black
+    # via
+    #   black
+    #   pip-audit
 pluggy==1.5.0
     # via pytest
 pur==7.3.2
@@ -122,8 +122,6 @@ rich==13.9.4
     # via
     #   bandit
     #   pip-audit
-six==1.16.0
-    # via html5lib
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
 stevedore==5.4.0
@@ -134,8 +132,6 @@ typing-extensions==4.12.2
     # via mypy
 urllib3==2.2.3
     # via requests
-webencodings==0.5.1
-    # via html5lib
 wheel==0.45.1
     # via pip-tools
 
