@@ -78,7 +78,7 @@ pathspec==0.12.1
     # via black
 pbr==6.1.0
     # via stevedore
-pep8-naming==0.14.1
+pep8-naming==0.15.1
     # via -r requirements_dev.in
 pip-api==0.0.34
     # via pip-audit
