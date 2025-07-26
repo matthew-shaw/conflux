@@ -1,5 +1,5 @@
 {
-  "name": "govuk-frontend-flask",
+  "name": "mimir",
   "version": "1.0.0",
   "description": "GOV.UK Frontend Flask",
   "private": true,
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LandRegistry/govuk-frontend-flask.git"
+    "url": "git+https://github.com/matthew-shaw/mimir.git"
   },
   "author": {
     "name": "Matt Shaw",
@@ -25,9 +25,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LandRegistry/govuk-frontend-flask/issues"
+    "url": "https://github.com/matthew-shaw/mimir/issues"
   },
-  "homepage": "https://github.com/LandRegistry/govuk-frontend-flask#readme",
+  "homepage": "https://github.com/matthew-shaw/mimir#readme",
   "dependencies": {
     "govuk-frontend": "5.11.1"
   },

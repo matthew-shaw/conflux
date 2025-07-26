@@ -6,8 +6,8 @@
 
 This is a template [Flask](https://flask.palletsprojects.com) app using the [GOV.UK Frontend](https://frontend.design-system.service.gov.uk/) and [GOV.UK Design System](https://design-system.service.gov.uk/) which is designed to get a new project started quicker. It is also a reference implementation of two core packages:
 
-- [GOV.UK Frontend Jinja](https://github.com/LandRegistry/govuk-frontend-jinja) which provides Jinja macros of GOV.UK components
-- [GOV.UK Frontend WTForms](https://github.com/LandRegistry/govuk-frontend-wtf) which provides WTForms widgets to integrate the above Jinja macros into form generation and validation
+- [GOV.UK Frontend Jinja](https://github.com/matthew-shaw/govuk-frontend-jinja) which provides Jinja macros of GOV.UK components
+- [GOV.UK Frontend WTForms](https://github.com/matthew-shaw/govuk-frontend-wtf) which provides WTForms widgets to integrate the above Jinja macros into form generation and validation
 
 The app is provided intentionally bare, with just the essential parts that all services need, such as error pages, accessibility statement, cookie banner, cookie page and privacy notice. It uses a number of other packages to provide the [features](#features) described below with sensible and best-practice defaults. Please read the [next steps](#next-steps) section for guidance on how to start building out your app on top of this template.
 
@@ -21,7 +21,7 @@ The app is provided intentionally bare, with just the essential parts that all s
 
 ### Create a new repository
 
-[Create a new repository](https://github.com/LandRegistry/govuk-frontend-flask/generate) using this template, with the same directory structure and files. Then clone a local copy of your newly created repository.
+[Create a new repository](https://github.com/matthew-shaw/mimir/generate) using this template, with the same directory structure and files. Then clone a local copy of your newly created repository.
 
 ### Set local environment variables
 
