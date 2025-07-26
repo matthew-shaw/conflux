@@ -27,7 +27,7 @@ flask==3.1.0
     #   govuk-frontend-wtf
 flask-assets==2.1.0
     # via -r requirements.in
-flask-limiter[redis]==3.8.0
+flask-limiter[redis]==3.12
     # via -r requirements.in
 flask-wtf==1.2.2
     # via govuk-frontend-wtf
@@ -80,9 +80,7 @@ redis==5.2.0
 rich==13.9.4
     # via flask-limiter
 typing-extensions==4.12.2
-    # via
-    #   flask-limiter
-    #   limits
+    # via limits
 webassets==2.0
     # via flask-assets
 werkzeug==3.1.3
