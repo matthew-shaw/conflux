@@ -65,9 +65,9 @@ packaging==25.0
     #   limits
 pygments==2.19.2
     # via rich
-pyjwt==2.9.0
+pyjwt==2.10.1
     # via redis
-redis==5.3.0
+redis==5.3.1
     # via limits
 rich==13.9.4
     # via flask-limiter
