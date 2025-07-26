@@ -67,19 +67,23 @@ flowchart TB
     python(python:3.13-slim)
     redis(redis:7-alpine)
 
-    compose --> App & Cache & Web
-    App -- Depends on --> Cache
-    Web -- Depends on --> App
+    compose -- Creates --> Mimir & Loki & Bifrost & Mimisbrunnr
+    Mimir -- Depends on --> Loki & Mimisbrunnr
+    Bifrost -- Depends on --> Mimir
 
-    subgraph App
+    subgraph Mimir
         python
     end
 
-    subgraph Cache
+    subgraph Mimisbrunnr
+        postgres:17-alpine
+    end
+
+    subgraph Loki
         redis
     end
 
-    subgraph Web
+    subgraph Bifrost
         direction TB
         node -- COPY /dist /static --> nginx
     end
@@ -94,19 +98,24 @@ flowchart TB
     nginx(NGINX)
     flask(Gunicorn/Flask)
     static@{ shape: lin-cyl, label: "Static files" }
+    db@{ shape: lin-cyl, label: "PostgreSQL" }
 
-    client -- https:443 --> nginx -- http:5000 --> flask
+    client -- https:443 --> nginx -- http:5000 --> flask -- postgres:5432 --> db
     flask -- redis:6379 --> redis
 
-    subgraph Web
+    subgraph Bifrost
         nginx -- Read --> static
     end
 
-    subgraph App
+    subgraph Mimir
         flask
     end
 
-    subgraph Cache
+    subgraph Mimisbrunnr
+        db
+    end
+
+    subgraph Loki
         redis
     end
 ```
