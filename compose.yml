@@ -19,15 +19,16 @@ services:
     build: .
     restart: always
     environment:
-      - CONTACT_EMAIL=[contact email]
-      - CONTACT_PHONE=[contact phone]
-      - DEPARTMENT_NAME=[name of department]
-      - DEPARTMENT_URL=[url of department]
-      - REDIS_URL=redis://loki:6379
-      - SECRET_KEY=4f378500459bb58fecf903ea3c113069f11f150b33388f56fc89f7edce0e6a84
-      - SERVICE_NAME=[name of service]
-      - SERVICE_PHASE=[phase]
-      - SERVICE_URL=[url of service]
+      - CONTACT_EMAIL=${CONTACT_EMAIL}
+      - CONTACT_PHONE=${CONTACT_PHONE}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@mimisbrunnr:5432/${POSTGRES_DB}
+      - DEPARTMENT_NAME=${DEPARTMENT_NAME}
+      - DEPARTMENT_URL=${DEPARTMENT_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - SERVICE_NAME=${SERVICE_NAME}
+      - SERVICE_PHASE=${SERVICE_PHASE}
+      - SERVICE_URL=${SERVICE_URL}
     expose:
       - 5000
     networks:
@@ -51,6 +52,8 @@ services:
       - 6379
     networks:
       - yggdrasil
+    volumes:
+      - redis_data:/data
   mimisbrunnr:
     image: postgres:17-alpine
     restart: always
@@ -58,11 +61,22 @@ services:
       - 5432
     shm_size: 128mb
     environment:
-      POSTGRES_DB: mimisbrunnr
-      POSTGRES_PASSWORD: mimir
-      POSTGRES_USER: mimir
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
     networks:
       - yggdrasil
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   yggdrasil:
+
+volumes:
+  redis_data:
+  pg_data:
