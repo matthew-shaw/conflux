@@ -59,7 +59,7 @@ mdurl==0.1.2
     # via markdown-it-py
 msgpack==1.1.0
     # via cachecontrol
-mypy==1.13.0
+mypy==1.17.0
     # via -r requirements_dev.in
 mypy-extensions==1.0.0
     # via
@@ -75,7 +75,9 @@ packaging==24.2
     #   pip-requirements-parser
     #   pytest
 pathspec==0.12.1
-    # via black
+    # via
+    #   black
+    #   mypy
 pbr==6.1.0
     # via stevedore
 pep8-naming==0.14.1
