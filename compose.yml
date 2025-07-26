@@ -1,0 +1,46 @@
+services:
+  web:
+    build: ./web
+    ports:
+      - 443:443
+    develop:
+      watch:
+        - action: rebuild
+          path: ./web/package-lock.json
+        - action: sync+restart
+          path: ./web/nginx.conf
+          target: /etc/nginx/conf.d/nginx.conf
+        - action: sync
+          path: ./web/dist
+          target: /web/static
+  app:
+    build: .
+    restart: always
+    environment:
+      - CONTACT_EMAIL=[contact email]
+      - CONTACT_PHONE=[contact phone]
+      - DEPARTMENT_NAME=[name of department]
+      - DEPARTMENT_URL=[url of department]
+      - REDIS_URL=redis://cache:6379
+      - SECRET_KEY=4f378500459bb58fecf903ea3c113069f11f150b33388f56fc89f7edce0e6a84
+      - SERVICE_NAME=[name of service]
+      - SERVICE_PHASE=[phase]
+      - SERVICE_URL=[url of service]
+    expose:
+      - 5000
+    depends_on:
+      - cache
+      - web
+    develop:
+      watch:
+        - action: rebuild
+          path: ./requirements.txt
+          target: /home/appuser/requirements.txt
+        - action: sync+restart
+          path: ./app
+          target: /home/appuser/app
+  cache:
+    image: redis:7-alpine
+    restart: always
+    expose:
+      - 6379
