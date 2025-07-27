@@ -2,6 +2,14 @@ FROM python:3.13-slim
 
 RUN addgroup --system appgroup && adduser --system --group appuser
 
+# Install build dependencies (e.g., gcc, postgresql-dev, etc.)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    gcc \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set environment variables
 ENV FLASK_APP=mimir.py \
     PYTHONDONTWRITEBYTECODE=1 \
