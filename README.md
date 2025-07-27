@@ -10,20 +10,20 @@
 
 ### Set local environment variables
 
-Create a `.env` file in the root of the repo. Enter your specific service information for the following:
+Create a `.env` file in the root of the repo. Enter your specific information for the following:
 
 ```dotenv
 CONTACT_EMAIL=[contact email]
 CONTACT_PHONE=[contact phone]
-DEPARTMENT_NAME=[name of department]
-DEPARTMENT_URL=[url of department]
-POSTGRES_DB=db_name
-POSTGRES_PASSWORD=db_password
-POSTGRES_USER=db_user
+DEPARTMENT_NAME=Mash Software
+DEPARTMENT_URL=https://www.mashsoftware.com/
+POSTGRES_DB=mimisbrunnr
+POSTGRES_PASSWORD=smartestmanalive
+POSTGRES_USER=mimir
 REDIS_URL=redis://loki:6379
 SECRET_KEY=
-SERVICE_NAME=[name of service]
-SERVICE_PHASE=[phase]
+SERVICE_NAME=Mímir
+SERVICE_PHASE=Alpha
 SERVICE_URL=[url of service]
 ```
 
