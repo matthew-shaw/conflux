@@ -3,11 +3,10 @@ FROM python:3.13-slim
 RUN addgroup --system appgroup && adduser --system --group appuser
 
 # Install build dependencies (e.g., gcc, postgresql-dev, etc.)
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    postgresql-client \
+    libc6-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
