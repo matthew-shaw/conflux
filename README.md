@@ -10,7 +10,7 @@
 
 ### Set local environment variables
 
-Create a `.env` file in the root of the repo. Enter your specific information for the following:
+Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
 CONTACT_EMAIL=[contact email]
@@ -18,9 +18,12 @@ CONTACT_PHONE=[contact phone]
 DEPARTMENT_NAME=Mash Software
 DEPARTMENT_URL=https://www.mashsoftware.com/
 POSTGRES_DB=mimisbrunnr
+POSTGRES_HOST=mimisbrunnr
 POSTGRES_PASSWORD=smartestmanalive
+POSTGRES_PORT=5432
 POSTGRES_USER=mimir
-REDIS_URL=redis://loki:6379
+REDIS_HOST=loki
+REDIS_PORT=6379
 SECRET_KEY=
 SERVICE_NAME=Mímir
 SERVICE_PHASE=Alpha
