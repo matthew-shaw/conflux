@@ -19,17 +19,16 @@ services:
     networks:
       - yggdrasil
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 10s
     depends_on:
       mimisbrunnr:
         condition: service_healthy
       loki:
         condition: service_healthy
-      bifrost:
-        condition: service_started
     develop:
       watch:
         - action: rebuild
@@ -55,11 +54,12 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 30s
       timeout: 5s
-      retries: 3
-  
+      retries: 5
+      start_period: 10s
+
   loki:
     image: redis:7-alpine
     container_name: loki
@@ -69,10 +69,11 @@ services:
     networks:
       - yggdrasil
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-h", "localhost", "ping"]
       interval: 30s
-      timeout: 5s
-      retries: 3
+      timeout: 3s
+      retries: 5
+      start_period: 10s
     volumes:
       - redis_data:/data
 
@@ -85,10 +86,14 @@ services:
     networks:
       - yggdrasil
     healthcheck:
-      test: ["CMD", "curl", "-kf", "https://localhost/"]
+      test: ["CMD", "curl", "-kfs", "https://localhost/health"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 10s
+    depends_on:
+      mimir:
+        condition: service_healthy
     develop:
       watch:
         - action: rebuild
