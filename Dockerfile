@@ -14,6 +14,10 @@ RUN pip install -r requirements.txt
 # Stage 2: Final runtime image
 FROM python:3.13-slim
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN addgroup --system appgroup && adduser --system --group appuser
 
 ENV FLASK_APP=mimir.py \
