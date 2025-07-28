@@ -1,6 +1,7 @@
 services:
   bifrost:
     build: ./web
+    container_name: bifrost
     ports:
       - 443:443
     networks:
@@ -17,6 +18,7 @@ services:
           target: /web/static
   mimir:
     build: .
+    container_name: mimir
     restart: always
     environment:
       - CONTACT_EMAIL=${CONTACT_EMAIL}
@@ -47,6 +49,7 @@ services:
           target: /home/appuser/app
   loki:
     image: redis:7-alpine
+    container_name: loki
     restart: always
     expose:
       - 6379
@@ -56,6 +59,7 @@ services:
       - redis_data:/data
   mimisbrunnr:
     image: postgres:17-alpine
+    container_name: mimisbrunnr
     restart: always
     expose:
       - 5432
