@@ -3,6 +3,8 @@ from typing import Type
 from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect  # type: ignore[import]
 from govuk_frontend_wtf.main import WTFormsHelpers  # type: ignore[import]
 from jinja2 import ChoiceLoader, PackageLoader, PrefixLoader
@@ -12,7 +14,9 @@ from config import Config
 
 # Initialize Flask extensions. These are initialized here for easier access.
 csrf = CSRFProtect()
+db = SQLAlchemy()
 limiter = Limiter(get_remote_address, default_limits=["2 per second", "60 per minute"])
+migrate = Migrate()
 
 
 def create_app(config_class: Type[Config] = Config) -> Flask:
@@ -48,7 +52,9 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
 
     # Initialize Flask extensions
     csrf.init_app(app)
+    db.init_app(app)
     limiter.init_app(app)
+    migrate.init_app(app, db)
     WTFormsHelpers(app)
 
     # Register blueprints. These define different sections of the application.
