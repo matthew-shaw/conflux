@@ -1,21 +1,4 @@
 services:
-  bifrost:
-    build: ./web
-    container_name: bifrost
-    ports:
-      - 443:443
-    networks:
-      - yggdrasil
-    develop:
-      watch:
-        - action: rebuild
-          path: ./web/package-lock.json
-        - action: sync+restart
-          path: ./web/nginx.conf
-          target: /etc/nginx/conf.d/nginx.conf
-        - action: sync
-          path: ./web/dist
-          target: /web/static
   mimir:
     build: .
     container_name: mimir
@@ -35,10 +18,18 @@ services:
       - 5000
     networks:
       - yggdrasil
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - bifrost
-      - loki
-      - mimisbrunnr
+      mimisbrunnr:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+      bifrost:
+        condition: service_started
     develop:
       watch:
         - action: rebuild
@@ -47,16 +38,7 @@ services:
         - action: sync+restart
           path: ./app
           target: /home/appuser/app
-  loki:
-    image: redis:7-alpine
-    container_name: loki
-    restart: always
-    expose:
-      - 6379
-    networks:
-      - yggdrasil
-    volumes:
-      - redis_data:/data
+
   mimisbrunnr:
     image: postgres:17-alpine
     container_name: mimisbrunnr
@@ -74,9 +56,49 @@ services:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
+  
+  loki:
+    image: redis:7-alpine
+    container_name: loki
+    restart: always
+    expose:
+      - 6379
+    networks:
+      - yggdrasil
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - redis_data:/data
+
+  bifrost:
+    build: ./web
+    container_name: bifrost
+    restart: always
+    ports:
+      - 443:443
+    networks:
+      - yggdrasil
+    healthcheck:
+      test: ["CMD", "curl", "-kf", "https://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    develop:
+      watch:
+        - action: rebuild
+          path: ./web/package-lock.json
+        - action: sync+restart
+          path: ./web/nginx.conf
+          target: /etc/nginx/conf.d/nginx.conf
+        - action: sync
+          path: ./web/dist
+          target: /web/static
 
 networks:
   yggdrasil:
