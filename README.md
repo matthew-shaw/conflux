@@ -54,11 +54,14 @@ python -m pytest --cov=app --cov-report=term-missing --cov-branch
 
 ## Build
 
+This project uses Docker Compose to provision containers:
+
 ```mermaid
 flowchart TB
     compose(compose.yml)
     nginx(nginx:stable-alpine)
     node(node:jod-alpine)
+    postgres(postgres:17-alpine)
     python(python:3.13-slim)
     redis(redis:7-alpine)
 
@@ -66,21 +69,21 @@ flowchart TB
     Mimir -- Depends on --> Loki & Mimisbrunnr
     Bifrost -- Depends on --> Mimir
 
+    subgraph Bifrost
+        direction TB
+        node -- COPY /dist /static --> nginx
+    end
+
     subgraph Mimir
         python
     end
 
     subgraph Mimisbrunnr
-        postgres:17-alpine
+        postgres
     end
 
     subgraph Loki
         redis
-    end
-
-    subgraph Bifrost
-        direction TB
-        node -- COPY /dist /static --> nginx
     end
 ```
 
@@ -93,7 +96,7 @@ flowchart TB
     nginx(NGINX)
     flask(Gunicorn/Flask)
     static@{ shape: lin-cyl, label: "Static files" }
-    db@{ shape: lin-cyl, label: "PostgreSQL" }
+    db@{ shape: cyl, label: "PostgreSQL" }
 
     client -- https:443 --> nginx -- http:5000 --> flask -- postgres:5432 --> db
     flask -- redis:6379 --> redis
