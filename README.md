@@ -122,8 +122,8 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    PERSON }|--|| TEAM : member
+    ROLE ||--|{ PERSON : "performed by"
+    PERSON }|--|| TEAM : "member of"
     TEAM ||--|{ SERVICE : owns
-    SERVICE }|--|{ COMPONENT : contains
-    PERSON }|--|| ROLE : performs
+    SERVICE }|--|{ COMPONENT : "composed of"
 ```
