@@ -117,3 +117,13 @@ flowchart TB
         redis
     end
 ```
+
+## Data model
+
+```mermaid
+erDiagram
+    PERSON }|--|| TEAM : member
+    TEAM ||--|{ SERVICE : owns
+    SERVICE }|--|{ COMPONENT : contains
+    PERSON }|--|| ROLE : performs
+```
