@@ -27,7 +27,6 @@ REDIS_PORT=6379
 SECRET_KEY=
 SERVICE_NAME=Mímir
 SERVICE_PHASE=Alpha
-SERVICE_URL=[url of service]
 ```
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:

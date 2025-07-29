@@ -18,7 +18,7 @@
     {{ super() }}
     <h1 class="govuk-heading-xl">Accessibility statement for {{config['SERVICE_NAME']}}</h1>
 
-    <p class="govuk-body">This accessibility statement applies to {{config['SERVICE_URL']}}.</p>
+    <p class="govuk-body">This accessibility statement applies to {{ request.host_url }}.</p>
     
     <p class="govuk-body">This website is run by {{config['DEPARTMENT_NAME']}}. We want as many people as possible to be able
       to use this website. For example, that means you should be able to:</p>

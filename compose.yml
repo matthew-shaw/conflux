@@ -13,7 +13,6 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - SERVICE_NAME=${SERVICE_NAME}
       - SERVICE_PHASE=${SERVICE_PHASE}
-      - SERVICE_URL=${SERVICE_URL}
     expose:
       - 5000
     networks:
