@@ -112,27 +112,33 @@
     'navigation': [
       {
         'href': url_for('main.index'),
-        'text': "Search"
+        'text': "Search",
+        'active': true if url_for('main.index') == request.path else false
       },
       {
         'href': url_for('role.list'),
-        'text': "Roles"
+        'text': "Roles",
+        'active': true if url_for('role.list') == request.path else false
       },
       {
         'href': url_for('person.list'),
-        'text': "People"
+        'text': "People",
+        'active': true if url_for('person.list') == request.path else false
       },
       {
         'href': url_for('team.list'),
-        'text': "Teams"
+        'text': "Teams",
+        'active': true if url_for('team.list') == request.path else false
       },
       {
         'href': url_for('service.list'),
-        'text': "Services"
+        'text': "Services",
+        'active': true if url_for('service.list') == request.path else false
       },
       {
         'href': url_for('component.list'),
-        'text': "Components"
+        'text': "Components",
+        'active': true if url_for('component.list') == request.path else false
       }
     ]
   }) }}
