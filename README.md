@@ -122,8 +122,37 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    ROLES ||--|{ PEOPLE : "performed by"
-    PEOPLE }|--|| TEAMS : "member of"
-    TEAMS ||--|{ SERVICES : owns
-    SERVICES }|--|{ COMPONENTS : "composed of"
+    roles {
+        UUID id PK
+    }
+
+    people {
+        UUID id PK
+        UUID role_id FK
+        UUID team_id FK
+    }
+
+    teams {
+        UUID id PK
+    }
+
+    services {
+        UUID id PK
+        UUID team_id FK
+    }
+
+    components {
+        UUID id PK
+    }
+
+    service_components {
+        UUID service_id FK
+        UUID component_id FK
+    }
+
+    roles ||--|{ people : "performed by"
+    people }|--|| teams : "member of"
+    teams ||--|{ services : owns
+    services ||--|{ service_components : uses
+    service_components }|--|| components : "used by"
 ```
