@@ -109,9 +109,11 @@
 {%- block header -%}
   {{ govukHeader({}) }}
   {{ govukServiceNavigation({
-    'serviceName': config['SERVICE_NAME'],
-    'serviceUrl': url_for('main.index'),
     'navigation': [
+      {
+        'href': url_for('main.index'),
+        'text': "Search"
+      },
       {
         'href': url_for('role.list'),
         'text': "Roles"

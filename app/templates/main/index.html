@@ -1,5 +1,7 @@
 {%- extends "base.html" -%}
 
+{%- from 'govuk_frontend_jinja/components/fieldset/macro.html' import govukFieldset -%}
+
 {%- block beforeContent -%}
 {{ super() }}
 {%- endblock -%}
@@ -7,7 +9,21 @@
 {%- block content -%}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-xl">{{ config['SERVICE_NAME'] }}</h1>
+    {{ super()}}
+    <form method="post" action="" novalidate>
+      {% call govukFieldset({
+        'legend': {
+          'text': "Search",
+          'classes': "govuk-fieldset__legend--xl",
+          'isPageHeading': true
+        }
+      }) %}
+        {{ form.csrf_token }}
+        {{ form.query }}
+        {{ form.type }}
+        {{ form.submit }}
+      {% endcall %}
+    </form>
   </div>
 </div>
 {%- endblock -%}
