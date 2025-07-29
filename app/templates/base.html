@@ -113,12 +113,24 @@
     'serviceUrl': url_for('main.index'),
     'navigation': [
       {
-        'href': "#",
+        'href': url_for('role.list'),
+        'text': "Roles"
+      },
+      {
+        'href': url_for('person.list'),
+        'text': "People"
+      },
+      {
+        'href': url_for('team.list'),
         'text': "Teams"
       },
       {
-        'href': "#",
+        'href': url_for('service.list'),
         'text': "Services"
+      },
+      {
+        'href': url_for('component.list'),
+        'text': "Components"
       }
     ]
   }) }}
