@@ -1,7 +1,5 @@
 {%- extends "base.html" -%}
 
-{%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
-
 {%- block beforeContent -%}
 {{ super() }}
 {%- endblock -%}
@@ -10,11 +8,12 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-xl">Roles</h1>
-    {{ govukButton({
-      'text': "Create a new role",
-      'href': url_for('role.create')
-    }) }}
+    <h1 class="govuk-heading-xl">Create a new role</h1>
+    <form method="post" action="" novalidate>
+      {{ form.csrf_token}}
+      {{ form.title }}
+      {{ form.save }}
+    </form>
   </div>
 </div>
 {%- endblock -%}
