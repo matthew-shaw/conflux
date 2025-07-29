@@ -73,3 +73,6 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     app.register_blueprint(team_bp)
 
     return app
+
+
+from app import models  # noqa: E402,F401
