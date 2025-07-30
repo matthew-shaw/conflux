@@ -10,4 +10,4 @@ class RoleForm(FlaskForm):
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter the title")],
     )
-    save: SubmitField = SubmitField("Save and continue", widget=GovSubmitInput())
+    save: SubmitField = SubmitField("Save", widget=GovSubmitInput())

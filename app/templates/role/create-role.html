@@ -12,7 +12,10 @@
     <form method="post" action="" novalidate>
       {{ form.csrf_token}}
       {{ form.title }}
-      {{ form.save }}
+      <div class="govuk-button-group">
+        {{ form.save }}
+        <a class="govuk-link" href="{{ url_for('role.list') }}">Cancel</a>
+      </div>
     </form>
   </div>
 </div>
