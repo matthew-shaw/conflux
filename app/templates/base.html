@@ -109,36 +109,33 @@
 {%- block header -%}
   {{ govukHeader({}) }}
   {{ govukServiceNavigation({
+    'serviceName': config['SERVICE_NAME'],
+    'serviceUrl': url_for('main.index'),
     'navigation': [
-      {
-        'href': url_for('main.index'),
-        'text': "Search",
-        'active': true if url_for('main.index') == request.path else false
-      },
       {
         'href': url_for('role.list'),
         'text': "Roles",
-        'active': true if url_for('role.list') == request.path else false
+        'active': true if url_for('role.list') in request.path else false
       },
       {
         'href': url_for('person.list'),
         'text': "People",
-        'active': true if url_for('person.list') == request.path else false
+        'active': true if url_for('person.list') in request.path else false
       },
       {
         'href': url_for('team.list'),
         'text': "Teams",
-        'active': true if url_for('team.list') == request.path else false
+        'active': true if url_for('team.list') in request.path else false
       },
       {
         'href': url_for('service.list'),
         'text': "Services",
-        'active': true if url_for('service.list') == request.path else false
+        'active': true if url_for('service.list') in request.path else false
       },
       {
         'href': url_for('component.list'),
         'text': "Components",
-        'active': true if url_for('component.list') == request.path else false
+        'active': true if url_for('component.list') in request.path else false
       }
     ]
   }) }}
