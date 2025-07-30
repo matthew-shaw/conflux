@@ -13,6 +13,6 @@ def list():
 def create():
     form = RoleForm()
     if form.validate_on_submit():
-        flash(f"You've created the {form.title.data} role", "success")
+        flash(f"The {form.title.data} role has been created", "success")
         return redirect(url_for("role.list"))
     return render_template("create-role.html", form=form)
