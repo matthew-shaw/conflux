@@ -144,14 +144,9 @@ erDiagram
         UUID id PK
     }
 
-    service_components {
-        UUID service_id FK
-        UUID component_id FK
-    }
-
     roles ||--|{ people : "performed by"
-    people }|--|| teams : "member of"
-    teams ||--|{ services : owns
-    services ||--|{ service_components : uses
-    service_components }|--|| components : "used by"
+    teams ||--o{ people : "has members"
+    teams ||--o{ services : "owns"
+    services ||--|{ components : "uses"
+    components ||--|{ services : "used by"
 ```
