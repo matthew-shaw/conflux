@@ -13,7 +13,9 @@
       {{ form.csrf_token}}
       {{ form.title }}
       <div class="govuk-button-group">
-        {{ form.save }}
+        {{ form.save(params={
+          'preventDoubleClick': true
+        }) }}
         <a class="govuk-link" href="{{ url_for('role.list') }}">Cancel</a>
       </div>
     </form>
