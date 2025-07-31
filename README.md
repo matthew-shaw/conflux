@@ -100,20 +100,22 @@ flowchart TB
     client -- https:443 --> nginx -- http:5000 --> flask -- postgres:5432 --> db
     flask -- redis:6379 --> redis
 
-    subgraph Bifrost
-        nginx -- Read --> static
-    end
+    subgraph Yggdrasil
+        subgraph Bifrost
+            nginx -- Read --> static
+        end
 
-    subgraph Mimir
-        flask
-    end
+        subgraph Mimir
+            flask
+        end
 
-    subgraph Mimisbrunnr
-        db
-    end
+        subgraph Mimisbrunnr
+            db
+        end
 
-    subgraph Loki
-        redis
+        subgraph Loki
+            redis
+        end
     end
 ```
 
