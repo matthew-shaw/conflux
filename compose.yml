@@ -96,13 +96,12 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./web/package-lock.json
+          path: ./web/package.json
         - action: sync+restart
           path: ./web/nginx.conf
           target: /etc/nginx/conf.d/nginx.conf
-        - action: sync
-          path: ./web/dist
-          target: /web/static
+        - action: rebuild
+          path: ./web/src
 
 networks:
   yggdrasil:
