@@ -51,7 +51,7 @@ To run the tests:
 python -m pytest --cov=app --cov-report=term-missing --cov-branch
 ```
 
-## Build
+## Build process
 
 This project uses Docker Compose to provision containers:
 
@@ -86,7 +86,7 @@ flowchart TB
     end
 ```
 
-## Environment
+## Development environment
 
 ```mermaid
 flowchart TB
@@ -117,7 +117,7 @@ flowchart TB
     end
 ```
 
-## Data model
+## Logical data model
 
 ```mermaid
 erDiagram
