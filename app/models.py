@@ -41,6 +41,7 @@ class Role(db.Model):  # noqa: F811
     __tablename__ = "roles"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
     archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc),
@@ -64,6 +65,7 @@ class Team(db.Model):  # noqa: F811
     __tablename__ = "teams"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
     archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc),
