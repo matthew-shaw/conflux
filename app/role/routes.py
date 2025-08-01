@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from flask import flash, redirect, render_template, url_for
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models import Role
@@ -17,8 +18,16 @@ def list() -> str:
 def create() -> str:
     form: RoleForm = RoleForm()
     if form.validate_on_submit():
-        flash(f"{form.title.data} has been created", "success")
-        return redirect(url_for("role.list"))
+        role: Role = Role(title=form.title.data)
+        db.session.add(role)
+        try:
+            db.session.commit()
+            flash(f"{form.title.data} has been created", "success")
+            return redirect(url_for("role.list"))
+        except IntegrityError:
+            db.session.rollback()
+            form.title.errors.append("A role with this title already exists.")
+            return render_template("create-role.html", form=form)
     return render_template("create-role.html", form=form)
 
 
