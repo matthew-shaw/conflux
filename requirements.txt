@@ -88,7 +88,7 @@ redis==5.3.1
     # via limits
 rich==13.9.4
     # via flask-limiter
-sqlalchemy==2.0.41
+sqlalchemy==2.0.42
     # via
     #   alembic
     #   flask-sqlalchemy
