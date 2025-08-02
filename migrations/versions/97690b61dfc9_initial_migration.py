@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 7abe9f09a96f
+Revision ID: 97690b61dfc9
 Revises:
-Create Date: 2025-07-31 09:42:47.251361
+Create Date: 2025-08-02 22:39:06.730640
 
 """
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "7abe9f09a96f"
+revision = "97690b61dfc9"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,17 +28,25 @@ def upgrade():
     op.create_table(
         "roles",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("title", sa.String(), nullable=False),
         sa.Column("archived_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
+    with op.batch_alter_table("roles", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_roles_title"), ["title"], unique=True)
+
     op.create_table(
         "teams",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
         sa.Column("archived_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
+    with op.batch_alter_table("teams", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_teams_name"), ["name"], unique=True)
+
     op.create_table(
         "people",
         sa.Column("id", sa.UUID(), nullable=False),
@@ -101,7 +109,13 @@ def downgrade():
         batch_op.drop_index(batch_op.f("ix_people_role_id"))
 
     op.drop_table("people")
+    with op.batch_alter_table("teams", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_teams_name"))
+
     op.drop_table("teams")
+    with op.batch_alter_table("roles", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_roles_title"))
+
     op.drop_table("roles")
     op.drop_table("components")
     # ### end Alembic commands ###
