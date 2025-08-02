@@ -1,14 +1,53 @@
 {%- extends "base.html" -%}
 
+{%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
+{%- from 'govuk_frontend_jinja/components/summary-list/macro.html' import govukSummaryList -%}
+
 {%- block beforeContent -%}
 {{ super() }}
+{{ govukBackLink({
+  'text': "Back",
+  'href': url_for('role.list')
+}) }}
 {%- endblock -%}
 
 {%- block content -%}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-xl">Role</h1>
+    <span class="govuk-caption-xl">Role</span>
+    <h1 class="govuk-heading-xl">{{ role.title }}</h1>
+
+    {{ govukSummaryList({
+      'rows': [
+        {
+          'key': {
+            'text': "Title"
+          },
+          'value': {
+            'text': role.title
+          },
+          'actions': {
+            'items': [
+              {
+                'href': "#",
+                'text': "Change",
+                'visuallyHiddenText': "title"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Last updated"
+          },
+          'value': {
+            'text': role.updated_at.strftime('%A %-d %B %Y')
+
+          }
+        }
+      ]
+    }) }}
   </div>
 </div>
 {%- endblock -%}

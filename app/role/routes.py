@@ -1,3 +1,4 @@
+from typing import Any, Dict, List
 from uuid import UUID
 
 from flask import flash, redirect, render_template, url_for
@@ -11,7 +12,17 @@ from app.role.forms import RoleForm
 
 @bp.route("/", methods=["GET"])
 def list() -> str:
-    return render_template("list-roles.html")
+    roles: List[Role] = Role.query.order_by(Role.title).all()
+    # Format the roles as a list of lists of dicts, as required by the GOV.UK table macro.
+    # Each inner list represents a table row, and each dict represents a cell with a "text" key.
+    rows: List[List[Dict[str, Any]]] = [
+        [
+            {"html": f'<a href="{url_for("role.view", id=role.id)}" class="govuk-link">{role.title}</a>'},
+            {"text": role.updated_at.strftime("%-d %b %Y")},
+        ]
+        for role in roles
+    ]
+    return render_template("list-roles.html", rows=rows)
 
 
 @bp.route("/new", methods=["GET", "POST"])
@@ -33,7 +44,7 @@ def create() -> str:
 
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> str:
-    return render_template("view-role.html")
+    return render_template("view-role.html", role=Role.query.get_or_404(id))
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
