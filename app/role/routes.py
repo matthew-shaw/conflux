@@ -20,6 +20,7 @@ def list() -> str:
     rows: List[List[Dict[str, Any]]] = [
         [
             {"html": f'<a href="{url_for("role.view", id=role.id)}" class="govuk-link">{role.name}</a>'},
+            {"text": "Archived" if role.archived_at else "Active"},
             {"text": format_govuk_datetime(role.updated_at, include_day=False)},
         ]
         for role in roles
