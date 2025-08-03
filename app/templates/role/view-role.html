@@ -3,6 +3,8 @@
 {%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
 {%- from 'govuk_frontend_jinja/components/summary-list/macro.html' import govukSummaryList -%}
 
+{%- block pageTitle -%}{{ role.name }} – {{config['SERVICE_NAME']}} – GOV.UK{%- endblock -%}
+
 {%- block beforeContent -%}
 {{ super() }}
 {{ govukBackLink({

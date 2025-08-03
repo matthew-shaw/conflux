@@ -23,7 +23,7 @@ def list() -> str:
         ]
         for role in roles
     ]
-    return render_template("list-roles.html", rows=rows)
+    return render_template("list-roles.html", title="Roles", rows=rows)
 
 
 @bp.route("/new", methods=["GET", "POST"])
@@ -40,7 +40,7 @@ def create() -> str:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
             return render_template("create-role.html", form=form)
-    return render_template("create-role.html", form=form)
+    return render_template("create-role.html", title="Create a new role", form=form)
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
@@ -68,9 +68,9 @@ def edit(id: UUID) -> str:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
 
-    return render_template("edit-role.html", form=form, role=role)
+    return render_template("edit-role.html", title="Edit role", form=form, role=role)
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> str:
-    return render_template("archive-role.html")
+    return render_template("archive-role.html", title="Archive role")

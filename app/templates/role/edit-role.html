@@ -1,5 +1,7 @@
 {%- extends "base.html" -%}
 
+{%- block pageTitle -%}{{ title }} – {{config['SERVICE_NAME']}} – GOV.UK{%- endblock -%}
+
 {%- block beforeContent -%}
 {{ super() }}
 {%- endblock -%}
@@ -8,7 +10,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-xl">Edit role</h1>
+    <h1 class="govuk-heading-xl">{{ title }}</h1>
     <form method="post" action="{{ url_for('role.edit', id=role.id) }}" novalidate>
       {{ form.csrf_token}}
       {{ form.name }}
