@@ -52,11 +52,19 @@
       ]
     }) }}
 
+    {% if role.archived_at %}
+    {{ govukButton({
+      'text': "Restore role",
+      'href': "#",
+      'classes': "govuk-button--secondary"
+    }) }}
+    {% else %}
     {{ govukButton({
       'text': "Archive role",
       'href': url_for('role.archive', id=role.id),
       'classes': "govuk-button--secondary"
     }) }}
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}
