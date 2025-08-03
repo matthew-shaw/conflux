@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 97690b61dfc9
+Revision ID: b606d20bccfa
 Revises:
-Create Date: 2025-08-02 22:39:06.730640
+Create Date: 2025-08-03 19:32:28.519977
 
 """
 
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = "97690b61dfc9"
+revision = "b606d20bccfa"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,20 +21,24 @@ def upgrade():
     op.create_table(
         "components",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
         sa.Column("archived_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
+    with op.batch_alter_table("components", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_components_name"), ["name"], unique=False)
+
     op.create_table(
         "roles",
         sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("title", sa.String(), nullable=False),
-        sa.Column("archived_at", sa.DateTime(), nullable=True),
+        sa.Column("name", sa.String(), nullable=False),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
+        sa.Column("archived_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
     with op.batch_alter_table("roles", schema=None) as batch_op:
-        batch_op.create_index(batch_op.f("ix_roles_title"), ["title"], unique=True)
+        batch_op.create_index(batch_op.f("ix_roles_name"), ["name"], unique=True)
 
     op.create_table(
         "teams",
@@ -50,6 +54,7 @@ def upgrade():
     op.create_table(
         "people",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
         sa.Column("archived_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.Column("role_id", sa.UUID(), nullable=False),
@@ -59,12 +64,14 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     with op.batch_alter_table("people", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_people_name"), ["name"], unique=False)
         batch_op.create_index(batch_op.f("ix_people_role_id"), ["role_id"], unique=False)
         batch_op.create_index(batch_op.f("ix_people_team_id"), ["team_id"], unique=False)
 
     op.create_table(
         "services",
         sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("name", sa.String(), nullable=False),
         sa.Column("archived_at", sa.DateTime(), nullable=True),
         sa.Column("updated_at", sa.DateTime(), nullable=False),
         sa.Column("team_id", sa.UUID(), nullable=True),
@@ -72,6 +79,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     with op.batch_alter_table("services", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_services_name"), ["name"], unique=True)
         batch_op.create_index(batch_op.f("ix_services_team_id"), ["team_id"], unique=False)
 
     op.create_table(
@@ -102,11 +110,13 @@ def downgrade():
     op.drop_table("service_components")
     with op.batch_alter_table("services", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix_services_team_id"))
+        batch_op.drop_index(batch_op.f("ix_services_name"))
 
     op.drop_table("services")
     with op.batch_alter_table("people", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix_people_team_id"))
         batch_op.drop_index(batch_op.f("ix_people_role_id"))
+        batch_op.drop_index(batch_op.f("ix_people_name"))
 
     op.drop_table("people")
     with op.batch_alter_table("teams", schema=None) as batch_op:
@@ -114,8 +124,11 @@ def downgrade():
 
     op.drop_table("teams")
     with op.batch_alter_table("roles", schema=None) as batch_op:
-        batch_op.drop_index(batch_op.f("ix_roles_title"))
+        batch_op.drop_index(batch_op.f("ix_roles_name"))
 
     op.drop_table("roles")
+    with op.batch_alter_table("components", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_components_name"))
+
     op.drop_table("components")
     # ### end Alembic commands ###

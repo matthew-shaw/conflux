@@ -9,9 +9,9 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <h1 class="govuk-heading-xl">Create a new role</h1>
-    <form method="post" action="" novalidate>
+    <form method="post" action="{{ url_for('role.create') }}" novalidate>
       {{ form.csrf_token}}
-      {{ form.title }}
+      {{ form.name }}
       <div class="govuk-button-group">
         {{ form.save(params={
           'preventDoubleClick': true

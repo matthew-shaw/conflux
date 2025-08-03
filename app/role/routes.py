@@ -10,14 +10,15 @@ from app.role import bp
 from app.role.forms import RoleForm
 from app.utils.govuk_datetime_utils import format_govuk_datetime
 
+
 @bp.route("/", methods=["GET"])
 def list() -> str:
-    roles: List[Role] = Role.query.order_by(Role.title).all()
+    roles: List[Role] = Role.query.order_by(Role.name).all()
     # Format the roles as a list of lists of dicts, as required by the GOV.UK table macro.
     # Each inner list represents a table row, and each dict represents a cell with a "text" key.
     rows: List[List[Dict[str, Any]]] = [
         [
-            {"html": f'<a href="{url_for("role.view", id=role.id)}" class="govuk-link">{role.title}</a>'},
+            {"html": f'<a href="{url_for("role.view", id=role.id)}" class="govuk-link">{role.name}</a>'},
             {"text": format_govuk_datetime(role.updated_at, include_day=False)},
         ]
         for role in roles
@@ -29,15 +30,15 @@ def list() -> str:
 def create() -> str:
     form: RoleForm = RoleForm()
     if form.validate_on_submit():
-        role: Role = Role(title=form.title.data)
+        role: Role = Role(name=form.name.data)
         db.session.add(role)
         try:
             db.session.commit()
-            flash(f"{form.title.data} has been created", "success")
+            flash(f"{form.name.data} has been created", "success")
             return redirect(url_for("role.list"))
         except IntegrityError:
             db.session.rollback()
-            form.title.errors.append("A role with this title already exists.")
+            form.name.errors.append("A role with this name already exists.")
             return render_template("create-role.html", form=form)
     return render_template("create-role.html", form=form)
 

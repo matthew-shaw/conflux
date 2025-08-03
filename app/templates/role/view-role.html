@@ -16,23 +16,23 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <span class="govuk-caption-xl">Role</span>
-    <h1 class="govuk-heading-xl">{{ role.title }}</h1>
+    <h1 class="govuk-heading-xl">{{ role.name }}</h1>
 
     {{ govukSummaryList({
       'rows': [
         {
           'key': {
-            'text': "Title"
+            'text': "Name"
           },
           'value': {
-            'text': role.title
+            'text': role.name
           },
           'actions': {
             'items': [
               {
                 'href': "#",
                 'text': "Change",
-                'visuallyHiddenText': "title"
+                'visuallyHiddenText': "name"
               }
             ]
           }

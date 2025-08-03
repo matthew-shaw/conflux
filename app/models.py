@@ -41,13 +41,13 @@ class Role(db.Model):  # noqa: F811
     __tablename__ = "roles"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    title: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
-    archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
+    archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
 
     people: Mapped[List["Person"]] = relationship(
         "Person",
@@ -95,6 +95,7 @@ class Person(db.Model):  # noqa: F811
     __tablename__ = "people"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(nullable=False, index=True)
     archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc),
@@ -119,6 +120,7 @@ class Service(db.Model):  # noqa: F811
     __tablename__ = "services"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
     archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc),
@@ -147,6 +149,7 @@ class Component(db.Model):  # noqa: F811
     __tablename__ = "components"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(nullable=False, index=True)
     archived_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     updated_at: Mapped[datetime] = mapped_column(
         default=lambda: datetime.now(timezone.utc),

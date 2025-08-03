@@ -17,10 +17,11 @@
       'href': url_for('role.create')
     }) }}
 
+    {% if rows %}
     {{ govukTable({
       'head': [
         {
-          'text': "Title"
+          'text': "Name"
         },
         {
           'text': "Last updated"
@@ -28,6 +29,7 @@
       ],
       'rows': rows
     }) }}
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}
