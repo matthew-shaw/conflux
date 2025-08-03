@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 from uuid import UUID
 
@@ -7,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models import Role
 from app.role import bp
-from app.role.forms import RoleForm
+from app.role.forms import ArchiveRoleForm, RoleForm
 from app.utils.govuk_datetime_utils import format_govuk_datetime
 
 
@@ -59,7 +60,6 @@ def edit(id: UUID) -> str:
         form.name.data = role.name
     elif form.validate_on_submit():
         role.name = form.name.data
-        db.session.add(role)
         try:
             db.session.commit()
             flash(f"{role.name} has been updated", "success")
@@ -73,4 +73,13 @@ def edit(id: UUID) -> str:
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> str:
-    return render_template("archive-role.html", title="Archive role")
+    role: Role = Role.query.get_or_404(id)
+    form: ArchiveRoleForm = ArchiveRoleForm()
+
+    if form.validate_on_submit() and form.confirm.data is True:
+        role.archived_at = datetime.now(timezone.utc)
+        db.session.commit()
+        flash(f"{role.name} has been archived", "success")
+        return redirect(url_for("role.list"))
+
+    return render_template("archive-role.html", title="Archive role", role=role, form=form)

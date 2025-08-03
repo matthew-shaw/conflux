@@ -10,7 +10,17 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-xl">{{ title }}</h1>
+    <h1 class="govuk-heading-xl">Are you sure you want to archive the {{ role.name }} role?</h1>
+    <form method="post" action="{{ url_for('role.archive', id=role.id) }}">
+      {{ form.csrf_token }}
+      {{ form.confirm }}
+      <div class="govuk-button-group">
+        {{ form.submit(params={
+          'classes': "govuk-button--warning",
+          'preventDoubleClick': true
+        }) }}
+        <a class="govuk-link" href="{{ url_for('role.view', id=role.id) }}">Cancel</a>
+      </div>
   </div>
 </div>
 {%- endblock -%}
