@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 from uuid import UUID
 
-from flask import flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy.exc import IntegrityError
 
 from app import db
@@ -52,7 +52,23 @@ def view(id: UUID) -> str:
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> str:
-    return render_template("edit-role.html")
+    role: Role = Role.query.get_or_404(id)
+    form: RoleForm = RoleForm()
+
+    if request.method == "GET":
+        form.name.data = role.name
+    elif form.validate_on_submit():
+        role.name = form.name.data
+        db.session.add(role)
+        try:
+            db.session.commit()
+            flash(f"{role.name} has been updated", "success")
+            return redirect(url_for("role.view", id=role.id))
+        except IntegrityError:
+            db.session.rollback()
+            form.name.errors.append("A role with this name already exists.")
+
+    return render_template("edit-role.html", form=form, role=role)
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
