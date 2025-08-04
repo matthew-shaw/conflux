@@ -26,7 +26,7 @@ class RoleForm(FlaskForm):
 
 class ArchiveRoleForm(FlaskForm):
     confirm = BooleanField(
-        "Confirm",
+        "I'm sure",
         widget=GovCheckboxInput(),
         validators=[InputRequired(message="Select if you want to archive this role")],
     )
