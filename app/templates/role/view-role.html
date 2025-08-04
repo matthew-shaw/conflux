@@ -3,6 +3,7 @@
 {%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
 {%- from 'govuk_frontend_jinja/components/summary-list/macro.html' import govukSummaryList -%}
+{%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
 {%- block pageTitle -%}{{ role.name }} – {{config['SERVICE_NAME']}} – GOV.UK{%- endblock -%}
 
@@ -42,6 +43,26 @@
         },
         {
           'key': {
+            'text': "Status"
+          },
+          'value': {
+            'html': govukTag({ 
+              'text': "Archived" if role.archived_at else "Active",
+              'classes': "govuk-tag--grey" if role.archived_at else "govuk-tag--blue"
+            })
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('role.restore', id=role.id) if role.archived_at else url_for('role.archive', id=role.id),
+                'text': "Restore" if role.archived_at else "Archive",
+                'visuallyHiddenText': "role"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "Last updated"
           },
           'value': {
@@ -51,20 +72,6 @@
         }
       ]
     }) }}
-
-    {% if role.archived_at %}
-    {{ govukButton({
-      'text': "Restore role",
-      'href': "#",
-      'classes': "govuk-button--secondary"
-    }) }}
-    {% else %}
-    {{ govukButton({
-      'text': "Archive role",
-      'href': url_for('role.archive', id=role.id),
-      'classes': "govuk-button--secondary"
-    }) }}
-    {% endif %}
   </div>
 </div>
 {%- endblock -%}
