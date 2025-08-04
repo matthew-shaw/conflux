@@ -84,3 +84,8 @@ def archive(id: UUID) -> str:
         return redirect(url_for("role.list"))
 
     return render_template("archive-role.html", title="Archive role", role=role, form=form)
+
+
+@bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
+def restore(id: UUID) -> str:
+    pass
