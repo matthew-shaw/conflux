@@ -15,10 +15,6 @@ Built using Python (Flask), PostgreSQL, Redis, and NGINX, it leverages Docker Co
 Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
-CONTACT_EMAIL=[contact email]
-CONTACT_PHONE=[contact phone]
-DEPARTMENT_NAME=Mash Software
-DEPARTMENT_URL=https://www.mashsoftware.com/
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=mimisbrunnr
 POSTGRES_PASSWORD=smartestmanalive
@@ -26,9 +22,7 @@ POSTGRES_PORT=5432
 POSTGRES_USER=mimir
 REDIS_HOST=loki
 REDIS_PORT=6379
-SECRET_KEY=
-SERVICE_NAME=Mímir
-SERVICE_PHASE=Alpha
+SECRET_KEY=<see-below>
 ```
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
@@ -88,7 +82,7 @@ flowchart TB
     end
 ```
 
-## Architectural overview
+## Architecture overview
 
 ```mermaid
 flowchart TB
