@@ -10,8 +10,8 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-xl">Are you sure you want to archive the {{ role.name }} role?</h1>
-    <form method="post" action="{{ url_for('role.archive', id=role.id) }}">
+    <h1 class="govuk-heading-xl">Are you sure you want to restore the {{ role.name }} role?</h1>
+    <form method="post" action="{{ url_for('role.restore', id=role.id) }}">
       {{ form.csrf_token }}
       {{ form.confirm }}
       <div class="govuk-button-group">

@@ -31,3 +31,12 @@ class ArchiveRoleForm(FlaskForm):
         validators=[InputRequired(message="Select if you want to archive this role")],
     )
     submit: SubmitField = SubmitField("Archive", widget=GovSubmitInput())
+
+
+class RestoreRoleForm(FlaskForm):
+    confirm = BooleanField(
+        "I'm sure",
+        widget=GovCheckboxInput(),
+        validators=[InputRequired(message="Select if you want to restore this role")],
+    )
+    submit: SubmitField = SubmitField("Restore", widget=GovSubmitInput())

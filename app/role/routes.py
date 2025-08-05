@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models import Role
 from app.role import bp
-from app.role.forms import ArchiveRoleForm, RoleForm
+from app.role.forms import ArchiveRoleForm, RestoreRoleForm, RoleForm
 from app.utils.govuk_datetime_utils import format_govuk_datetime
 
 
@@ -88,4 +88,13 @@ def archive(id: UUID) -> str:
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> str:
-    pass
+    role: Role = Role.query.get_or_404(id)
+    form: RestoreRoleForm = RestoreRoleForm()
+
+    if form.validate_on_submit() and form.confirm.data is True:
+        role.archived_at = None
+        db.session.commit()
+        flash(f"{role.name} has been restored", "success")
+        return redirect(url_for("role.list"))
+
+    return render_template("restore-role.html", title="Restore role", role=role, form=form)
