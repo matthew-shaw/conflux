@@ -169,17 +169,17 @@
     'meta': {
       'items': [
         {
+          'href': url_for('main.about'),
+          'text': "About"
+        },
+        {
           'href': url_for('main.accessibility'),
           'text': "Accessibility"
         },
         {
           'href': url_for('main.cookies'),
           'text': "Cookies"
-        },
-        {
-            'href': url_for('main.privacy'),
-            'text': "Privacy"
-          }
+        }
       ],
       'html': 'Built by <a href="' + config['DEPARTMENT_URL'] +'" class="govuk-footer__link">' + config['DEPARTMENT_NAME'] + '</a>'
     }

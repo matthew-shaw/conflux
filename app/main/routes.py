@@ -64,9 +64,9 @@ def cookies() -> Union[str, Response]:
 
 
 @bp.route("/privacy", methods=["GET"])
-def privacy() -> str:
-    """Render the privacy policy page."""
-    return render_template("privacy.html")
+def about() -> str:
+    """Render the about page."""
+    return render_template("about.html")
 
 
 @bp.route("/health", methods=["GET"])
