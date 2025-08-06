@@ -1,15 +1,14 @@
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import List
 from uuid import UUID
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import current_app, flash, redirect, render_template, request, url_for
 from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models import Role
 from app.role import bp
 from app.role.forms import ArchiveRoleForm, RestoreRoleForm, RoleForm
-from app.utils.govuk_datetime_utils import format_govuk_datetime
 
 
 @bp.route("/", methods=["GET"])
@@ -21,8 +20,9 @@ def list() -> str:
 @bp.route("/new", methods=["GET", "POST"])
 def create() -> str:
     form: RoleForm = RoleForm()
+    form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
     if form.validate_on_submit():
-        role: Role = Role(name=form.name.data)
+        role: Role = Role(name=form.name.data, grade=form.grade.data)
         db.session.add(role)
         try:
             db.session.commit()
@@ -48,9 +48,11 @@ def view(id: UUID) -> str:
 def edit(id: UUID) -> str:
     role: Role = Role.query.get_or_404(id)
     form: RoleForm = RoleForm()
+    form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
 
     if request.method == "GET":
         form.name.data = role.name
+        form.grade.data = role.grade
     elif form.validate_on_submit():
         role.name = form.name.data
         try:

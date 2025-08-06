@@ -43,6 +43,23 @@
         },
         {
           'key': {
+            'text': "Grade"
+          },
+          'value': {
+            'text': role.grade
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('role.edit', id=role.id),
+                'text': "Change",
+                'visuallyHiddenText': "grade"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "People"
           },
           'value': {

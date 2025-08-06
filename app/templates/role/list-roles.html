@@ -27,6 +27,9 @@
           'html': '<a href="' ~ url_for("role.view", id=role.id) ~ '" class="govuk-link">' ~ role.name ~ '</a>'
         },
         {
+          'text': role.grade
+        },
+        {
           'text': role.people | length
         },
         {
@@ -43,8 +46,10 @@
 
     {% if rows %}
       {{ govukTable({
+        'firstCellIsHeader': true,
         'head': [
           { 'text': "Name" },
+          { 'text': "Grade" },
           { 'text': "People" },
           { 'text': "Status" },
           { 'text': "Last updated" }

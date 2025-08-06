@@ -42,6 +42,7 @@ class Role(db.Model):  # noqa: F811
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    grade: Mapped[str] = mapped_column(nullable=False, index=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),

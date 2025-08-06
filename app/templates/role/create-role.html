@@ -14,6 +14,7 @@
     <form method="post" action="{{ url_for('role.create') }}" novalidate>
       {{ form.csrf_token}}
       {{ form.name }}
+      {{ form.grade }}
       <div class="govuk-button-group">
         {{ form.submit(params={
           'preventDoubleClick': true

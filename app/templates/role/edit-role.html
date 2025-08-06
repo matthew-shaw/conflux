@@ -14,6 +14,7 @@
     <form method="post" action="{{ url_for('role.edit', id=role.id) }}" novalidate>
       {{ form.csrf_token}}
       {{ form.name }}
+      {{ form.grade }}
       <div class="govuk-button-group">
         {{ form.submit(params={
           'preventDoubleClick': true
