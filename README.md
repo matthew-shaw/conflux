@@ -1,10 +1,10 @@
 # Mímir
 
-Mimir is a service directory and organisational knowledge base. It helps teams and leadership to understand who is responsible for what, how systems are connected, and what parts of the architecture depend on others.
+Mímir is a service directory and organisational knowledge base. It helps teams and leadership to understand who is responsible for what, how systems are connected, and what parts of the architecture depend on others.
 
-Mimir is named after the wise being from Norse mythology, who guarded a well of deep knowledge and counsel beneath the world tree. This project honours that mythos by offering a system to map and manage organisational knowledge — especially the relationships between people, teams, services, and the components they rely on.
+Mímir is named after the wise being from Norse mythology, who guarded a well of deep knowledge and counsel beneath the world tree. This project honours that mythos by offering a system to map and manage organisational knowledge — especially the relationships between people, teams, services, and the components they rely on.
 
-## What You Can Do With Mimir
+## Features
 
 - **Ownership mapping** — “Who owns this service?”
 
@@ -145,19 +145,19 @@ NGINX Reverse Proxy and Static File Server
 
 > “The burning rainbow bridge that connects Midgard (the realm of humans) to Asgard (the realm of the gods).”
 
-- **What:** Acts as the secure HTTPS entry point to the system. It terminates TLS, routes requests to the backend (Mimir), and serves static files such as the frontend app and assets.
+- **What:** Acts as the secure HTTPS entry point to the system. It terminates TLS, routes requests to the backend (Mímir), and serves static files such as the frontend app and assets.
 - **Why:** Separating static and dynamic routing at the proxy layer ensures performance, security, and scalability. NGINX is fast, battle-tested, and easily configurable.
 - **Mythology:** Just as Bifrost connects realms, this component connects users to the application ecosystem.
 
-### Mimir
+### Mímir
 
 Flask + Gunicorn application server
 
-> “A wise being who guards Mimisbrunnr, the well of wisdom. Even after death, Mimir’s severed head continues to give advice to Odin.”
+> “A wise being who guards Mimisbrunnr, the well of wisdom. Even after death, Mímir’s severed head continues to give advice to Odin.”
 
 - **What:** Hosts the business logic and REST API. It processes client requests, talks to the database (Mimisbrunnr), and uses the cache (Loki) to optimize performance.
 - **Why:** Flask offers flexibility and simplicity, while Gunicorn handles concurrency. This separation of concerns allows clean, testable architecture.
-- **Mythology:** Like the wise Mimir, this service is the thinking core of the application—it holds and exposes the logic of the system.
+- **Mythology:** Like the wise Mímir, this service is the thinking core of the application—it holds and exposes the logic of the system.
 
 ### Mimisbrunnr
 
@@ -223,7 +223,7 @@ erDiagram
     components ||--|{ services : "used by"
 ```
 
-Mimir models the interconnected domains of digital organisations with five key concepts:
+Mímir models the interconnected domains of digital organisations with five key concepts:
 
 - **People** — individuals with a specific role, assigned to a team
 - **Teams** — groups of people responsible for services
