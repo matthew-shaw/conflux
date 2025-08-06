@@ -1,8 +1,30 @@
 # Mímir
 
-This project is a modular, containerised web application that manages relationships between **people**, **teams**, **services**, and their technical **components**. It is designed to support structured ownership, improve organisational clarity, and facilitate collaboration between technical teams and business units.
+Mimir is a structured knowledge service named after the wise being from Norse mythology, who guarded a well of deep knowledge and counsel beneath the world tree. This project honours that mythos by offering a system to map and manage organisational knowledge — especially the relationships between people, teams, services, and the components they rely on.
 
-Built using Python (Flask), PostgreSQL, Redis, and NGINX, it leverages Docker Compose for orchestration and encapsulation. Each part of the system is named after a figure or concept from Norse mythology, providing not only symbolic insight into its function, but also creating a narrative layer.
+It is built using a modern, containerised architecture, and the project components themselves are thematically named after relevant figures and concepts from Norse cosmology.
+
+## What You Can Do With Mimir
+
+- **Ownership mapping** — “Who owns this service?”
+
+  Track accountability across teams and services.
+
+- **Team composition tracking** — “Who’s in this team, and what do they do?”
+
+  Understand team makeup and role distribution.
+
+- **Dependency analysis** — “Which components are shared across services?”
+
+  Reveal architectural reuse and potential points of failure.
+
+- **Role-based insights** — “Who are the developers working on critical services?”
+
+  Filter by responsibility and capability across the estate.
+
+- **Change impact assessment** — “If we change this component, who needs to know?”
+
+  Anticipate downstream effects before making architectural changes.
 
 ## Requirements
 
@@ -131,7 +153,7 @@ NGINX Reverse Proxy and Static File Server
 
 Flask + Gunicorn application server
 
-> “A wise being who guards Mimisbrunnr, the well of wisdom. Even after death, Mimir’s head continues to give advice to Odin.”
+> “A wise being who guards Mimisbrunnr, the well of wisdom. Even after death, Mimir’s severed head continues to give advice to Odin.”
 
 - **What:** Hosts the business logic and REST API. It processes client requests, talks to the database (Mimisbrunnr), and uses the cache (Loki) to optimize performance.
 - **Why:** Flask offers flexibility and simplicity, while Gunicorn handles concurrency. This separation of concerns allows clean, testable architecture.
@@ -165,7 +187,7 @@ Docker Compose Network
 
 - **What:** Defines the network within which all containers communicate securely and predictably.
 - **Why:** Docker Compose simplifies multi-service orchestration and local development. Networking them under yggdrasil makes component communication seamless.
-- **Mythology:** Yggdrasil binds all services together, enabling the flow of data and control—just as it holds together the Norse universe.
+- **Mythology:** Yggdrasil binds all services together, enabling the flow of data and control—just as it connects the nine realms.
 
 ## Logical data model
 
@@ -200,3 +222,11 @@ erDiagram
     services ||--|{ components : "uses"
     components ||--|{ services : "used by"
 ```
+
+Mimir models the interconnected domains of digital organisations with five key concepts:
+
+- **People** — individuals with a specific role, assigned to a team
+- **Teams** — groups of people responsible for services
+- **Roles** — responsibilities individuals hold
+- **Services** — digital systems owned by teams
+- **Components** — shared or standalone technical building blocks
