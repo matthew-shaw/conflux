@@ -1,4 +1,5 @@
 from datetime import datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 
 def format_govuk_datetime(
@@ -18,6 +19,9 @@ def format_govuk_datetime(
     if not isinstance(dt, datetime):
         raise TypeError("Expected a datetime object")
 
+    # Convert to UK time
+    dt = dt.astimezone(ZoneInfo("Europe/London"))
+
     t: time = dt.time()
 
     # Time formatting
@@ -27,13 +31,12 @@ def format_govuk_datetime(
         time_str = "midday"
     else:
         time_str = dt.strftime("%-I:%M%p").lower().replace(":00", "")
-        # For Windows, replace "%-I" with "%#I" (not mypy-related, just platform)
 
     # Date formatting
     date_parts: list[str] = []
     if include_day:
         date_parts.append(dt.strftime("%A"))
-    date_parts.append(dt.strftime("%-d"))  # Use "%#d" on Windows if needed
+    date_parts.append(dt.strftime("%-d"))
     date_parts.append(dt.strftime("%B"))
     if include_year:
         date_parts.append(dt.strftime("%Y"))
