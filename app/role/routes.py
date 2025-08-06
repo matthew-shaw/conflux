@@ -36,7 +36,7 @@ def create() -> str:
         db.session.add(role)
         try:
             db.session.commit()
-            flash(f"{form.name.data} has been created", "success")
+            flash(f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created', 'success')
             return redirect(url_for("role.list"))
         except IntegrityError:
             db.session.rollback()
@@ -63,7 +63,7 @@ def edit(id: UUID) -> str:
         role.name = form.name.data
         try:
             db.session.commit()
-            flash(f"{role.name} has been updated", "success")
+            flash(f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated', 'success')
             return redirect(url_for("role.view", id=role.id))
         except IntegrityError:
             db.session.rollback()
@@ -80,7 +80,7 @@ def archive(id: UUID) -> str:
     if form.validate_on_submit() and form.confirm.data is True:
         role.archived_at = datetime.now(timezone.utc)
         db.session.commit()
-        flash(f"{role.name} has been archived", "success")
+        flash(f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived', 'success')
         return redirect(url_for("role.list"))
 
     return render_template("archive-role.html", title="Archive role", role=role, form=form)
@@ -94,7 +94,7 @@ def restore(id: UUID) -> str:
     if form.validate_on_submit() and form.confirm.data is True:
         role.archived_at = None
         db.session.commit()
-        flash(f"{role.name} has been restored", "success")
+        flash(f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored', 'success')
         return redirect(url_for("role.list"))
 
     return render_template("restore-role.html", title="Restore role", role=role, form=form)
