@@ -2,6 +2,7 @@
 
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
+{%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
 {%- block pageTitle -%}{{ title }} – {{config['SERVICE_NAME']}} – GOV.UK{%- endblock -%}
 
@@ -19,21 +20,37 @@
       'href': url_for('role.create')
     }) }}
 
-    {% if rows %}
-    {{ govukTable({
-      'head': [
+    {% set rows = [] %}
+    {% for role in roles %}
+      {% set _ = rows.append([
         {
-          'text': "Name"
+          'html': '<a href="' ~ url_for("role.view", id=role.id) ~ '" class="govuk-link">' ~ role.name ~ '</a>'
         },
         {
-          'text': "Status"
+          'text': role.people | length
         },
         {
-          'text': "Last updated"
+          'html': govukTag({
+            'text': "Archived" if role.archived_at else "Active",
+            'classes': "govuk-tag--grey" if role.archived_at else "govuk-tag--blue"
+          })
+        },
+        {
+          'text': format_govuk_datetime(role.updated_at, include_day=False)
         }
-      ],
-      'rows': rows
-    }) }}
+      ]) %}
+    {% endfor %}
+
+    {% if rows %}
+      {{ govukTable({
+        'head': [
+          { 'text': "Name" },
+          { 'text': "People" },
+          { 'text': "Status" },
+          { 'text': "Last updated" }
+        ],
+        'rows': rows
+      }) }}
     {% endif %}
   </div>
 </div>

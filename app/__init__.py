@@ -10,6 +10,7 @@ from govuk_frontend_wtf.main import WTFormsHelpers  # type: ignore[import]
 from jinja2 import ChoiceLoader, PackageLoader, PrefixLoader
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+from app.utils.govuk_datetime_utils import format_govuk_datetime
 from config import Config
 
 # Initialize Flask extensions. These are initialized here for easier access.
@@ -30,6 +31,7 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     """
     app: Flask = Flask(__name__)  # type: ignore[assignment]
     app.config.from_object(config_class)
+    app.jinja_env.globals["format_govuk_datetime"] = format_govuk_datetime
     app.jinja_env.globals["govukRebrand"] = True
     app.jinja_env.lstrip_blocks = True
     app.jinja_env.trim_blocks = True

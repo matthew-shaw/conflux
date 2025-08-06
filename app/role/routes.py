@@ -15,17 +15,7 @@ from app.utils.govuk_datetime_utils import format_govuk_datetime
 @bp.route("/", methods=["GET"])
 def list() -> str:
     roles: List[Role] = Role.query.order_by(Role.name).all()
-    # Format the roles as a list of lists of dicts, as required by the GOV.UK table macro.
-    # Each inner list represents a table row, and each dict represents a cell with a "text" key.
-    rows: List[List[Dict[str, Any]]] = [
-        [
-            {"html": f'<a href="{url_for("role.view", id=role.id)}" class="govuk-link">{role.name}</a>'},
-            {"text": "Archived" if role.archived_at else "Active"},
-            {"text": format_govuk_datetime(role.updated_at, include_day=False)},
-        ]
-        for role in roles
-    ]
-    return render_template("list-roles.html", title="Roles", rows=rows)
+    return render_template("list-roles.html", title="Roles", roles=roles)
 
 
 @bp.route("/new", methods=["GET", "POST"])
@@ -51,7 +41,6 @@ def create() -> str:
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> str:
     role = Role.query.get_or_404(id)
-    role.updated_at = format_govuk_datetime(role.updated_at, include_time=True, include_day=False)
     return render_template("view-role.html", role=role)
 
 

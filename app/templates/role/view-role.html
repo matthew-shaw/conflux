@@ -43,6 +43,14 @@
         },
         {
           'key': {
+            'text': "People"
+          },
+          'value': {
+            'text': role.people | length
+          },
+        },
+        {
+          'key': {
             'text': "Status"
           },
           'value': {
@@ -66,7 +74,7 @@
             'text': "Last updated"
           },
           'value': {
-            'text': role.updated_at
+            'text': format_govuk_datetime(role.updated_at, include_day=False, include_time=True)
 
           }
         }
