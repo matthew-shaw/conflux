@@ -1,8 +1,8 @@
 # Mímir
 
-Mimir is a structured knowledge service named after the wise being from Norse mythology, who guarded a well of deep knowledge and counsel beneath the world tree. This project honours that mythos by offering a system to map and manage organisational knowledge — especially the relationships between people, teams, services, and the components they rely on.
+Mimir is a service directory and organisational knowledge base. It helps teams and leadership to understand who is responsible for what, how systems are connected, and what parts of the architecture depend on others.
 
-It is built using a modern, containerised architecture, and the project components themselves are thematically named after relevant figures and concepts from Norse cosmology.
+Mimir is named after the wise being from Norse mythology, who guarded a well of deep knowledge and counsel beneath the world tree. This project honours that mythos by offering a system to map and manage organisational knowledge — especially the relationships between people, teams, services, and the components they rely on.
 
 ## What You Can Do With Mimir
 
