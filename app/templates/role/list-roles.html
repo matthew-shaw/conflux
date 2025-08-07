@@ -30,7 +30,8 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
-      {{ form.submit(params={
+      {{ govukButton({
+        'text': "Apply",
         'classes': "govuk-button--secondary"
       }) }}
     </form>

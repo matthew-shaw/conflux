@@ -44,7 +44,6 @@ class RoleSortFilterForm(FlaskForm):
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
     )
-    submit: SubmitField = SubmitField("Apply", widget=GovSubmitInput())
 
 
 class ArchiveRoleForm(FlaskForm):
