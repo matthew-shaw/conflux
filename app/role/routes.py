@@ -19,10 +19,31 @@ from app.role.forms import (
 @bp.route("/", methods=["GET"])
 def list() -> str:
     form: RoleSortFilterForm = RoleSortFilterForm()
-    form.sort.data = request.args.get("sort", "name")
-    form.status.data = request.args.get("status", "active")
+    form.sort.data = request.args.get("sort", "name", type=str)
+    form.status.data = request.args.get("status", "active", type=str)
 
-    roles: List[Role] = db.session.execute(db.select(Role).filter_by(archived_at=None).order_by(Role.name)).scalars()
+    # Start the base SELECT statement
+    query = db.Select(Role)
+
+    # Apply sorting
+    sort = form.sort.data or "name"
+    if sort == "name":
+        query = query.order_by(Role.name)
+    elif sort == "grade":
+        query = query.order_by(Role.grade)
+    elif sort == "updated":
+        query = query.order_by(Role.updated_at.desc())
+
+    # Apply filter based on status
+    status = form.status.data or "active"
+    if status == "active":
+        query = query.where(Role.archived_at.is_(None))
+    elif status == "archived":
+        query = query.where(Role.archived_at.is_not(None))
+    # No filter if status == "all"
+
+    roles: List[Role] = db.session.execute(query).scalars().all()
+
     return render_template("list-roles.html", title="Roles", roles=roles, form=form)
 
 
