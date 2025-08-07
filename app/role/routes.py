@@ -8,13 +8,19 @@ from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models import Role
 from app.role import bp
-from app.role.forms import ArchiveRoleForm, RestoreRoleForm, RoleForm
+from app.role.forms import (
+    ArchiveRoleForm,
+    RestoreRoleForm,
+    RoleForm,
+    RoleSortFilterForm,
+)
 
 
 @bp.route("/", methods=["GET"])
 def list() -> str:
-    roles: List[Role] = Role.query.order_by(Role.name).all()
-    return render_template("list-roles.html", title="Roles", roles=roles)
+    form: RoleSortFilterForm = RoleSortFilterForm()
+    roles: List[Role] = db.session.execute(db.select(Role).filter_by(archived_at=None).order_by(Role.name)).scalars()
+    return render_template("list-roles.html", title="Roles", roles=roles, form=form)
 
 
 @bp.route("/new", methods=["GET", "POST"])
@@ -40,13 +46,13 @@ def create() -> str:
 
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> str:
-    role = Role.query.get_or_404(id)
+    role = db.get_or_404(Role, id)
     return render_template("view-role.html", role=role)
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> str:
-    role: Role = Role.query.get_or_404(id)
+    role: Role = db.get_or_404(Role, id)
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
 
@@ -66,12 +72,12 @@ def edit(id: UUID) -> str:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
 
-    return render_template("edit-role.html", title="Edit role", form=form, role=role)
+    return render_template("edit-role.html", title="Edit role", role=role, form=form)
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> str:
-    role: Role = Role.query.get_or_404(id)
+    role: Role = db.get_or_404(Role, id)
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
@@ -88,7 +94,7 @@ def archive(id: UUID) -> str:
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> str:
-    role: Role = Role.query.get_or_404(id)
+    role: Role = db.get_or_404(Role, id)
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
