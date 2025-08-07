@@ -7,6 +7,7 @@ def format_govuk_datetime(
     include_time: bool = False,
     include_day: bool = True,
     include_year: bool = True,
+    truncate_month: bool = False,
 ) -> str:
     """
     Format a datetime object according to the GOV.UK Style Guide.
@@ -15,6 +16,13 @@ def format_govuk_datetime(
     - 'Tuesday 14 June 2022'
     - '11:59pm on Tuesday 14 June 2022'
     - 'midnight on Tuesday 14 June'
+    - Truncated month example: 'Tuesday 14 Jun 2022'
+
+    :param dt: A datetime object
+    :param include_time: Whether to include time in the string
+    :param include_day: Whether to include the day of the week
+    :param include_year: Whether to include the year
+    :param truncate_month: Whether to use abbreviated month names (e.g., Jan, Feb)
     """
     if not isinstance(dt, datetime):
         raise TypeError("Expected a datetime object")
@@ -37,7 +45,7 @@ def format_govuk_datetime(
     if include_day:
         date_parts.append(dt.strftime("%A"))
     date_parts.append(dt.strftime("%-d"))
-    date_parts.append(dt.strftime("%B"))
+    date_parts.append(dt.strftime("%b" if truncate_month else "%B"))
     if include_year:
         date_parts.append(dt.strftime("%Y"))
 
