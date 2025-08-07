@@ -19,7 +19,23 @@
       'text': "Create a new role",
       'href': url_for('role.create')
     }) }}
-
+  </div>
+</div>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-quarter">
+    <form method="get" action="{{ url_for('role.list') }}">
+      {{ form.sort(params={
+        'classes': "govuk-radios--small"
+      }) }}
+      {{ form.status(params={
+        'classes': "govuk-radios--small"
+      }) }}
+      {{ form.submit(params={
+        'classes': "govuk-button--secondary"
+      }) }}
+    </form>
+  </div>
+  <div class="govuk-grid-column-three-quarters">
     {% set rows = [] %}
     {% for role in roles %}
       {% set _ = rows.append([
@@ -31,12 +47,6 @@
         },
         {
           'text': role.people | length
-        },
-        {
-          'html': govukTag({
-            'text': "Archived" if role.archived_at else "Active",
-            'classes': "govuk-tag--grey" if role.archived_at else "govuk-tag--blue"
-          })
         },
         {
           'text': format_govuk_datetime(role.updated_at, include_day=False, truncate_month=True)
@@ -51,7 +61,6 @@
           { 'text': "Name" },
           { 'text': "Grade" },
           { 'text': "People" },
-          { 'text': "Status" },
           { 'text': "Last updated" }
         ],
         'rows': rows

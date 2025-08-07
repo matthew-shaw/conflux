@@ -31,6 +31,22 @@ class RoleForm(FlaskForm):
             raise ValidationError("A role with this name already exists.")
 
 
+class RoleSortFilterForm(FlaskForm):
+    sort = RadioField(
+        "Sort by",
+        widget=GovRadioInput(),
+        choices=[("name", "Name"), ("grade", "Grade"), ("people", "People"), ("updated_at", "Last updated")],
+        default="name",
+    )
+    status = RadioField(
+        "Status",
+        widget=GovRadioInput(),
+        choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
+        default="active",
+    )
+    submit: SubmitField = SubmitField("Apply", widget=GovSubmitInput())
+
+
 class ArchiveRoleForm(FlaskForm):
     confirm = BooleanField(
         "I'm sure",
