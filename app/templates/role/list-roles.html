@@ -23,6 +23,7 @@
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
+    <h3 class="govuk-heading-m">Sort and filter</h3>
     <form method="get" action="{{ url_for('role.list') }}">
       {{ form.sort(params={
         'classes': "govuk-radios--small"
@@ -54,7 +55,7 @@
         }
       ]) %}
     {% endfor %}
-
+    <h3 class="govuk-heading-m">{{ rows | length }} roles</h3>
     {% if rows %}
       {{ govukTable({
         'firstCellIsHeader': true,
