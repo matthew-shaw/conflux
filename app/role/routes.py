@@ -1,8 +1,18 @@
+import csv
 from datetime import datetime, timezone
+from io import StringIO
 from typing import List
 from uuid import UUID
 
-from flask import current_app, flash, redirect, render_template, request, url_for
+from flask import (
+    Response,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from sqlalchemy.exc import IntegrityError
 
 from app import db
@@ -131,3 +141,40 @@ def restore(id: UUID) -> str:
         return redirect(url_for("role.list"))
 
     return render_template("restore-role.html", title="Restore role", role=role, form=form)
+
+
+@bp.route("/download", methods=["GET"])
+def download():
+    roles: List[Role] = db.session.execute(db.Select(Role).order_by(Role.name)).scalars().all()
+
+    def generate():
+        data = StringIO()
+        writer = csv.writer(data, quoting=csv.QUOTE_MINIMAL)
+
+        # Add BOM (Byte Order Mark) for Excel compatibility
+        yield "\ufeff"  # This signals that the file is UTF-8 encoded
+
+        # write header
+        writer.writerow(("ID", "NAME", "GRADE", "UPDATED_AT", "ARCHIVED_AT"))
+        yield data.getvalue()
+        data.seek(0)
+        data.truncate(0)
+
+        # write each item
+        for role in roles:
+            writer.writerow(
+                (
+                    role.id,
+                    role.name,
+                    role.grade,
+                    role.updated_at.isoformat(),
+                    role.archived_at.isoformat() if role.archived_at else "",
+                )
+            )
+            yield data.getvalue()
+            data.seek(0)
+            data.truncate(0)
+
+    response = Response(generate(), mimetype="text/csv", status=200)
+    response.headers.set("Content-Disposition", "attachment", filename="roles.csv")
+    return response

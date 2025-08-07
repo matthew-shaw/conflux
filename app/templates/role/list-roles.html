@@ -15,10 +15,14 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <h1 class="govuk-heading-xl">{{ title }}</h1>
-    {{ govukButton({
-      'text': "Create a new role",
-      'href': url_for('role.create')
-    }) }}
+    <div class="govuk-button-group">
+      {{ govukButton({
+        'text': "Add role",
+        'href': url_for('role.create')
+      }) }}
+
+      <a href="{{ url_for('role.download') }}" class="govuk-link">Download all roles (CSV)</a>  
+    </div>
   </div>
 </div>
 <div class="govuk-grid-row">
