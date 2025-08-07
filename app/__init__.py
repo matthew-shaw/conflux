@@ -10,7 +10,7 @@ from govuk_frontend_wtf.main import WTFormsHelpers  # type: ignore[import]
 from jinja2 import ChoiceLoader, PackageLoader, PrefixLoader
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app.utils.govuk_datetime_utils import format_govuk_datetime
+from app.utils.govuk_datetime import format_govuk_datetime
 from config import Config
 
 # Initialize Flask extensions. These are initialized here for easier access.
