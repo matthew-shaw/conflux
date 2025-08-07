@@ -1,7 +1,7 @@
 {
   "name": "mimir",
   "version": "1.0.0",
-  "description": "GOV.UK Frontend Flask",
+  "description": "Mímir",
   "private": true,
   "scripts": {
     "format:check": "prettier src --check",
