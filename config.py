@@ -37,4 +37,11 @@ class TestConfig(object):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or (
+        f"postgresql://{os.environ.get('POSTGRES_USER')}:"
+        f"{os.environ.get('POSTGRES_PASSWORD')}@"
+        f"{os.environ.get('POSTGRES_HOST')}:"
+        f"{os.environ.get('POSTGRES_PORT')}/"
+        f"{os.environ.get('POSTGRES_DB')}"
+    )
     TESTING = True
