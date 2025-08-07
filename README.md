@@ -37,6 +37,7 @@ Mímir is named after the wise being from Norse mythology, who guarded a well of
 Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
+GRADES=AA,AO,EO,HEO,SEO,G7,G6
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=mimisbrunnr
 POSTGRES_PASSWORD=smartestmanalive
@@ -44,7 +45,7 @@ POSTGRES_PORT=5432
 POSTGRES_USER=mimir
 REDIS_HOST=loki
 REDIS_PORT=6379
-SECRET_KEY=<see-below>
+SECRET_KEY=<see_below>
 ```
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
