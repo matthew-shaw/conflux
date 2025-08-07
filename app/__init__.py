@@ -14,10 +14,10 @@ from app.utils.govuk_datetime import format_govuk_datetime
 from config import Config
 
 # Initialize Flask extensions. These are initialized here for easier access.
-csrf = CSRFProtect()
-db = SQLAlchemy()
-limiter = Limiter(get_remote_address, default_limits=["2 per second", "60 per minute"])
-migrate = Migrate()
+csrf: CSRFProtect = CSRFProtect()
+db: SQLAlchemy = SQLAlchemy()
+limiter: Limiter = Limiter(get_remote_address, default_limits=["2 per second", "60 per minute"])
+migrate: Migrate = Migrate()
 
 
 def create_app(config_class: Type[Config] = Config) -> Flask:

@@ -1,16 +1,12 @@
 import uuid
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
 from sqlalchemy import DateTime, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import db
-
-if TYPE_CHECKING:
-    # These imports are only for type checking to avoid runtime circular imports
-    from app.models import Component, Person, Role, Service, Team
 
 # Join table for services <-> components many-to-many relationship
 service_components: Table = Table(

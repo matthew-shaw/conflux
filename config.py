@@ -24,7 +24,7 @@ class Config(object):
     )
 
 
-class TestConfig(object):
+class TestConfig(Config):
     CONTACT_EMAIL = "test@example.com"
     CONTACT_PHONE = "08081570000"
     DEBUG = True
