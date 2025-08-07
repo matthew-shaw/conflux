@@ -35,7 +35,7 @@ class RoleSortFilterForm(FlaskForm):
     sort = RadioField(
         "Sort by",
         widget=GovRadioInput(),
-        choices=[("name", "Name"), ("grade", "Grade"), ("people", "People"), ("updated_at", "Last updated")],
+        choices=[("name", "Name"), ("grade", "Grade"), ("people", "People"), ("updated", "Last updated")],
         default="name",
     )
     status = RadioField(

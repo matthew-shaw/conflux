@@ -19,6 +19,9 @@ from app.role.forms import (
 @bp.route("/", methods=["GET"])
 def list() -> str:
     form: RoleSortFilterForm = RoleSortFilterForm()
+    form.sort.data = request.args.get("sort", "name")
+    form.status.data = request.args.get("status", "active")
+
     roles: List[Role] = db.session.execute(db.select(Role).filter_by(archived_at=None).order_by(Role.name)).scalars()
     return render_template("list-roles.html", title="Roles", roles=roles, form=form)
 
