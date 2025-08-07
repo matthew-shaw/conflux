@@ -82,7 +82,7 @@ psycopg2==2.9.10
     # via -r requirements.in
 pygments==2.19.2
     # via rich
-redis==6.3.0
+redis==6.4.0
     # via limits
 rich==13.9.4
     # via flask-limiter
