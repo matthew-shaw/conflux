@@ -13,7 +13,9 @@
     <h1 class="govuk-heading-xl">{{ title }}</h1>
     <form method="post" action="{{ url_for('role.edit', id=role.id) }}" novalidate>
       {{ form.csrf_token}}
-      {{ form.name }}
+      {{ form.name(params={
+        'spellcheck': true
+      }) }}
       {{ form.grade }}
       <div class="govuk-button-group">
         {{ form.submit(params={
