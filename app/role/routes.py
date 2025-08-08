@@ -33,7 +33,7 @@ def list() -> str:
     form.status.data = request.args.get("status", "active", type=str)
 
     # Start the base SELECT statement
-    query = db.Select(Role)
+    query = db.select(Role)
 
     # Apply sorting
     sort = form.sort.data or "name"
@@ -145,7 +145,7 @@ def restore(id: UUID) -> str:
 
 @bp.route("/download", methods=["GET"])
 def download():
-    roles: List[Role] = db.session.execute(db.Select(Role).order_by(Role.name)).scalars().all()
+    roles: List[Role] = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
 
     def generate():
         data = StringIO()
