@@ -13,18 +13,15 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super()}}
     <form method="get" action="{{ url_for('search.index') }}" novalidate>
-      {% call govukFieldset({
-        'legend': {
-          'text': "Search",
-          'classes': "govuk-fieldset__legend--xl",
+      {{ form.q(params={
+        'label': {
+          'classes': "govuk-label--xl",
           'isPageHeading': true
         }
-      }) %}
-        {{ form.q }}
-        {{ govukButton({
-          'text': "Search"
-        }) }}
-      {% endcall %}
+      }) }}
+      {{ govukButton({
+        'text': "Search"
+      }) }}
     </form>
     {% if results %}
       {% set rows = [] %}
