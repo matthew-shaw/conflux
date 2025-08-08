@@ -1,5 +1,6 @@
 {%- extends "base.html" -%}
 
+{%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
 {%- from 'govuk_frontend_jinja/components/fieldset/macro.html' import govukFieldset -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 
@@ -11,7 +12,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super()}}
-    <form method="post" action="{{ url_for('search.index') }}" novalidate>
+    <form method="get" action="{{ url_for('search.index') }}" novalidate>
       {% call govukFieldset({
         'legend': {
           'text': "Search",
@@ -19,9 +20,10 @@
           'isPageHeading': true
         }
       }) %}
-        {{ form.csrf_token }}
-        {{ form.query }}
-        {{ form.submit }}
+        {{ form.q }}
+        {{ govukButton({
+          'text': "Search"
+        }) }}
       {% endcall %}
     </form>
     {% if results %}

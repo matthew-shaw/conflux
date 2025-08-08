@@ -1,6 +1,6 @@
 from typing import List
 
-from flask import render_template, url_for
+from flask import render_template, request, url_for
 
 from app import db
 from app.models import Role
@@ -8,14 +8,15 @@ from app.search import bp
 from app.search.forms import SearchForm
 
 
-@bp.route("/", methods=["GET", "POST"])
+@bp.route("/", methods=["GET"])
 def index() -> str:
     """Render the search page."""
     form: SearchForm = SearchForm()
+    form.q.data = request.args.get("q", type=str)
     results: List = []
 
-    if form.validate_on_submit():
-        query: str = f"%{form.query.data.strip()}%"
+    if form.q.data:
+        query: str = f"%{form.q.data.strip()}%"
 
         # Search Roles
         roles = db.session.execute(db.select(Role).filter(Role.name.ilike(query))).scalars().all()
