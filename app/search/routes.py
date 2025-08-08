@@ -1,6 +1,7 @@
 from typing import List
 
 from flask import render_template, request, url_for
+from sqlalchemy import or_
 
 from app import db
 from app.models import Role
@@ -19,7 +20,11 @@ def index() -> str:
         query: str = f"%{form.q.data.strip()}%"
 
         # Search Roles
-        roles = db.session.execute(db.select(Role).filter(Role.name.ilike(query))).scalars().all()
+        roles = (
+            db.session.execute(db.select(Role).filter(or_(Role.name.ilike(query), Role.grade.ilike(query))))
+            .scalars()
+            .all()
+        )
 
         # Combine all results into a single list with type info
         for role in roles:
