@@ -20,10 +20,20 @@
       }) %}
         {{ form.csrf_token }}
         {{ form.query }}
-        {{ form.type }}
         {{ form.submit }}
       {% endcall %}
     </form>
+    {% if results %}
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <h2 class="govuk-heading-l">{{ results | length }} results</h2>
+    <ul class="govuk-list">
+      {% for result in results %}
+      <li>
+        <strong>{{ result.type }}</strong>: <a class="govuk-link" href="{{ url_for('role.view', id=result.id ) }}">{{ result.name }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}
