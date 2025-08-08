@@ -1,6 +1,7 @@
 {%- extends "base.html" -%}
 
 {%- from 'govuk_frontend_jinja/components/fieldset/macro.html' import govukFieldset -%}
+{%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 
 {%- block beforeContent -%}
 {{ super() }}
@@ -24,15 +25,30 @@
       {% endcall %}
     </form>
     {% if results %}
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-    <h2 class="govuk-heading-l">{{ results | length }} results</h2>
-    <ul class="govuk-list">
+      {% set rows = [] %}
       {% for result in results %}
-      <li>
-        <strong>{{ result.type }}</strong>: <a class="govuk-link" href="{{ url_for('role.view', id=result.id ) }}">{{ result.name }}</a>
-      </li>
+        {% set _ = rows.append([
+          { 'text': result.type },
+          {
+            'html': '<a href="' ~ result.url ~ '" class="govuk-link">' ~ result.name ~ '</a>'
+          },
+          { 'text': format_govuk_datetime(result.updated_at, include_day=False, truncate_month=True) }
+        ]) %}
       {% endfor %}
-    </ul>
+
+      <h2 class="govuk-heading-l">{{ rows | length }} results</h2>
+
+      {% if rows %}
+        {{ govukTable({
+          'firstCellIsHeader': false,
+          'head': [
+            { 'text': "Type" },
+            { 'text': "Name" },
+            { 'text': "Updated" }
+          ],
+          'rows': rows
+        }) }}
+      {% endif %}
     {% endif %}
   </div>
 </div>
