@@ -107,9 +107,15 @@
 {%- endblock -%}
 
 {%- block header -%}
-  {{ govukHeader({
-    'productName': config['SERVICE_NAME']
-  }) }}
+  <header class="govuk-header" data-module="govuk-header">
+    <div class="govuk-header__container govuk-width-container">
+      <div class="govuk-header__logo">
+        <a href="/" class="govuk-header__link govuk-header__link--homepage">
+          <span class="govuk-header__product-name">{{ config['SERVICE_NAME'] }}</span>
+        </a>
+      </div>
+    </div>
+  </header>
   {{ govukServiceNavigation({
     'navigation': [
       {
@@ -170,25 +176,35 @@
 {%- endblock -%}
 
 {%- block footer -%}
-  {{ govukFooter({
-    'meta': {
-      'items': [
-        {
-          'href': url_for('main.about'),
-          'text': "About"
-        },
-        {
-          'href': url_for('main.accessibility'),
-          'text': "Accessibility"
-        },
-        {
-          'href': url_for('main.cookies'),
-          'text': "Cookies"
-        }
-      ],
-      'html': 'Built by <a href="' + config['DEPARTMENT_URL'] +'" class="govuk-footer__link">' + config['DEPARTMENT_NAME'] + '</a>'
-    }
-  }) }}
+  <footer class="govuk-footer">
+    <div class="govuk-width-container">
+      <div class="govuk-footer__meta">
+        <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+          <h2 class="govuk-visually-hidden">Support links</h2>
+          <ul class="govuk-footer__inline-list">
+            <li class="govuk-footer__inline-list-item">
+              <a class="govuk-footer__link" href="{{ url_for('main.about') }}">
+                About
+              </a>
+            </li>
+            <li class="govuk-footer__inline-list-item">
+              <a class="govuk-footer__link" href="{{ url_for('main.accessibility') }}">
+                Accessibility
+              </a>
+            </li>
+            <li class="govuk-footer__inline-list-item">
+              <a class="govuk-footer__link" href="{{ url_for('main.cookies') }}">
+                Cookies
+              </a>
+            </li>
+          </ul>
+          <div class="govuk-footer__meta-custom">
+            Built by <a href="{{ config['DEPARTMENT_URL'] }}" class="govuk-footer__link">{{ config['DEPARTMENT_NAME'] }}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
 {%- endblock -%}
 
 {%- block bodyEnd -%}
