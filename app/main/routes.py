@@ -5,17 +5,7 @@ from flask_wtf.csrf import CSRFError  # type: ignore
 from werkzeug.exceptions import HTTPException
 
 from app.main import bp
-from app.main.forms import CookiesForm, SearchForm
-
-
-@bp.route("/", methods=["GET", "POST"])
-def index() -> str:
-    """Render the index page."""
-    form: SearchForm = SearchForm()
-
-    if form.validate_on_submit():
-        pass
-    return render_template("index.html", form=form)
+from app.main.forms import CookiesForm
 
 
 @bp.route("/accessibility", methods=["GET"])
@@ -63,7 +53,7 @@ def cookies() -> Union[str, Response]:
     return render_template("cookies.html", form=form)
 
 
-@bp.route("/privacy", methods=["GET"])
+@bp.route("/about", methods=["GET"])
 def about() -> str:
     """Render the about page."""
     return render_template("about.html")

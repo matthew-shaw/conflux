@@ -107,11 +107,16 @@
 {%- endblock -%}
 
 {%- block header -%}
-  {{ govukHeader({}) }}
+  {{ govukHeader({
+    'productName': config['SERVICE_NAME']
+  }) }}
   {{ govukServiceNavigation({
-    'serviceName': config['SERVICE_NAME'],
-    'serviceUrl': url_for('main.index'),
     'navigation': [
+      {
+        'href': url_for('search.index'),
+        'text': "Search",
+        'active': true if url_for('search.index') in request.path else false
+      },
       {
         'href': url_for('role.list'),
         'text': "Roles",
