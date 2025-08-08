@@ -11,7 +11,7 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <h1 class="govuk-heading-xl">Are you sure you want to archive the {{ role.name }} role?</h1>
-    <form method="post" action="{{ url_for('role.archive', id=role.id) }}">
+    <form method="post" action="{{ url_for('role.archive', id=role.id) }}" novalidate>
       {{ form.csrf_token }}
       {{ form.confirm }}
       <div class="govuk-button-group">
