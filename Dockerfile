@@ -30,9 +30,10 @@ WORKDIR /home/appuser
 COPY --from=builder /usr/local /usr/local
 
 # Copy application code
-COPY --chown=appuser:appgroup mimir.py config.py requirements.txt ./
+COPY --chown=appuser:appgroup mimir.py config.py requirements.txt entrypoint.sh ./
 COPY --chown=appuser:appgroup app app
+COPY --chown=appuser:appgroup migrations migrations
 
 USER appuser
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "-w", "4", "--access-logfile", "-", "mimir:app"]
+ENTRYPOINT ["./entrypoint.sh"]
