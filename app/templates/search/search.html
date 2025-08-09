@@ -27,10 +27,10 @@
       {% set rows = [] %}
       {% for result in results %}
         {% set _ = rows.append([
-          { 'text': result.type },
           {
             'html': '<a href="' ~ result.url ~ '" class="govuk-link">' ~ result.name ~ '</a>'
           },
+          { 'text': result.type },
           { 'text': format_govuk_datetime(result.updated_at, include_day=False, truncate_month=True) }
         ]) %}
       {% endfor %}
@@ -39,10 +39,10 @@
 
       {% if rows %}
         {{ govukTable({
-          'firstCellIsHeader': false,
+          'firstCellIsHeader': true,
           'head': [
-            { 'text': "Type" },
             { 'text': "Name" },
+            { 'text': "Type" },
             { 'text': "Updated" }
           ],
           'rows': rows
