@@ -49,6 +49,7 @@ services:
       - yggdrasil
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./data:/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 30s
