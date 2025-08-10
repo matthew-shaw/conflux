@@ -1,0 +1,77 @@
+{%- extends "base.html" -%}
+
+{%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
+{%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/summary-list/macro.html' import govukSummaryList -%}
+{%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
+
+{%- block pageTitle -%}{{ person.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+
+{%- block beforeContent -%}
+{{ super() }}
+{{ govukBackLink({
+  'text': "Back",
+  'href': url_for('person.list')
+}) }}
+{%- endblock -%}
+
+{%- block content -%}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    {{ super() }}
+    <span class="govuk-caption-xl">Person</span>
+    <h1 class="govuk-heading-xl">{{ person.name }}</h1>
+
+    {{ govukSummaryList({
+      'rows': [
+        {
+          'key': {
+            'text': "Name"
+          },
+          'value': {
+            'text': person.name
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "name"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Status"
+          },
+          'value': {
+            'html': govukTag({ 
+              'text': "Archived" if person.archived_at else "Active",
+              'classes': "govuk-tag--grey" if person.archived_at else "govuk-tag--blue"
+            })
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person.restore', id=person.id) if person.archived_at else url_for('person.archive', id=person.id),
+                'text': "Restore" if person.archived_at else "Archive",
+                'visuallyHiddenText': "person"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Updated"
+          },
+          'value': {
+            'text': format_govuk_datetime(person.updated_at, include_day=False, include_time=True)
+
+          }
+        }
+      ]
+    }) }}
+  </div>
+</div>
+{%- endblock -%}

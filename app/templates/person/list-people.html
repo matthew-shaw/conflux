@@ -1,5 +1,11 @@
 {%- extends "base.html" -%}
 
+{%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
+{%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
+
+{%- block pageTitle -%}{{ title }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+
 {%- block beforeContent -%}
 {{ super() }}
 {%- endblock -%}
@@ -7,7 +13,65 @@
 {%- block content -%}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-xl">People</h1>
+    {{ super() }}
+    <h1 class="govuk-heading-xl">{{ title }}</h1>
+    <div class="govuk-button-group">
+      {{ govukButton({
+        'text': "Add person",
+        'href': url_for('person.create')
+      }) }}
+
+      <a href="{{ url_for('person.download') }}" class="govuk-link">Download all people (CSV)</a>  
+    </div>
+  </div>
+</div>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-quarter">
+    <h2 class="govuk-heading-m">Sort and filter</h3>
+    <form method="get" action="{{ url_for('person.list') }}" novalidate>
+      {{ form.sort(params={
+        'classes': "govuk-radios--small"
+      }) }}
+      {{ form.status(params={
+        'classes': "govuk-radios--small"
+      }) }}
+      {{ govukButton({
+        'text': "Apply",
+        'classes': "govuk-button--secondary"
+      }) }}
+    </form>
+  </div>
+  <div class="govuk-grid-column-three-quarters">
+    {% set rows = [] %}
+    {% for person in people %}
+      {% set _ = rows.append([
+        {
+          'html': '<a href="' ~ url_for("person.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
+        },
+        {
+          'html': '<a href="' ~ url_for("role.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
+        },
+        {
+          'text': person.team.name if person.team else "None"
+        },
+        {
+          'text': format_govuk_datetime(person.updated_at, include_day=False, truncate_month=True)
+        }
+      ]) %}
+    {% endfor %}
+    <h2 class="govuk-heading-m">{{ rows | length }} people</h3>
+    {% if rows %}
+      {{ govukTable({
+        'firstCellIsHeader': true,
+        'head': [
+          { 'text': "Name" },
+          { 'text': "Role" },
+          { 'text': "Team" },
+          { 'text': "Updated" }
+        ],
+        'rows': rows
+      }) }}
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}
