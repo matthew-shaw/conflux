@@ -4,7 +4,7 @@ from flask import render_template, request, url_for
 from sqlalchemy import or_
 
 from app import db
-from app.models import Role, Person
+from app.models import Person, Role
 from app.search import bp
 from app.search.forms import SearchForm
 
@@ -27,11 +27,7 @@ def index() -> str:
         )
 
         # Search People
-        people = (
-            db.session.execute(db.select(Person).filter(Person.name.ilike(query)))
-            .scalars()
-            .all()
-        )
+        people = db.session.execute(db.select(Person).filter(Person.name.ilike(query))).scalars().all()
 
         # Combine all results into a single list with type info
         for role in roles:
