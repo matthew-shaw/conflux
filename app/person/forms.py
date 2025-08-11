@@ -21,6 +21,12 @@ class PersonForm(FlaskForm):
         widget=GovRadioInput(),
         validators=[InputRequired(message="Select a location")],
     )
+    role = RadioField(
+        "Role",
+        choices=[],
+        widget=GovRadioInput(),
+        validators=[InputRequired(message="Select a role")],
+    )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
 
