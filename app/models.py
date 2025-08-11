@@ -52,6 +52,7 @@ class Role(db.Model):  # noqa: F811
         back_populates="role",
         cascade="save-update",
         passive_deletes=True,
+        order_by="Person.name",
     )
 
 
@@ -77,12 +78,14 @@ class Team(db.Model):  # noqa: F811
         back_populates="team",
         cascade="save-update",
         passive_deletes=True,
+        order_by="Person.name",
     )
     services: Mapped[List["Service"]] = relationship(
         "Service",
         back_populates="team",
         cascade="save-update",
         passive_deletes=True,
+        order_by="Service.name",
     )
 
 
@@ -95,6 +98,7 @@ class Person(db.Model):  # noqa: F811
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
+    location: Mapped[str] = mapped_column(nullable=False, index=True)
     archived_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -139,6 +143,7 @@ class Service(db.Model):  # noqa: F811
         secondary=service_components,
         back_populates="services",
         passive_deletes=True,
+        order_by="Component.name",
     )
 
 
@@ -164,4 +169,5 @@ class Component(db.Model):  # noqa: F811
         secondary=service_components,
         back_populates="components",
         passive_deletes=True,
+        order_by="Service.name",
     )
