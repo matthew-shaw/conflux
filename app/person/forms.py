@@ -15,6 +15,12 @@ class PersonForm(FlaskForm):
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
     )
+    location = RadioField(
+        "Location",
+        choices=[],
+        widget=GovRadioInput(),
+        validators=[InputRequired(message="Select a location")],
+    )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
 
@@ -24,6 +30,7 @@ class PersonSortFilterForm(FlaskForm):
         widget=GovRadioInput(),
         choices=[
             ("name", "Name"),
+            ("location", "Location"),
             ("updated", "Updated"),
         ],
         default="name",

@@ -6,6 +6,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       GRADES: ${GRADES}
+      LOCATIONS: ${LOCATIONS}
       REDIS_URL: redis://${REDIS_HOST}:${REDIS_PORT}
       SECRET_KEY: ${SECRET_KEY}
     expose:

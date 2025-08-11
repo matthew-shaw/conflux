@@ -37,7 +37,8 @@ Mímir is named after the wise being from Norse mythology, who guarded a well of
 Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
-GRADES=AA,AO,EO,HEO,SEO,G7,G6
+GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6
+LOCATIONS=Birkenhead,Coventry,Croydon,Durham,Fylde,Gloucester,Hull,Leicester,Nottingham,Peterborough,Plymouth,Swansea,Telford,Weymouth
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=mimisbrunnr
 POSTGRES_PASSWORD=smartestmanalive

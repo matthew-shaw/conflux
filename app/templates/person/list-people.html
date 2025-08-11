@@ -55,6 +55,9 @@
           'text': person.team.name if person.team else "None"
         },
         {
+          'text': person.location
+        },
+        {
           'text': format_govuk_datetime(person.updated_at, include_day=False, truncate_month=True)
         }
       ]) %}
@@ -67,6 +70,7 @@
           { 'text': "Name" },
           { 'text': "Role" },
           { 'text': "Team" },
+          { 'text': "Location" },
           { 'text': "Updated" }
         ],
         'rows': rows

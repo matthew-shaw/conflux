@@ -43,6 +43,23 @@
         },
         {
           'key': {
+            'text': "Location"
+          },
+          'value': {
+            'text': person.location
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "location"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "Status"
           },
           'value': {
@@ -70,6 +87,68 @@
 
           }
         }
+      ]
+    }) }}
+
+    {{ govukSummaryList({
+      'card': {
+        'title': {
+          'text': "Role"
+        },
+        'actions': {
+          'items': [
+            {
+              'href': url_for('person.edit', id=person.id),
+              'text': "Change",
+              'visuallyHiddenText': "role"
+            }
+          ]
+        }
+      },
+      'rows': [
+        {
+          'key': {
+            'text': "Name"
+          },
+          'value': {
+            'html': '<a href="' ~ url_for("role.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
+          },
+        },
+        {
+          'key': {
+            'text': "Grade"
+          },
+          'value': {
+            'text': person.role.grade
+          },
+        },
+      ]
+    }) }}
+
+    {{ govukSummaryList({
+      'card': {
+        'title': {
+          'text': "Team"
+        },
+        'actions': {
+          'items': [
+            {
+              'href': url_for('person.edit', id=person.id),
+              'text': "Change",
+              'visuallyHiddenText': "team"
+            }
+          ]
+        }
+      },
+      'rows': [
+        {
+          'key': {
+            'text': "Name"
+          },
+          'value': {
+            'text': person.team.name if person.team else "None"
+          },
+        },
       ]
     }) }}
   </div>

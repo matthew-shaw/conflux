@@ -6,6 +6,7 @@ from uuid import UUID
 
 from flask import (
     Response,
+    current_app,
     flash,
     redirect,
     render_template,
@@ -38,6 +39,8 @@ def list() -> str:
     sort = form.sort.data or "name"
     if sort == "name":
         query = query.order_by(Person.name)
+    elif sort == "location":
+        query = query.order_by(Person.location)
     elif sort == "updated":
         query = query.order_by(Person.updated_at.desc())
 
@@ -57,8 +60,9 @@ def list() -> str:
 @bp.route("/new", methods=["GET", "POST"])
 def create() -> str:
     form: PersonForm = PersonForm()
+    form.location.choices = [(location, location) for location in current_app.config["LOCATIONS"]]
     if form.validate_on_submit():
-        person: Person = Person(name=form.name.data)
+        person: Person = Person(name=form.name.data, location=form.location.data)
         db.session.add(person)
         try:
             db.session.commit()
@@ -70,7 +74,7 @@ def create() -> str:
         except IntegrityError:
             db.session.rollback()
             return render_template("create-person.html", form=form)
-    return render_template("create-person.html", title="Create a new person", form=form)
+    return render_template("create-person.html", title="Add a new person", form=form)
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
@@ -83,18 +87,21 @@ def view(id: UUID) -> str:
 def edit(id: UUID) -> str:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
+    form.location.choices = [(location, location) for location in current_app.config["LOCATIONS"]]
 
     if request.method == "GET":
         form.name.data = person.name
+        form.location.data = person.location
     elif form.validate_on_submit():
         person.name = form.name.data
+        person.location = form.location.data
         try:
             db.session.commit()
             flash(
                 f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("person.view", id=person.id))
+            return redirect(url_for("person.list"))
         except IntegrityError:
             db.session.rollback()
 
@@ -147,7 +154,17 @@ def download():
         yield "\ufeff"  # This signals that the file is UTF-8 encoded
 
         # write header
-        writer.writerow(("ID", "NAME", "ROLE_ID", "TEAM_ID", "UPDATED_AT", "ARCHIVED_AT"))
+        writer.writerow(
+            (
+                "ID",
+                "NAME",
+                "LOCATION",
+                "ROLE_ID",
+                "TEAM_ID",
+                "UPDATED_AT",
+                "ARCHIVED_AT",
+            )
+        )
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -158,6 +175,7 @@ def download():
                 (
                     person.id,
                     person.name,
+                    person.location,
                     person.role_id,
                     person.team_id,
                     person.updated_at.isoformat(),
