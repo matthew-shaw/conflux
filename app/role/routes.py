@@ -75,7 +75,7 @@ def create() -> str:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
             return render_template("create-role.html", form=form)
-    return render_template("create-role.html", title="Create a new role", form=form)
+    return render_template("create-role.html", title="Add a new role", form=form)
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
@@ -101,7 +101,7 @@ def edit(id: UUID) -> str:
                 f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("role.view", id=role.id))
+            return redirect(url_for("role.list"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
