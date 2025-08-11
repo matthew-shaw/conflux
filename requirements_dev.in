@@ -1,5 +1,6 @@
 bandit
 black
+faker
 flake8-bugbear
 isort
 mypy
