@@ -34,7 +34,7 @@ for loc in locales:
                 "name": f"{first} {last}",
                 "archived_at": None,
                 "updated_at": updated_at.isoformat(),
-                "role_id": None,
+                "role_id": "22f78d95-f7c3-4e43-8fbb-ddcc8cecfbbc",
                 "team_id": None,
             }
             rows.append(row)
