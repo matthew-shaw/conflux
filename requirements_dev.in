@@ -9,3 +9,4 @@ pip-audit
 pip-tools
 pur
 pytest-cov
+python-dotenv
