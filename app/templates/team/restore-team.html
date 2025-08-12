@@ -1,0 +1,25 @@
+{%- extends "base.html" -%}
+
+{%- block pageTitle -%}{{ title }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+
+{%- block beforeContent -%}
+{{ super() }}
+{%- endblock -%}
+
+{%- block content -%}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    {{ super() }}
+    <h1 class="govuk-heading-xl">Are you sure you want to restore the {{ team.name }} team?</h1>
+    <form method="post" action="{{ url_for('team.restore', id=team.id) }}" novalidate>
+      {{ form.csrf_token }}
+      {{ form.confirm }}
+      <div class="govuk-button-group">
+        {{ form.submit(params={
+          'preventDoubleClick': true
+        }) }}
+        <a class="govuk-link" href="{{ url_for('team.view', id=team.id) }}">Cancel</a>
+      </div>
+  </div>
+</div>
+{%- endblock -%}

@@ -52,7 +52,7 @@
           'html': '<a href="' ~ url_for("role.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
         },
         {
-          'text': person.team.name if person.team else "None"
+          'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>'
         },
         {
           'text': person.location

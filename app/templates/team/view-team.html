@@ -6,13 +6,13 @@
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
-{%- block pageTitle -%}{{ role.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+{%- block pageTitle -%}{{ team.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
 
 {%- block beforeContent -%}
 {{ super() }}
 {{ govukBackLink({
   'text': "Back",
-  'href': url_for('role.list')
+  'href': url_for('team.list')
 }) }}
 {%- endblock -%}
 
@@ -20,8 +20,8 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <span class="govuk-caption-xl">Role</span>
-    <h1 class="govuk-heading-xl">{{ role.name }}</h1>
+    <span class="govuk-caption-xl">Team</span>
+    <h1 class="govuk-heading-xl">{{ team.name }}</h1>
 
     {{ govukSummaryList({
       'rows': [
@@ -30,31 +30,14 @@
             'text': "Name"
           },
           'value': {
-            'text': role.name
+            'text': team.name
           },
           'actions': {
             'items': [
               {
-                'href': url_for('role.edit', id=role.id),
+                'href': url_for('team.edit', id=team.id),
                 'text': "Change",
                 'visuallyHiddenText': "name"
-              }
-            ]
-          }
-        },
-        {
-          'key': {
-            'text': "Grade"
-          },
-          'value': {
-            'text': role.grade
-          },
-          'actions': {
-            'items': [
-              {
-                'href': url_for('role.edit', id=role.id),
-                'text': "Change",
-                'visuallyHiddenText': "grade"
               }
             ]
           }
@@ -65,16 +48,16 @@
           },
           'value': {
             'html': govukTag({ 
-              'text': "Archived" if role.archived_at else "Active",
-              'classes': "govuk-tag--grey" if role.archived_at else "govuk-tag--blue"
+              'text': "Archived" if team.archived_at else "Active",
+              'classes': "govuk-tag--grey" if team.archived_at else "govuk-tag--blue"
             })
           },
           'actions': {
             'items': [
               {
-                'href': url_for('role.restore', id=role.id) if role.archived_at else url_for('role.archive', id=role.id),
-                'text': "Restore" if role.archived_at else "Archive",
-                'visuallyHiddenText': "role"
+                'href': url_for('team.restore', id=team.id) if team.archived_at else url_for('team.archive', id=team.id),
+                'text': "Restore" if team.archived_at else "Archive",
+                'visuallyHiddenText': "team"
               }
             ]
           }
@@ -84,7 +67,7 @@
             'text': "Updated"
           },
           'value': {
-            'text': format_govuk_datetime(role.updated_at, include_day=False, include_time=True)
+            'text': format_govuk_datetime(team.updated_at, include_day=False, include_time=True)
 
           }
         }
@@ -92,26 +75,26 @@
     }) }}
 
     {% set rows = [] %}
-    {% for person in role.people %}
+    {% for person in team.people %}
       {% set _ = rows.append([
         {
           'html': '<a href="' ~ url_for("person.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
         },
         {
-          'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>'
+          'html': '<a href="' ~ url_for("role.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
         },
         {
           'text': person.location
         }
       ]) %}
     {% endfor %}
-    <h2 class="govuk-heading-l">{{ rows | length }} people in this role</h3>
+    <h2 class="govuk-heading-l">{{ rows | length }} people in this team</h3>
     {% if rows %}
       {{ govukTable({
         'firstCellIsHeader': true,
         'head': [
           { 'text': "Name" },
-          { 'text': "Team" },
+          { 'text': "Role" },
           { 'text': "Location" },
         ],
         'rows': rows

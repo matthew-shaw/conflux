@@ -1,5 +1,11 @@
 {%- extends "base.html" -%}
 
+{%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
+{%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
+
+{%- block pageTitle -%}{{ title }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+
 {%- block beforeContent -%}
 {{ super() }}
 {%- endblock -%}
@@ -7,7 +13,61 @@
 {%- block content -%}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-xl">Teams</h1>
+    {{ super() }}
+    <h1 class="govuk-heading-xl">{{ title }}</h1>
+    <div class="govuk-button-group">
+      {{ govukButton({
+        'text': "Add team",
+        'href': url_for('team.create')
+      }) }}
+
+      <a href="{{ url_for('team.download') }}" class="govuk-link">Download all teams (CSV)</a>  
+    </div>
+  </div>
+</div>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-quarter">
+    <h2 class="govuk-heading-m">Sort and filter</h3>
+    <form method="get" action="{{ url_for('team.list') }}" novalidate>
+      {{ form.sort(params={
+        'classes': "govuk-radios--small"
+      }) }}
+      {{ form.status(params={
+        'classes': "govuk-radios--small"
+      }) }}
+      {{ govukButton({
+        'text': "Apply",
+        'classes': "govuk-button--secondary"
+      }) }}
+    </form>
+  </div>
+  <div class="govuk-grid-column-three-quarters">
+    {% set rows = [] %}
+    {% for team in teams %}
+      {% set _ = rows.append([
+        {
+          'html': '<a href="' ~ url_for("team.view", id=team.id) ~ '" class="govuk-link">' ~ team.name ~ '</a>'
+        },
+        {
+          'text': team.people | length
+        },
+        {
+          'text': format_govuk_datetime(team.updated_at, include_day=False, truncate_month=True)
+        }
+      ]) %}
+    {% endfor %}
+    <h2 class="govuk-heading-m">{{ rows | length }} teams</h3>
+    {% if rows %}
+      {{ govukTable({
+        'firstCellIsHeader': true,
+        'head': [
+          { 'text': "Name" },
+          { 'text': "People" },
+          { 'text': "Updated" }
+        ],
+        'rows': rows
+      }) }}
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}

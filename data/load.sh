@@ -5,7 +5,11 @@ docker compose exec mimisbrunnr psql \
   -U mimir \
   -d mimisbrunnr \
   -c "\
-TRUNCATE TABLE roles, people CASCADE;
+TRUNCATE TABLE teams, roles, people CASCADE;
+
+COPY teams (id, name, updated_at, archived_at) \
+FROM '/data/teams.csv' \
+WITH (FORMAT csv, HEADER true);
 
 COPY roles (id, name, grade, updated_at, archived_at) \
 FROM '/data/roles.csv' \

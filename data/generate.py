@@ -20,6 +20,29 @@ role_ids = [
     "aefa9d2e-340a-4186-9737-f0bb8dfea345",
 ]
 
+team_ids = [
+    "8bc3137e-ed74-4a10-bd38-c76534cacac1",
+    "eb4746e9-a3b3-4d39-8a18-0f4e60753782",
+    "d184bbe9-a3f9-4f6b-a029-7620249b760a",
+    "58d8ebbc-1163-4f21-88cc-bbd683a5798d",
+    "9436960c-b70d-4884-82d0-1e649ca5e34c",
+    "32907451-9cfc-46e0-aebc-d6ebe73deac0",
+    "a9d45861-8c5b-4964-9cef-c754159a815d",
+    "1aa5cff3-195c-4483-bdfe-1db792d0bd2e",
+    "b95bd40c-dfda-48d3-8b5a-5791e55d9133",
+    "26608f84-4529-4c5f-bb4f-2aacdced303a",
+    "83325cae-9fe6-4339-b673-25d82c29d3d8",
+    "e8625bf0-2363-483a-aa59-dea0ff1b2b1a",
+    "08183a46-5624-4502-9e3e-161c7a2cf727",
+    "8194a6be-cb81-41fc-86da-682d1d957db2",
+    "8ddf7ba5-310b-44e3-8cda-dd1788e613d9",
+    "f15b021a-2d28-47a1-af93-64bca0723fe5",
+    "693d8b5f-8945-4a0c-96a8-01d24499ebc1",
+    "98a50f61-6d39-4616-aab6-eefdaac0066e",
+    "cba521a7-eed7-4cf1-a5a0-4f782849e24f",
+    "1f94ed1f-0a2b-4d79-8b50-b26bc504a0c9",
+]
+
 locales = ["en_GB", "fr_FR", "es_ES", "de_DE", "it_IT"]
 names_per_gender = 10
 
@@ -48,7 +71,7 @@ for loc in locales:
                 "archived_at": None,
                 "updated_at": updated_at.isoformat(),
                 "role_id": random.choice(role_ids),
-                "team_id": None,
+                "team_id": random.choice(team_ids),
                 "location": random.choice(locations),
             }
             rows.append(row)

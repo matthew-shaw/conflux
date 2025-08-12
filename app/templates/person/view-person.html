@@ -146,7 +146,7 @@
             'text': "Name"
           },
           'value': {
-            'text': person.team.name if person.team else "None"
+            'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>'
           },
         },
       ]
