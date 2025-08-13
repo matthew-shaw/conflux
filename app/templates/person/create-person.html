@@ -16,9 +16,15 @@
       {{ form.name(params={
         'spellcheck': true
       }) }}
-      {{ form.location }}
-      {{ form.role }}
-      {{ form.team }}
+      {{ form.location(params={
+        'classes': "govuk-!-width-one-half"
+      }) }}
+      {{ form.role(params={
+        'classes': "govuk-!-width-one-half"
+      }) }}
+      {{ form.team(params={
+        'classes': "govuk-!-width-one-half"
+      }) }}
       <div class="govuk-button-group">
         {{ form.submit(params={
           'preventDoubleClick': true

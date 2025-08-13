@@ -84,7 +84,7 @@
           'html': '<a href="' ~ url_for("role.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
         },
         {
-          'text': person.location
+          'text': person.location.title()
         }
       ]) %}
     {% endfor %}

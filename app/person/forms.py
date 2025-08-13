@@ -2,10 +2,17 @@ from flask_wtf import FlaskForm
 from govuk_frontend_wtf.wtforms_widgets import (
     GovCheckboxInput,
     GovRadioInput,
+    GovSelect,
     GovSubmitInput,
     GovTextInput,
 )
-from wtforms.fields import BooleanField, RadioField, StringField, SubmitField
+from wtforms.fields import (
+    BooleanField,
+    RadioField,
+    SelectField,
+    StringField,
+    SubmitField,
+)
 from wtforms.validators import InputRequired
 
 
@@ -15,22 +22,26 @@ class PersonForm(FlaskForm):
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
     )
-    location = RadioField(
+    location = SelectField(
         "Location",
         choices=[],
-        widget=GovRadioInput(),
+        widget=GovSelect(),
+        default="",
+        coerce=str.lower,
         validators=[InputRequired(message="Select a location")],
     )
-    role = RadioField(
+    role = SelectField(
         "Role",
         choices=[],
-        widget=GovRadioInput(),
+        widget=GovSelect(),
+        default="",
         validators=[InputRequired(message="Select a role")],
     )
-    team = RadioField(
+    team = SelectField(
         "Team",
         choices=[],
-        widget=GovRadioInput(),
+        widget=GovSelect(),
+        default="",
         validators=[InputRequired(message="Select a team")],
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())

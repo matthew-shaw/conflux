@@ -59,12 +59,21 @@ def list() -> str:
 
 @bp.route("/new", methods=["GET", "POST"])
 def create() -> str:
-    form: PersonForm = PersonForm()
+    form = PersonForm()
+
+    # Add default blank options
+    form.role.choices.append(("", "Select a role"))
+    form.team.choices.append(("", "Select a team"))
+    form.location.choices.append(("", "Select a location"))
+
+    # Add options
     roles = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+    form.role.choices.extend((role.id, role.name) for role in roles)
+
     teams = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
-    form.role.choices = [(role.id, role.name) for role in roles]
-    form.team.choices = [(team.id, team.name) for team in teams]
-    form.location.choices = [(location, location) for location in current_app.config["LOCATIONS"]]
+    form.team.choices.extend((team.id, team.name) for team in teams)
+
+    form.location.choices.extend((location.lower(), location) for location in current_app.config["LOCATIONS"])
 
     if form.validate_on_submit():
         person: Person = Person(
@@ -97,15 +106,19 @@ def view(id: UUID) -> str:
 def edit(id: UUID) -> str:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
+
+    # Add options
     roles = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+    form.role.choices.extend((role.id, role.name) for role in roles)
+
     teams = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
-    form.role.choices = [(role.id, role.name) for role in roles]
-    form.team.choices = [(team.id, team.name) for team in teams]
-    form.location.choices = [(location, location) for location in current_app.config["LOCATIONS"]]
+    form.team.choices.extend((team.id, team.name) for team in teams)
+
+    form.location.choices.extend((location, location) for location in current_app.config["LOCATIONS"])
 
     if request.method == "GET":
         form.name.data = person.name
-        form.location.data = person.location
+        form.location.data = person.location.lower()
         form.role.data = str(person.role_id)
         form.team.data = str(person.team_id)
     elif form.validate_on_submit():

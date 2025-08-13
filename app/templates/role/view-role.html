@@ -101,7 +101,7 @@
           'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>'
         },
         {
-          'text': person.location
+          'text': person.location.title()
         }
       ]) %}
     {% endfor %}
