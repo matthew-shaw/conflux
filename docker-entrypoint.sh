@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-echo ">>> ENTRYPOINT running at $(date) <<<"
-
 echo "Running DB migrations..."
 flask db upgrade
 
