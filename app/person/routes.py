@@ -16,7 +16,7 @@ from flask import (
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models import Person, Role
+from app.models import Person, Role, Team
 from app.person import bp
 from app.person.forms import (
     ArchivePersonForm,
@@ -61,11 +61,18 @@ def list() -> str:
 def create() -> str:
     form: PersonForm = PersonForm()
     roles = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+    teams = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
     form.role.choices = [(role.id, role.name) for role in roles]
+    form.team.choices = [(team.id, team.name) for team in teams]
     form.location.choices = [(location, location) for location in current_app.config["LOCATIONS"]]
 
     if form.validate_on_submit():
-        person: Person = Person(name=form.name.data, location=form.location.data, role_id=form.role.data)
+        person: Person = Person(
+            name=form.name.data,
+            location=form.location.data,
+            role_id=form.role.data,
+            team_id=form.team.data,
+        )
         db.session.add(person)
         try:
             db.session.commit()
@@ -91,17 +98,21 @@ def edit(id: UUID) -> str:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
     roles = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+    teams = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
     form.role.choices = [(role.id, role.name) for role in roles]
+    form.team.choices = [(team.id, team.name) for team in teams]
     form.location.choices = [(location, location) for location in current_app.config["LOCATIONS"]]
 
     if request.method == "GET":
         form.name.data = person.name
         form.location.data = person.location
         form.role.data = str(person.role_id)
+        form.team.data = str(person.team_id)
     elif form.validate_on_submit():
         person.name = form.name.data
         person.location = form.location.data
         person.role_id = form.role.data
+        person.team_id = form.team.data
         try:
             db.session.commit()
             flash(
