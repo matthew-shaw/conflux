@@ -88,9 +88,10 @@
         }
       ]) %}
     {% endfor %}
-    <h2 class="govuk-heading-m">{{ rows | length }} people currently in this team</h3>
     {% if rows %}
       {{ govukTable({
+        'caption': rows | length ~ " people",
+        'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
           { 'text': "Name" },
