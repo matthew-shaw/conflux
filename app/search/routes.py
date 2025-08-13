@@ -4,7 +4,7 @@ from flask import render_template, request, url_for
 from sqlalchemy import or_
 
 from app import db
-from app.models import Person, Role
+from app.models import Person, Role, Team
 from app.search import bp
 from app.search.forms import SearchForm
 
@@ -29,6 +29,9 @@ def index() -> str:
         # Search People
         people = db.session.execute(db.select(Person).filter(Person.name.ilike(query))).scalars().all()
 
+        # Search Teams
+        teams = db.session.execute(db.select(Team).filter(Team.name.ilike(query))).scalars().all()
+
         # Combine all results into a single list with type info
         for role in roles:
             results.append(
@@ -49,6 +52,17 @@ def index() -> str:
                     "name": person.name,
                     "updated_at": person.updated_at,
                     "url": url_for("person.view", id=person.id),
+                }
+            )
+
+        for team in teams:
+            results.append(
+                {
+                    "type": "Team",
+                    "id": team.id,
+                    "name": team.name,
+                    "updated_at": team.updated_at,
+                    "url": url_for("team.view", id=team.id),
                 }
             )
 
