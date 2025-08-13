@@ -201,6 +201,7 @@ erDiagram
 
     people {
         UUID id PK
+        UUID manager_id FK
         UUID role_id FK
         UUID team_id FK
     }
@@ -220,6 +221,7 @@ erDiagram
 
     roles ||--|{ people : "performed by"
     teams ||--o{ people : "has members"
+    people ||--|| people : "managed by"
     teams ||--o{ services : "owns"
     services ||--|{ components : "uses"
     components ||--|{ services : "used by"
