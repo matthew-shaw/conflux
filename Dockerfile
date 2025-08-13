@@ -30,10 +30,14 @@ WORKDIR /home/appuser
 COPY --from=builder /usr/local /usr/local
 
 # Copy application code
-COPY --chown=appuser:appgroup mimir.py config.py requirements.txt entrypoint.sh ./
+COPY --chown=appuser:appgroup mimir.py config.py ./
 COPY --chown=appuser:appgroup app app
 COPY --chown=appuser:appgroup migrations migrations
 
+# Copy entrypoint script into PATH
+COPY --chown=appuser:appgroup docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 USER appuser
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]
