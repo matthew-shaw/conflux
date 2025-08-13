@@ -20,8 +20,8 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <span class="govuk-caption-xl">Role</span>
-    <h1 class="govuk-heading-xl">{{ role.name }}</h1>
+    <span class="govuk-caption-l">Role</span>
+    <h1 class="govuk-heading-l">{{ role.name }}</h1>
 
     {{ govukSummaryList({
       'rows': [
@@ -105,7 +105,7 @@
         }
       ]) %}
     {% endfor %}
-    <h2 class="govuk-heading-l">{{ rows | length }} people currently in this role</h3>
+    <h2 class="govuk-heading-m">{{ rows | length }} people currently in this role</h3>
     {% if rows %}
       {{ govukTable({
         'firstCellIsHeader': true,

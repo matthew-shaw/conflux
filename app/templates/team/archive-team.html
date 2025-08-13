@@ -10,7 +10,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-xl">Are you sure you want to archive the {{ team.name }} team?</h1>
+    <h1 class="govuk-heading-l">Are you sure you want to archive the {{ team.name }} team?</h1>
     <form method="post" action="{{ url_for('team.archive', id=team.id) }}" novalidate>
       {{ form.csrf_token }}
       {{ form.confirm }}
