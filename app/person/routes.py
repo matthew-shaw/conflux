@@ -14,6 +14,7 @@ from flask import (
     url_for,
 )
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Person, Role, Team
@@ -175,7 +176,13 @@ def restore(id: UUID) -> str:
 
 @bp.route("/download", methods=["GET"])
 def download():
-    people: List[Person] = db.session.execute(db.select(Person).order_by(Person.name)).scalars().all()
+    people: List[Person] = (
+        db.session.execute(
+            db.select(Person).options(selectinload(Person.role), selectinload(Person.team)).order_by(Person.name)
+        )
+        .scalars()
+        .all()
+    )
 
     def generate():
         data = StringIO()
@@ -191,7 +198,9 @@ def download():
                 "NAME",
                 "LOCATION",
                 "ROLE_ID",
+                "ROLE_NAME",
                 "TEAM_ID",
+                "TEAM_NAME",
                 "UPDATED_AT",
                 "ARCHIVED_AT",
             )
@@ -207,8 +216,10 @@ def download():
                     person.id,
                     person.name,
                     person.location,
-                    person.role_id,
-                    person.team_id,
+                    person.role.id,
+                    person.role.name,
+                    person.team.id,
+                    person.team.name,
                     person.updated_at.isoformat(),
                     person.archived_at.isoformat() if person.archived_at else "",
                 )
