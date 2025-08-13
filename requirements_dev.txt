@@ -51,7 +51,7 @@ isort==6.0.1
     # via -r requirements_dev.in
 license-expression==30.4.4
     # via cyclonedx-python-lib
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via rich
 mccabe==0.7.0
     # via flake8
