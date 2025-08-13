@@ -7,7 +7,7 @@ class Config(object):
     DEPARTMENT_NAME = "Mash Software"
     DEPARTMENT_URL = "https://www.mashsoftware.com/"
     GRADES = os.environ.get("GRADES", "").split(",")
-    LOCATIONS = os.environ.get("LOCATIONS", "").split(",")
+    LOCATIONS = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_STORAGE_URI = os.environ.get("REDIS_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")
