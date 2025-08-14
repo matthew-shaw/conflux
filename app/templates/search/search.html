@@ -48,6 +48,8 @@
           'rows': rows
         }) }}
       {% endif %}
+    {% elif form.q.data is not none %}
+    <h2 class="govuk-heading-m">No results</h2>
     {% endif %}
   </div>
 </div>
