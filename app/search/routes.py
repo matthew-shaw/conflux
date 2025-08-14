@@ -27,7 +27,11 @@ def index() -> str:
         )
 
         # Search People
-        people = db.session.execute(db.select(Person).filter(Person.name.ilike(query))).scalars().all()
+        people = (
+            db.session.execute(db.select(Person).filter(or_(Person.name.ilike(query), Person.location.ilike(query))))
+            .scalars()
+            .all()
+        )
 
         # Search Teams
         teams = db.session.execute(db.select(Team).filter(Team.name.ilike(query))).scalars().all()

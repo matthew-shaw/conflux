@@ -4,4 +4,8 @@ from wtforms.fields import StringField  # type: ignore
 
 
 class SearchForm(FlaskForm):
-    q: StringField = StringField("Search", widget=GovTextInput())
+    q: StringField = StringField(
+        "Search",
+        widget=GovTextInput(),
+        description="Any role, grade, person, location, team, service or component",
+    )
