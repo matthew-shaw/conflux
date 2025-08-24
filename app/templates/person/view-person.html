@@ -60,6 +60,23 @@
         },
         {
           'key': {
+            'text': "Manager"
+          },
+          'value': {
+            'text': person.manager.name if person.manager else "None"
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "location"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "Status"
           },
           'value': {
@@ -99,7 +116,7 @@
           'items': [
             {
               'href': url_for('person.edit', id=person.id),
-              'text': "Change",
+              'text': "Change role",
               'visuallyHiddenText': "role"
             }
           ]
@@ -134,7 +151,7 @@
           'items': [
             {
               'href': url_for('person.edit', id=person.id),
-              'text': "Change",
+              'text': "Change team",
               'visuallyHiddenText': "team"
             }
           ]
