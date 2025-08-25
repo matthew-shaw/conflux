@@ -155,7 +155,7 @@ def download():
         yield "\ufeff"  # This signals that the file is UTF-8 encoded
 
         # write header
-        writer.writerow(("ID", "NAME", "GRADE", "UPDATED_AT", "ARCHIVED_AT"))
+        writer.writerow(("NAME", "GRADE", "UPDATED_AT", "ARCHIVED_AT"))
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -164,7 +164,6 @@ def download():
         for role in roles:
             writer.writerow(
                 (
-                    role.id,
                     role.name,
                     role.grade,
                     role.updated_at.isoformat(),
