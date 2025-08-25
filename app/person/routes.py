@@ -178,7 +178,13 @@ def restore(id: UUID) -> str:
 def download():
     people: List[Person] = (
         db.session.execute(
-            db.select(Person).options(selectinload(Person.role), selectinload(Person.team)).order_by(Person.name)
+            db.select(Person)
+            .options(
+                selectinload(Person.role),
+                selectinload(Person.team),
+                selectinload(Person.manager),
+            )
+            .order_by(Person.name)
         )
         .scalars()
         .all()
@@ -194,13 +200,11 @@ def download():
         # write header
         writer.writerow(
             (
-                "ID",
                 "NAME",
+                "ROLE",
+                "TEAM",
                 "LOCATION",
-                "ROLE_ID",
-                "ROLE_NAME",
-                "TEAM_ID",
-                "TEAM_NAME",
+                "MANAGER",
                 "UPDATED_AT",
                 "ARCHIVED_AT",
             )
@@ -213,13 +217,11 @@ def download():
         for person in people:
             writer.writerow(
                 (
-                    person.id,
                     person.name,
-                    person.location,
-                    person.role.id,
                     person.role.name,
-                    person.team.id,
                     person.team.name,
+                    person.location,
+                    person.manager.name,
                     person.updated_at.isoformat(),
                     person.archived_at.isoformat() if person.archived_at else "",
                 )
