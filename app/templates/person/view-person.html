@@ -3,6 +3,7 @@
 {%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
 {%- from 'govuk_frontend_jinja/components/summary-list/macro.html' import govukSummaryList -%}
+{%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
 {%- block pageTitle -%}{{ person.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
@@ -155,6 +156,38 @@
         }
       ]
     }) }}
+
+    {% set rows = [] %}
+    {% for report in person.reports if report.archived_at is none %}
+      {% set _ = rows.append([
+        {
+          'html': '<a href="' ~ url_for("person.view", id=report.id) ~ '" class="govuk-link">' ~ report.name ~ '</a>'
+        },
+        {
+          'html': '<a href="' ~ url_for("role.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name ~ '</a>'
+        },
+        {
+          'html': '<a href="' ~ url_for("team.view", id=report.team.id) ~ '" class="govuk-link">' ~ report.team.name ~ '</a>'
+        },
+        {
+          'text': report.location.title()
+        }
+      ]) %}
+    {% endfor %}
+    {% if rows %}
+      {{ govukTable({
+        'caption': rows | length ~ " reports",
+        'captionClasses': "govuk-table__caption--m",
+        'firstCellIsHeader': true,
+        'head': [
+          { 'text': "Name" },
+          { 'text': "Role" },
+          { 'text': "Team" },
+          { 'text': "Location" },
+        ],
+        'rows': rows
+      }) }}
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}
