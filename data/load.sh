@@ -6,14 +6,14 @@ docker compose exec mimisbrunnr psql \
   -c "\
 TRUNCATE TABLE teams, roles, people CASCADE;
 
-COPY teams (id, name, updated_at, archived_at) \
+COPY teams (ID, NAME, UPDATED_AT, ARCHIVED_AT) \
 FROM '/data/teams.csv' \
 WITH (FORMAT csv, HEADER true);
 
-COPY roles (id, name, grade, updated_at, archived_at) \
+COPY roles (ID, NAME, GRADE, UPDATED_AT, ARCHIVED_AT) \
 FROM '/data/roles.csv' \
 WITH (FORMAT csv, HEADER true);
 
-COPY people (id, name, location, role_id, team_id, updated_at, archived_at) \
+COPY people (ID, NAME, LOCATION, MANAGER_ID, ROLE_ID, TEAM_ID, UPDATED_AT, ARCHIVED_AT) \
 FROM '/data/people.csv' \
 WITH (FORMAT csv, HEADER true);"
