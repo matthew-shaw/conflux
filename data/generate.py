@@ -73,9 +73,17 @@ for loc in locales:
                 "role_id": random.choice(role_ids),
                 "team_id": random.choice(team_ids),
                 "location": random.choice(locations),
+                "manager_id": None,  # placeholder
             }
             rows.append(row)
 
+# Assign managers randomly (not self)
+ids = [r["id"] for r in rows]
+for row in rows:
+    possible_managers = [i for i in ids if i != row["id"]]
+    row["manager_id"] = random.choice(possible_managers)
+
+# Write CSV
 with open(OUTPUT_FILE, mode="w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(
         f,
@@ -87,6 +95,7 @@ with open(OUTPUT_FILE, mode="w", newline="", encoding="utf-8") as f:
             "role_id",
             "team_id",
             "location",
+            "manager_id",
         ],
     )
     writer.writeheader()

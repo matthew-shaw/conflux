@@ -96,6 +96,7 @@ class Person(db.Model):  # noqa: F811
 
     __tablename__ = "people"
 
+    # Attributes
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
     location: Mapped[str] = mapped_column(nullable=False, index=True)
@@ -107,13 +108,31 @@ class Person(db.Model):  # noqa: F811
         nullable=False,
     )
 
+    # Foreign Keys
     role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False, index=True)
     team_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey("teams.id", ondelete="SET NULL"), nullable=True, index=True
     )
+    manager_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("people.id", ondelete="SET NULL"), nullable=True, index=True
+    )
 
+    # Relationships
     role: Mapped["Role"] = relationship("Role", back_populates="people", passive_deletes=True)
     team: Mapped[Optional["Team"]] = relationship("Team", back_populates="people", passive_deletes=True)
+    manager: Mapped[Optional["Person"]] = relationship(
+        "Person",
+        remote_side=[id],
+        back_populates="reports",
+        foreign_keys=[manager_id],
+        passive_deletes=True,
+    )
+    reports: Mapped[list["Person"]] = relationship(
+        "Person",
+        back_populates="manager",
+        cascade="save-update",
+        passive_deletes=True,
+    )
 
 
 class Service(db.Model):  # noqa: F811

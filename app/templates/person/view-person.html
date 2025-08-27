@@ -3,6 +3,7 @@
 {%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
 {%- from 'govuk_frontend_jinja/components/summary-list/macro.html' import govukSummaryList -%}
+{%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
 {%- block pageTitle -%}{{ person.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
@@ -43,6 +44,50 @@
         },
         {
           'key': {
+            'text': "Role"
+          },
+          'value': {
+            'text': person.role.name
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('role.view', id=person.role.id),
+                'text': "View",
+                'visuallyHiddenText': "role"
+              },
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "role"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Team"
+          },
+          'value': {
+            'text': person.team.name
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('team.view', id=person.team.id),
+                'text': "View",
+                'visuallyHiddenText': "team"
+              },
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "team"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "Location"
           },
           'value': {
@@ -54,6 +99,28 @@
                 'href': url_for('person.edit', id=person.id),
                 'text': "Change",
                 'visuallyHiddenText': "location"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Manager"
+          },
+          'value': {
+            'text': person.manager.name if person.manager else "None"
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person.view', id=person.manager.id),
+                'text': "View",
+                'visuallyHiddenText': "manager"
+              },
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "manager"
               }
             ]
           }
@@ -90,67 +157,37 @@
       ]
     }) }}
 
-    {{ govukSummaryList({
-      'card': {
-        'title': {
-          'text': "Role"
+    {% set rows = [] %}
+    {% for report in person.reports if report.archived_at is none %}
+      {% set _ = rows.append([
+        {
+          'html': '<a href="' ~ url_for("person.view", id=report.id) ~ '" class="govuk-link">' ~ report.name ~ '</a>'
         },
-        'actions': {
-          'items': [
-            {
-              'href': url_for('person.edit', id=person.id),
-              'text': "Change",
-              'visuallyHiddenText': "role"
-            }
-          ]
+        {
+          'html': '<a href="' ~ url_for("role.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name ~ '</a>'
+        },
+        {
+          'html': '<a href="' ~ url_for("team.view", id=report.team.id) ~ '" class="govuk-link">' ~ report.team.name ~ '</a>'
+        },
+        {
+          'text': report.location.title()
         }
-      },
-      'rows': [
-        {
-          'key': {
-            'text': "Name"
-          },
-          'value': {
-            'html': '<a href="' ~ url_for("role.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
-          },
-        },
-        {
-          'key': {
-            'text': "Grade"
-          },
-          'value': {
-            'text': person.role.grade
-          },
-        },
-      ]
-    }) }}
-
-    {{ govukSummaryList({
-      'card': {
-        'title': {
-          'text': "Team"
-        },
-        'actions': {
-          'items': [
-            {
-              'href': url_for('person.edit', id=person.id),
-              'text': "Change",
-              'visuallyHiddenText': "team"
-            }
-          ]
-        }
-      },
-      'rows': [
-        {
-          'key': {
-            'text': "Name"
-          },
-          'value': {
-            'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>'
-          },
-        },
-      ]
-    }) }}
+      ]) %}
+    {% endfor %}
+    {% if rows %}
+      {{ govukTable({
+        'caption': rows | length ~ " reports",
+        'captionClasses': "govuk-table__caption--m",
+        'firstCellIsHeader': true,
+        'head': [
+          { 'text': "Name" },
+          { 'text': "Role" },
+          { 'text': "Team" },
+          { 'text': "Location" },
+        ],
+        'rows': rows
+      }) }}
+    {% endif %}
   </div>
 </div>
 {%- endblock -%}
