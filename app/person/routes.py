@@ -87,8 +87,8 @@ def create() -> str:
             name=form.name.data,
             location=form.location.data,
             role_id=form.role.data,
-            team_id=form.team.data,
-            manager_id=form.manager.data,
+            team_id=form.team.data if form.team.data else None,
+            manager_id=form.manager.data if form.manager.data else None,
         )
         db.session.add(person)
         try:
@@ -115,6 +115,12 @@ def edit(id: UUID) -> str:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
 
+    # Add default blank options
+    form.role.choices.append(("", "Select a role"))
+    form.team.choices.append(("", "Select a team"))
+    form.location.choices.append(("", "Select a location"))
+    form.manager.choices.append(("", "Select a manager"))
+
     # Add options
     roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
     form.role.choices.extend((role.id, role.name) for role in roles)
@@ -139,8 +145,8 @@ def edit(id: UUID) -> str:
         person.name = form.name.data
         person.location = form.location.data
         person.role_id = form.role.data
-        person.team_id = form.team.data
-        person.manager_id = form.manager.data
+        person.team_id = form.team.data if form.team.data else None
+        person.manager_id = form.manager.data if form.manager.data else None
         try:
             db.session.commit()
             flash(

@@ -13,7 +13,7 @@ from wtforms.fields import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import InputRequired
+from wtforms.validators import InputRequired, Optional
 
 
 class PersonForm(FlaskForm):
@@ -42,14 +42,14 @@ class PersonForm(FlaskForm):
         choices=[],
         widget=GovSelect(),
         default="",
-        validators=[InputRequired(message="Select a team")],
+        validators=[Optional()],
     )
     manager = SelectField(
         "Manager",
         choices=[],
         widget=GovSelect(),
         default="",
-        validators=[InputRequired(message="Select a manager")],
+        validators=[Optional()],
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
