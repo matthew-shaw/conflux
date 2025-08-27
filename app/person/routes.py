@@ -218,10 +218,10 @@ def download():
             writer.writerow(
                 (
                     person.name,
-                    person.role.name,
-                    person.team.name,
-                    person.location,
-                    person.manager.name,
+                    person.role.name if person.role else "",
+                    person.team.name if person.team else "",
+                    person.location.title(),
+                    person.manager.name if person.manager else "",
                     person.updated_at.isoformat(),
                     person.archived_at.isoformat() if person.archived_at else "",
                 )
