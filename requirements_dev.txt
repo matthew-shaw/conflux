@@ -27,15 +27,15 @@ click==8.2.1
     #   black
     #   pip-tools
     #   pur
-coverage[toml]==7.10.3
+coverage[toml]==7.10.5
     # via pytest-cov
 cyclonedx-python-lib==9.1.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable
-faker==37.5.3
+faker==37.6.0
     # via -r requirements_dev.in
-filelock==3.18.0
+filelock==3.19.1
     # via cachecontrol
 flake8==7.3.0
     # via
@@ -78,8 +78,6 @@ pathspec==0.12.1
     # via
     #   black
     #   mypy
-pbr==6.1.1
-    # via stevedore
 pep8-naming==0.15.1
     # via -r requirements_dev.in
 pip-api==0.0.34
@@ -90,7 +88,7 @@ pip-requirements-parser==32.0.1
     # via pip-audit
 pip-tools==7.5.0
     # via -r requirements_dev.in
-platformdirs==4.3.8
+platformdirs==4.4.0
     # via
     #   black
     #   pip-audit
@@ -124,7 +122,7 @@ python-dotenv==1.1.1
     # via -r requirements_dev.in
 pyyaml==6.0.2
     # via bandit
-requests==2.32.4
+requests==2.32.5
     # via
     #   cachecontrol
     #   pip-audit
@@ -134,11 +132,11 @@ rich==14.1.0
     #   pip-audit
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
-stevedore==5.4.1
+stevedore==5.5.0
     # via bandit
 toml==0.10.2
     # via pip-audit
-typing-extensions==4.14.1
+typing-extensions==4.15.0
     # via mypy
 tzdata==2025.2
     # via faker
