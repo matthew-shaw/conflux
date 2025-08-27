@@ -44,6 +44,13 @@ class PersonForm(FlaskForm):
         default="",
         validators=[InputRequired(message="Select a team")],
     )
+    manager = SelectField(
+        "Manager",
+        choices=[],
+        widget=GovSelect(),
+        default="",
+        validators=[InputRequired(message="Select a manager")],
+    )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
 

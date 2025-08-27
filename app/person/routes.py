@@ -66,13 +66,19 @@ def create() -> str:
     form.role.choices.append(("", "Select a role"))
     form.team.choices.append(("", "Select a team"))
     form.location.choices.append(("", "Select a location"))
+    form.manager.choices.append(("", "Select a manager"))
 
     # Add options
-    roles = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+    roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
     form.role.choices.extend((role.id, role.name) for role in roles)
 
-    teams = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
+    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
     form.team.choices.extend((team.id, team.name) for team in teams)
+
+    people = (
+        db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
+    )
+    form.manager.choices.extend((person.id, person.name) for person in people)
 
     form.location.choices.extend((location.lower(), location) for location in current_app.config["LOCATIONS"])
 
@@ -82,6 +88,7 @@ def create() -> str:
             location=form.location.data,
             role_id=form.role.data,
             team_id=form.team.data,
+            manager_id=form.manager.data,
         )
         db.session.add(person)
         try:
@@ -109,24 +116,31 @@ def edit(id: UUID) -> str:
     form: PersonForm = PersonForm()
 
     # Add options
-    roles = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+    roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
     form.role.choices.extend((role.id, role.name) for role in roles)
 
-    teams = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
+    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
     form.team.choices.extend((team.id, team.name) for team in teams)
 
-    form.location.choices.extend((location, location) for location in current_app.config["LOCATIONS"])
+    people = (
+        db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
+    )
+    form.manager.choices.extend((person.id, person.name) for person in people)
+
+    form.location.choices.extend((location.lower(), location) for location in current_app.config["LOCATIONS"])
 
     if request.method == "GET":
         form.name.data = person.name
         form.location.data = person.location.lower()
         form.role.data = str(person.role_id)
         form.team.data = str(person.team_id)
+        form.manager.data = str(person.manager_id)
     elif form.validate_on_submit():
         person.name = form.name.data
         person.location = form.location.data
         person.role_id = form.role.data
         person.team_id = form.team.data
+        person.manager_id = form.manager.data
         try:
             db.session.commit()
             flash(
