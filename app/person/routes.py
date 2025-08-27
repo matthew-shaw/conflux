@@ -62,12 +62,6 @@ def list() -> str:
 def create() -> str:
     form = PersonForm()
 
-    # Add default blank options
-    form.role.choices.append(("", "Select a role"))
-    form.team.choices.append(("", "Select a team"))
-    form.location.choices.append(("", "Select a location"))
-    form.manager.choices.append(("", "Select a manager"))
-
     # Add options
     roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
     form.role.choices.extend((role.id, role.name) for role in roles)
@@ -114,12 +108,6 @@ def view(id: UUID) -> str:
 def edit(id: UUID) -> str:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
-
-    # Add default blank options
-    form.role.choices.append(("", "Select a role"))
-    form.team.choices.append(("", "Select a team"))
-    form.location.choices.append(("", "Select a location"))
-    form.manager.choices.append(("", "Select a manager"))
 
     # Add options
     roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
