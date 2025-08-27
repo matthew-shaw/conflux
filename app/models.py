@@ -132,6 +132,7 @@ class Person(db.Model):  # noqa: F811
         back_populates="manager",
         cascade="save-update",
         passive_deletes=True,
+        order_by="Person.name",
     )
 
 
