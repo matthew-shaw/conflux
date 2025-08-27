@@ -220,11 +220,15 @@ def download():
         # write header
         writer.writerow(
             (
+                "ID",
                 "NAME",
-                "ROLE",
-                "TEAM",
+                "ROLE_ID",
+                "ROLE_NAME",
+                "TEAM_ID",
+                "TEAM_NAME",
                 "LOCATION",
-                "MANAGER",
+                "MANAGER_ID",
+                "MANAGER_NAME",
                 "UPDATED_AT",
                 "ARCHIVED_AT",
             )
@@ -237,10 +241,14 @@ def download():
         for person in people:
             writer.writerow(
                 (
+                    person.id,
                     person.name,
+                    person.role.id if person.role else "",
                     person.role.name if person.role else "",
+                    person.team.id if person.team else "",
                     person.team.name if person.team else "",
                     person.location.title(),
+                    person.manager.id if person.manager else "",
                     person.manager.name if person.manager else "",
                     person.updated_at.isoformat(),
                     person.archived_at.isoformat() if person.archived_at else "",

@@ -149,7 +149,7 @@ def download():
         yield "\ufeff"  # This signals that the file is UTF-8 encoded
 
         # write header
-        writer.writerow(("NAME", "UPDATED_AT", "ARCHIVED_AT"))
+        writer.writerow(("ID", "NAME", "UPDATED_AT", "ARCHIVED_AT"))
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -158,6 +158,7 @@ def download():
         for team in teams:
             writer.writerow(
                 (
+                    team.id,
                     team.name,
                     team.updated_at.isoformat(),
                     team.archived_at.isoformat() if team.archived_at else "",
