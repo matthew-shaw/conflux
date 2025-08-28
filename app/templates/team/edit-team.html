@@ -1,5 +1,7 @@
 {%- extends "base.html" -%}
 
+{%- from 'govuk_frontend_jinja/components/fieldset/macro.html' import govukFieldset -%}
+
 {%- block pageTitle -%}{{ title }} – {{config['SERVICE_NAME']}}{%- endblock -%}
 
 {%- block beforeContent -%}
@@ -10,18 +12,25 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <h1 class="govuk-heading-l">{{ title }}</h1>
     <form method="post" action="{{ url_for('team.edit', id=team.id) }}" novalidate>
-      {{ form.csrf_token}}
-      {{ form.name(params={
-        'spellcheck': true
-      }) }}
-      <div class="govuk-button-group">
-        {{ form.submit(params={
-          'preventDoubleClick': true
+      {% call govukFieldset({
+        'legend': {
+          'text': title,
+          'classes': "govuk-fieldset__legend--l",
+          'isPageHeading': true
+        }
+      }) %}
+        {{ form.csrf_token}}
+        {{ form.name(params={
+          'spellcheck': true
         }) }}
-        <a class="govuk-link" href="{{ url_for('team.view', id=team.id) }}">Cancel</a>
-      </div>
+        <div class="govuk-button-group">
+          {{ form.submit(params={
+            'preventDoubleClick': true
+          }) }}
+          <a class="govuk-link" href="{{ url_for('team.view', id=team.id) }}">Cancel</a>
+        </div>
+      {% endcall %}
     </form>
   </div>
 </div>
