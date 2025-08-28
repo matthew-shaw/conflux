@@ -69,7 +69,7 @@
             'text': "Team"
           },
           'value': {
-            'text': person.team.name
+            'text': person.team.name if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
             'items': [
@@ -108,7 +108,7 @@
             'text': "Manager"
           },
           'value': {
-            'text': person.manager.name if person.manager else "None"
+            'text': person.manager.name if person.manager else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
             'items': [
@@ -132,7 +132,7 @@
           'value': {
             'html': govukTag({ 
               'text': "Archived" if person.archived_at else "Active",
-              'classes': "govuk-tag--grey" if person.archived_at else "govuk-tag--blue"
+              'classes': "govuk-tag--grey" if person.archived_at else "govuk-tag--green"
             })
           },
           'actions': {
