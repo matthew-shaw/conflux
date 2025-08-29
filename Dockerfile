@@ -1,23 +1,29 @@
-# Stage 1: Build dependencies and install Python packages
+# Stage 1: Build Python wheels
 FROM python:3.13-slim AS builder
 
+# Install build dependencies only here
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libc6-dev \
-    libpq-dev
+    libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY requirements.txt ./
-RUN pip install -r requirements.txt
+# Build wheels instead of direct install
+RUN pip wheel --no-cache-dir --no-deps -r requirements.txt -w /wheels
+
 
 # Stage 2: Final runtime image
 FROM python:3.13-slim
 
+# Install only runtime libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
+# Create non-root user
 RUN addgroup --system appgroup && adduser --system --group appuser
 
 ENV FLASK_APP=mimir.py \
@@ -26,11 +32,12 @@ ENV FLASK_APP=mimir.py \
 
 WORKDIR /home/appuser
 
-# Copy installed packages from builder
-COPY --from=builder /usr/local /usr/local
+# Install Python packages from wheels
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache-dir /wheels/*
 
 # Copy application code
-COPY --chown=appuser:appgroup mimir.py config.py ./
+COPY --chown=appuser:appgroup mimir.py config.py ./ 
 COPY --chown=appuser:appgroup app app
 COPY --chown=appuser:appgroup migrations migrations
 
