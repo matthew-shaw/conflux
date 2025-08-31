@@ -7,6 +7,7 @@ from uuid import UUID
 from flask import (
     Response,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -51,6 +52,8 @@ def list() -> str:
 
     teams: List[Team] = db.session.execute(query).scalars().all()
 
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify([team.to_dict() for team in teams])
     return render_template("list-teams.html", title="Teams", teams=teams, form=form)
 
 
@@ -77,6 +80,8 @@ def create() -> str:
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> str:
     team = db.get_or_404(Team, id)
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify(team.to_dict(include_people=True, include_services=True))
     return render_template("view-team.html", team=team)
 
 

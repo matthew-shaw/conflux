@@ -1,0 +1,7 @@
+GET https://localhost/teams/
+Accept: application/json
+
+###
+
+GET https://localhost/teams/8bb44ffb-280f-4eac-9450-832784415c0b
+Accept: application/json

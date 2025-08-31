@@ -55,6 +55,16 @@ class Role(db.Model):  # noqa: F811
         order_by="Person.name",
     )
 
+    def to_dict(self, include_people: bool = False) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "grade": self.grade,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "archived_at": self.archived_at.isoformat() if self.archived_at else None,
+            "people": ([person.to_dict() for person in self.people] if include_people else None),
+        }
+
 
 class Team(db.Model):  # noqa: F811
     """
@@ -87,6 +97,16 @@ class Team(db.Model):  # noqa: F811
         passive_deletes=True,
         order_by="Service.name",
     )
+
+    def to_dict(self, include_people: bool = False, include_services: bool = False) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "archived_at": self.archived_at.isoformat() if self.archived_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "people": ([person.to_dict() for person in self.people] if include_people else None),
+            "services": ([service.to_dict() for service in self.services] if include_services else None),
+        }
 
 
 class Person(db.Model):  # noqa: F811
@@ -135,6 +155,25 @@ class Person(db.Model):  # noqa: F811
         order_by="Person.name",
     )
 
+    def to_dict(
+        self,
+        include_role: bool = False,
+        include_team: bool = False,
+        include_manager: bool = False,
+        include_reports: bool = False,
+    ) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "location": self.location,
+            "archived_at": self.archived_at.isoformat() if self.archived_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "role": self.role.to_dict() if (include_role and self.role) else None,
+            "team": self.team.to_dict() if (include_team and self.team) else None,
+            "manager": (self.manager.to_dict() if (include_manager and self.manager) else None),
+            "reports": ([report.to_dict() for report in self.reports] if include_reports else None),
+        }
+
 
 class Service(db.Model):  # noqa: F811
     """
@@ -166,6 +205,16 @@ class Service(db.Model):  # noqa: F811
         order_by="Component.name",
     )
 
+    def to_dict(self, include_team: bool = False, include_components: bool = False) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "archived_at": self.archived_at.isoformat() if self.archived_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "team": self.team.to_dict() if (include_team and self.team) else None,
+            "components": ([component.to_dict() for component in self.components] if include_components else None),
+        }
+
 
 class Component(db.Model):  # noqa: F811
     """
@@ -191,3 +240,12 @@ class Component(db.Model):  # noqa: F811
         passive_deletes=True,
         order_by="Service.name",
     )
+
+    def to_dict(self, include_services: bool = False) -> dict:
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "archived_at": self.archived_at.isoformat() if self.archived_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "services": ([service.to_dict() for service in self.services] if include_services else None),
+        }
