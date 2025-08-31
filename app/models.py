@@ -65,7 +65,7 @@ class Role(db.Model):  # noqa: F811
         if self.archived_at:
             data["archived_at"] = self.archived_at.isoformat()
         if include_people:
-            data["people"] = [person.to_dict() for person in self.people]
+            data["people"] = [person.to_dict(include_team=True) for person in self.people]
         return data
 
 

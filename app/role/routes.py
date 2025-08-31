@@ -8,6 +8,7 @@ from flask import (
     Response,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -54,6 +55,8 @@ def list() -> str:
 
     roles: List[Role] = db.session.execute(query).scalars().all()
 
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify([role.to_dict() for role in roles])
     return render_template("list-roles.html", title="Roles", roles=roles, form=form)
 
 
@@ -81,6 +84,8 @@ def create() -> str:
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> str:
     role = db.get_or_404(Role, id)
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify(role.to_dict(include_people=True))
     return render_template("view-role.html", role=role)
 
 

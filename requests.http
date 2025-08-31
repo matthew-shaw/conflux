@@ -1,5 +1,17 @@
+# Get all roles
+GET https://localhost/roles/?sort=name&status=all
+Accept: application/json
+
+### 
+
+# Get a role
+GET https://localhost/roles/be73522e-21c5-41e0-af03-543147404e52
+Accept: application/json
+
+###
+
 # Get all teams
-GET https://localhost/teams/
+GET https://localhost/teams/?sort=name&status=all
 Accept: application/json
 
 ###
@@ -11,7 +23,7 @@ Accept: application/json
 ###
 
 # Get all people
-GET https://localhost/people/
+GET https://localhost/people/?sort=name&status=all
 Accept: application/json
 
 ###
