@@ -182,9 +182,9 @@ class Person(db.Model):  # noqa: F811
         if include_team and self.team:
             data["team"] = self.team.to_dict()
         if include_manager and self.manager:
-            data["manager"] = self.manager.to_dict()
+            data["manager"] = self.manager.to_dict(include_role=True, include_team=True)
         if include_reports:
-            data["reports"] = [report.to_dict() for report in self.reports]
+            data["reports"] = [report.to_dict(include_role=True, include_team=True) for report in self.reports]
         return data
 
 

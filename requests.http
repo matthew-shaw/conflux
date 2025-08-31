@@ -1,7 +1,21 @@
+# Get all teams
 GET https://localhost/teams/
 Accept: application/json
 
 ###
 
+# Get a team
 GET https://localhost/teams/8bb44ffb-280f-4eac-9450-832784415c0b
+Accept: application/json
+
+###
+
+# Get all people
+GET https://localhost/people/
+Accept: application/json
+
+###
+
+# Get a person
+GET https://localhost/people/1dbc8b9d-282b-415d-843b-1dd7f7225a9c
 Accept: application/json
