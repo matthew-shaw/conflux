@@ -1,33 +1,33 @@
-# Get all roles
+# Get a list of roles
 GET https://localhost/roles/?sort=name&status=all
 Accept: application/json
 
 ### 
 
-# Get a role
+# Get an individual role
 GET https://localhost/roles/be73522e-21c5-41e0-af03-543147404e52
 Accept: application/json
 
 ###
 
-# Get all teams
+# Get a list of teams
 GET https://localhost/teams/?sort=name&status=all
 Accept: application/json
 
 ###
 
-# Get a team
+# Get an individual team
 GET https://localhost/teams/8bb44ffb-280f-4eac-9450-832784415c0b
 Accept: application/json
 
 ###
 
-# Get all people
+# Get a list of people
 GET https://localhost/people/?sort=name&status=all
 Accept: application/json
 
 ###
 
-# Get a person
+# Get an individual person
 GET https://localhost/people/1dbc8b9d-282b-415d-843b-1dd7f7225a9c
 Accept: application/json
