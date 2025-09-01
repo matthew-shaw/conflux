@@ -1,5 +1,5 @@
-# Get a list of roles
-GET https://localhost/roles/?sort=name&status=all
+# Get a list of active roles
+GET https://localhost/roles/?sort=name&status=active
 Accept: application/json
 
 ### 
@@ -10,8 +10,8 @@ Accept: application/json
 
 ###
 
-# Get a list of teams
-GET https://localhost/teams/?sort=name&status=all
+# Get a list of active teams
+GET https://localhost/teams/?sort=name&status=active
 Accept: application/json
 
 ###
@@ -22,8 +22,8 @@ Accept: application/json
 
 ###
 
-# Get a list of people
-GET https://localhost/people/?sort=name&status=all
+# Get a list of active people
+GET https://localhost/people/?sort=name&status=active
 Accept: application/json
 
 ###
