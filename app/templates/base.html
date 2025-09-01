@@ -142,11 +142,6 @@
         'href': url_for('service.list'),
         'text': "Services",
         'active': true if url_for('service.list') in request.path else false
-      },
-      {
-        'href': url_for('component.list'),
-        'text': "Components",
-        'active': true if url_for('component.list') in request.path else false
       }
     ]
   }) }}

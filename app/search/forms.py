@@ -7,5 +7,5 @@ class SearchForm(FlaskForm):
     q: StringField = StringField(
         "Search",
         widget=GovTextInput(),
-        description="Search by role, grade, person, location, team, service or component",
+        description="Search by role, grade, person, location, team, or service",
     )
