@@ -81,7 +81,7 @@ flowchart TB
     nginx(nginx:stable-alpine)
     node(node:jod-alpine)
     postgres(postgres:17-alpine)
-    python(python:3.13-slim)
+    python(python:3.14-slim)
     redis(redis:7-alpine)
 
     compose -- Creates --> Mimir & Loki & Bifrost & Mimisbrunnr
