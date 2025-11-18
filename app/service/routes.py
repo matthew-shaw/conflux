@@ -1,8 +1,183 @@
-from flask import render_template
+import csv
+from datetime import datetime, timezone
+from io import StringIO
+from typing import List
+from uuid import UUID
 
+from flask import (
+    Response,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from sqlalchemy.exc import IntegrityError
+
+from app import db
+from app.models import Service, Team
 from app.service import bp
+from app.service.forms import (
+    ArchiveServiceForm,
+    RestoreServiceForm,
+    ServiceForm,
+    ServiceSortFilterForm,
+)
 
 
-@bp.route("/", methods=["GET", "POST"])
-def list():
-    return render_template("list-services.html")
+@bp.route("/", methods=["GET"])
+def list() -> str:
+    form: ServiceSortFilterForm = ServiceSortFilterForm()
+    form.sort.data = request.args.get("sort", "name", type=str)
+    form.status.data = request.args.get("status", "active", type=str)
+
+    # Start the base SELECT statement
+    query = db.select(Service)
+
+    # Apply sorting
+    sort = form.sort.data or "name"
+    if sort == "name":
+        query = query.order_by(Service.name)
+    elif sort == "updated":
+        query = query.order_by(Service.updated_at.desc())
+
+    # Apply filter based on status
+    status = form.status.data or "active"
+    if status == "active":
+        query = query.where(Service.archived_at.is_(None))
+    elif status == "archived":
+        query = query.where(Service.archived_at.is_not(None))
+    # No filter if status == "all"
+
+    services: List[Service] = db.session.execute(query).scalars().all()
+
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify([service.to_dict() for service in services])
+    return render_template("list-services.html", title="Services", services=services, form=form)
+
+
+@bp.route("/new", methods=["GET", "POST"])
+def create() -> str:
+    form: ServiceForm = ServiceForm()
+
+    # Add options
+    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
+    form.team.choices.extend((team.id, team.name) for team in teams)
+
+    if form.validate_on_submit():
+        service: Service = Service(name=form.name.data, team_id=form.team.data if form.team.data else None)
+        db.session.add(service)
+        try:
+            db.session.commit()
+            flash(
+                f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been created',
+                "success",
+            )
+            return redirect(url_for("service.list"))
+        except IntegrityError:
+            db.session.rollback()
+            form.name.errors.append("A service with this name already exists.")
+            return render_template("create-service.html", form=form)
+    return render_template("create-service.html", title="Add a new service", form=form)
+
+
+@bp.route("/<uuid:id>", methods=["GET"])
+def view(id: UUID) -> str:
+    service = db.get_or_404(Service, id)
+    if request.accept_mimetypes.best == "application/json":
+        return jsonify(service.to_dict(include_people=True, include_services=True))
+    return render_template("view-service.html", service=service)
+
+
+@bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
+def edit(id: UUID) -> str:
+    service: Service = db.get_or_404(Service, id)
+    form: ServiceForm = ServiceForm()
+
+    if request.method == "GET":
+        form.name.data = service.name
+    elif form.validate_on_submit():
+        service.name = form.name.data
+        try:
+            db.session.commit()
+            flash(
+                f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been updated',
+                "success",
+            )
+            return redirect(url_for("service.list"))
+        except IntegrityError:
+            db.session.rollback()
+            form.name.errors.append("A service with this name already exists.")
+
+    return render_template("edit-service.html", title="Edit service", service=service, form=form)
+
+
+@bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
+def archive(id: UUID) -> str:
+    service: Service = db.get_or_404(Service, id)
+    form: ArchiveServiceForm = ArchiveServiceForm()
+
+    if form.validate_on_submit() and form.confirm.data is True:
+        service.archived_at = datetime.now(timezone.utc)
+        db.session.commit()
+        flash(
+            f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been archived',
+            "success",
+        )
+        return redirect(url_for("service.list"))
+
+    return render_template("archive-service.html", title="Archive service", service=service, form=form)
+
+
+@bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
+def restore(id: UUID) -> str:
+    service: Service = db.get_or_404(Service, id)
+    form: RestoreServiceForm = RestoreServiceForm()
+
+    if form.validate_on_submit() and form.confirm.data is True:
+        service.archived_at = None
+        db.session.commit()
+        flash(
+            f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been restored',
+            "success",
+        )
+        return redirect(url_for("service.list"))
+
+    return render_template("restore-service.html", title="Restore service", service=service, form=form)
+
+
+@bp.route("/download", methods=["GET"])
+def download():
+    services: List[Service] = db.session.execute(db.select(Service).order_by(Service.name)).scalars().all()
+
+    def generate():
+        data = StringIO()
+        writer = csv.writer(data, quoting=csv.QUOTE_MINIMAL)
+
+        # Add BOM (Byte Order Mark) for Excel compatibility
+        yield "\ufeff"  # This signals that the file is UTF-8 encoded
+
+        # write header
+        writer.writerow(("ID", "NAME", "UPDATED_AT", "ARCHIVED_AT"))
+        yield data.getvalue()
+        data.seek(0)
+        data.truncate(0)
+
+        # write each item
+        for service in services:
+            writer.writerow(
+                (
+                    service.id,
+                    service.name,
+                    service.updated_at.isoformat(),
+                    service.archived_at.isoformat() if service.archived_at else "",
+                )
+            )
+            yield data.getvalue()
+            data.seek(0)
+            data.truncate(0)
+
+    response = Response(generate(), mimetype="text/csv", status=200)
+    response.headers.set("Content-Disposition", "attachment", filename="services.csv")
+    return response

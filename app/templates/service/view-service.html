@@ -6,13 +6,13 @@
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
-{%- block pageTitle -%}{{ team.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+{%- block pageTitle -%}{{ service.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
 
 {%- block beforeContent -%}
 {{ super() }}
 {{ govukBackLink({
   'text': "Back",
-  'href': url_for('team.list')
+  'href': url_for('service.list')
 }) }}
 {%- endblock -%}
 
@@ -20,8 +20,8 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <span class="govuk-caption-l">Team</span>
-    <h1 class="govuk-heading-l">{{ team.name }}</h1>
+    <span class="govuk-caption-l">Service</span>
+    <h1 class="govuk-heading-l">{{ service.name }}</h1>
 
     {{ govukSummaryList({
       'rows': [
@@ -30,12 +30,12 @@
             'text': "Name"
           },
           'value': {
-            'text': team.name
+            'text': service.name
           },
           'actions': {
             'items': [
               {
-                'href': url_for('team.edit', id=team.id),
+                'href': url_for('service.edit', id=service.id),
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
@@ -48,15 +48,37 @@
           },
           'value': {
             'html': govukTag({ 
-              'text': "Archived" if team.archived_at else "Active",
-              'classes': "govuk-tag--grey" if team.archived_at else "govuk-tag--green"
+              'text': "Archived" if service.archived_at else "Active",
+              'classes': "govuk-tag--grey" if service.archived_at else "govuk-tag--green"
             })
           },
           'actions': {
             'items': [
               {
-                'href': url_for('team.restore', id=team.id) if team.archived_at else url_for('team.archive', id=team.id),
-                'text': "Restore" if team.archived_at else "Archive",
+                'href': url_for('service.restore', id=service.id) if service.archived_at else url_for('service.archive', id=service.id),
+                'text': "Restore" if service.archived_at else "Archive",
+                'visuallyHiddenText': "service"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Owning team"
+          },
+          'value': {
+            'text': service.team.name
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('team.view', id=service.team.id),
+                'text': "View",
+                'visuallyHiddenText': "team"
+              },
+              {
+                'href': url_for('service.edit', id=service.id),
+                'text': "Change",
                 'visuallyHiddenText': "team"
               }
             ]
@@ -67,7 +89,7 @@
             'text': "Updated"
           },
           'value': {
-            'text': format_govuk_datetime(team.updated_at, include_day=False, include_time=True)
+            'text': format_govuk_datetime(service.updated_at, include_day=False, include_time=True)
 
           }
         }
@@ -75,7 +97,7 @@
     }) }}
 
     {% set rows = [] %}
-    {% for person in team.people if person.archived_at is none %}
+    {% for person in service.people if person.archived_at is none %}
       {% set _ = rows.append([
         {
           'html': '<a href="' ~ url_for("person.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
@@ -101,13 +123,6 @@
         'rows': rows
       }) }}
     {% endif %}
-
-    <h2 class="govuk-heading-m">{{ team.services | length }} services</h2>
-    <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
-    {% for service in team.services if service.archived_at is none %}
-      <li><a class="govuk-link" href="{{ url_for('service.view', id=service.id) }}">{{ service.name}}</a></li>
-    {% endfor %}
-    </ul>
   </div>
 </div>
 {%- endblock -%}
