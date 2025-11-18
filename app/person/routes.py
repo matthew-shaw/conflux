@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime, timezone
 from io import StringIO
-from typing import List
+from typing import List, Union
 from uuid import UUID
 
 from flask import (
@@ -62,7 +62,7 @@ def list() -> str:
 
 
 @bp.route("/new", methods=["GET", "POST"])
-def create() -> str:
+def create() -> Union[str, Response]:
     form = PersonForm()
 
     # Add options
@@ -117,7 +117,7 @@ def view(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
-def edit(id: UUID) -> str:
+def edit(id: UUID) -> Union[str, Response]:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
 
@@ -161,7 +161,7 @@ def edit(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
-def archive(id: UUID) -> str:
+def archive(id: UUID) -> Union[str, Response]:
     person: Person = db.get_or_404(Person, id)
     form: ArchivePersonForm = ArchivePersonForm()
 
@@ -178,7 +178,7 @@ def archive(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
-def restore(id: UUID) -> str:
+def restore(id: UUID) -> Union[str, Response]:
     person: Person = db.get_or_404(Person, id)
     form: RestorePersonForm = RestorePersonForm()
 
