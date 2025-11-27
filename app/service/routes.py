@@ -95,10 +95,16 @@ def edit(id: UUID) -> str:
     service: Service = db.get_or_404(Service, id)
     form: ServiceForm = ServiceForm()
 
+    # Add options
+    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
+    form.team.choices.extend((team.id, team.name) for team in teams)
+
     if request.method == "GET":
         form.name.data = service.name
+        form.team.data = str(service.team_id)
     elif form.validate_on_submit():
         service.name = form.name.data
+        service.team_id = form.team.data if form.team.data else None
         try:
             db.session.commit()
             flash(
