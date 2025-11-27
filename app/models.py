@@ -60,10 +60,10 @@ class Role(db.Model):  # noqa: F811
             "id": str(self.id),
             "name": self.name,
             "grade": self.grade,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "updated_at": self.updated_at if self.updated_at else None,
         }
         if self.archived_at:
-            data["archived_at"] = self.archived_at.isoformat()
+            data["archived_at"] = self.archived_at
         if include_people:
             data["people"] = [person.to_dict(include_team=True) for person in self.people]
         return data
@@ -105,10 +105,10 @@ class Team(db.Model):  # noqa: F811
         data = {
             "id": str(self.id),
             "name": self.name,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "updated_at": self.updated_at if self.updated_at else None,
         }
         if self.archived_at:
-            data["archived_at"] = self.archived_at.isoformat()
+            data["archived_at"] = self.archived_at
         if include_people:
             data["people"] = [person.to_dict(include_role=True) for person in self.people]
         if include_services:
@@ -173,10 +173,10 @@ class Person(db.Model):  # noqa: F811
             "id": str(self.id),
             "name": self.name,
             "location": self.location,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "updated_at": self.updated_at if self.updated_at else None,
         }
         if self.archived_at:
-            data["archived_at"] = self.archived_at.isoformat()
+            data["archived_at"] = self.archived_at
         if include_role and self.role:
             data["role"] = self.role.to_dict()
         if include_team and self.team:
@@ -222,10 +222,10 @@ class Service(db.Model):  # noqa: F811
         data = {
             "id": str(self.id),
             "name": self.name,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "updated_at": self.updated_at if self.updated_at else None,
         }
         if self.archived_at:
-            data["archived_at"] = self.archived_at.isoformat()
+            data["archived_at"] = self.archived_at
         if include_team and self.team:
             data["team"] = self.team.to_dict()
         if include_components:
@@ -262,10 +262,10 @@ class Component(db.Model):  # noqa: F811
         data = {
             "id": str(self.id),
             "name": self.name,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "updated_at": self.updated_at if self.updated_at else None,
         }
         if self.archived_at:
-            data["archived_at"] = self.archived_at.isoformat()
+            data["archived_at"] = self.archived_at
         if include_services:
             data["services"] = [service.to_dict() for service in self.services]
         return data
