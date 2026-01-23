@@ -69,13 +69,14 @@ mypy-extensions==1.1.0
     #   mypy
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
-packaging==25.0
+packaging==26.0
     # via
     #   black
     #   build
     #   pip-audit
     #   pip-requirements-parser
     #   pytest
+    #   wheel
 pathspec==1.0.3
     # via
     #   black
@@ -146,7 +147,7 @@ typing-extensions==4.15.0
     # via mypy
 urllib3==2.6.3
     # via requests
-wheel==0.45.1
+wheel==0.46.3
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:

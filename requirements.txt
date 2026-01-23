@@ -42,9 +42,9 @@ govuk-frontend-jinja==3.10.0
     #   govuk-frontend-wtf
 govuk-frontend-wtf==3.2.0
     # via -r requirements.in
-greenlet==3.3.0
+greenlet==3.3.1
     # via sqlalchemy
-gunicorn==23.0.0
+gunicorn==24.0.0
     # via -r requirements.in
 idna==3.11
     # via email-validator
@@ -70,7 +70,7 @@ markupsafe==3.0.3
     #   wtforms
 ordered-set==4.1.0
     # via flask-limiter
-packaging==25.0
+packaging==26.0
     # via
     #   gunicorn
     #   limits
@@ -78,7 +78,7 @@ psycopg2==2.9.11
     # via -r requirements.in
 redis==6.4.0
     # via limits
-sqlalchemy==2.0.45
+sqlalchemy==2.0.46
     # via
     #   alembic
     #   flask-sqlalchemy
