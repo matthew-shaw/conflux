@@ -44,8 +44,8 @@ POSTGRES_HOST=mimisbrunnr
 POSTGRES_PASSWORD=smartestmanalive
 POSTGRES_PORT=5432
 POSTGRES_USER=mimir
-REDIS_HOST=loki
-REDIS_PORT=6379
+VALKEY_HOST=loki
+VALKEY_PORT=6379
 SECRET_KEY=<see_below>
 ```
 
@@ -80,9 +80,9 @@ flowchart TB
     compose(compose.yml)
     nginx(nginx:stable-alpine)
     node(node:krypton-alpine)
-    postgres(postgres:17-alpine)
+    postgres(postgres:18-alpine)
     python(python:3.14-slim)
-    redis(redis:7-alpine)
+    valkey(valkey/valkey:9-alpine)
 
     compose -- Creates --> Mimir & Loki & Bifrost & Mimisbrunnr
     Mimir -- Depends on --> Loki & Mimisbrunnr
@@ -102,7 +102,7 @@ flowchart TB
     end
 
     subgraph Loki
-        redis
+        valkey
     end
 ```
 
@@ -110,7 +110,7 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    redis(Redis)
+    valkey(Valkey)
     client(Client)
     nginx(NGINX)
     flask(Gunicorn/Flask)
@@ -118,7 +118,7 @@ flowchart TB
     db@{ shape: cyl, label: "PostgreSQL" }
 
     client -- https:443 --> nginx -- http:5000 --> flask -- postgres:5432 --> db
-    flask -- redis:6379 --> redis
+    flask -- valkey:6379 --> valkey
 
     subgraph Yggdrasil
         subgraph Bifrost
@@ -134,7 +134,7 @@ flowchart TB
         end
 
         subgraph Loki
-            redis
+            valkey
         end
     end
 ```
@@ -173,12 +173,12 @@ PostgreSQL Database
 
 ### Loki
 
-Redis Cache
+Valkey Cache
 
 > “The trickster god, known for speed, mischief, and unpredictability. Often at the center of both chaos and transformation.”
 
 - **What:** Provides fast, in-memory storage for ephemeral data—used for caching, temporary tokens, session data, etc.
-- **Why:** Redis is extremely fast and well-suited for performance-critical features. It decouples the persistence layer from volatile needs.
+- **Why:** Valkey is extremely fast and well-suited for performance-critical features. It decouples the persistence layer from volatile needs.
 - **Mythology:** Like the unpredictable Loki, this component is fast, transient, and sometimes mischievous—but indispensable.
 
 ### Yggdrasil
