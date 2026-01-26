@@ -2,7 +2,7 @@ from typing import Tuple, Union
 
 from flask import Response, flash, make_response, redirect, render_template, request
 from flask_wtf.csrf import CSRFError  # type: ignore
-from sqlalchemy import func, select
+from sqlalchemy import func
 from werkzeug.exceptions import HTTPException
 
 from app import db
@@ -14,7 +14,6 @@ from app.models import Person, Role, Service, Team
 @bp.route("/", methods=["GET"])
 def index() -> str:
     """Render the index page."""
-    session = db.session
     counts = {
         "roles": db.session.execute(
             db.select(func.count()).select_from(Role).where(Role.archived_at.is_(None))
