@@ -4,7 +4,7 @@ from flask import render_template, request, url_for
 from sqlalchemy import or_
 
 from app import db
-from app.models import Person, Role, Team, Service
+from app.models import Person, Role, Service, Team
 from app.search import bp
 from app.search.forms import SearchForm
 
