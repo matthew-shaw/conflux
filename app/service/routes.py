@@ -14,6 +14,7 @@ from flask import (
     url_for,
 )
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Service, Team
@@ -155,7 +156,11 @@ def restore(id: UUID) -> str:
 
 @bp.route("/download", methods=["GET"])
 def download():
-    services: List[Service] = db.session.execute(db.select(Service).order_by(Service.name)).scalars().all()
+    services: List[Service] = (
+        db.session.execute(db.select(Service).options(selectinload(Service.team)).order_by(Service.name))
+        .scalars()
+        .all()
+    )
 
     def generate():
         data = StringIO()
@@ -165,7 +170,7 @@ def download():
         yield "\ufeff"  # This signals that the file is UTF-8 encoded
 
         # write header
-        writer.writerow(("ID", "NAME", "UPDATED_AT", "ARCHIVED_AT"))
+        writer.writerow(("ID", "NAME", "TEAM_ID", "TEAM_NAME", "UPDATED_AT", "ARCHIVED_AT"))
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -176,6 +181,8 @@ def download():
                 (
                     service.id,
                     service.name,
+                    service.team.id if service.team else "",
+                    service.team.name if service.team else "",
                     service.updated_at.isoformat(),
                     service.archived_at.isoformat() if service.archived_at else "",
                 )

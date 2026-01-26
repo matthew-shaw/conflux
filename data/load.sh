@@ -18,6 +18,6 @@ COPY people (ID, NAME, ROLE_ID, TEAM_ID, LOCATION, MANAGER_ID, UPDATED_AT, ARCHI
 FROM '/data/people.csv' \
 WITH (FORMAT csv, HEADER true);
 
-COPY services (ID, NAME, UPDATED_AT, ARCHIVED_AT) \
+COPY services (ID, NAME, TEAM_ID, UPDATED_AT, ARCHIVED_AT) \
 FROM '/data/services.csv' \
 WITH (FORMAT csv, HEADER true);"
