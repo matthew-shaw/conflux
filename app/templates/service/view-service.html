@@ -67,7 +67,7 @@
             'text': "Owning team"
           },
           'value': {
-            'text': service.team.name
+            'text': service.team.name if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
             'items': [
