@@ -1,7 +1,7 @@
 {
-  "name": "Mímir",
-  "short_name": "Mímir",
-  "description": "Mímir is a service directory and organisational knowledge base.",
+  "name": "Conflux",
+  "short_name": "Conflux",
+  "description": "Conflux is a service directory and organisational knowledge base.",
   "icons": [
     {
       "src": "images/favicon.ico",

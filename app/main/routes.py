@@ -77,12 +77,6 @@ def cookies() -> Union[str, Response]:
     return render_template("cookies.html", form=form)
 
 
-@bp.route("/about", methods=["GET"])
-def about() -> str:
-    """Render the about page."""
-    return render_template("about.html")
-
-
 @bp.route("/health", methods=["GET"])
 def health() -> str:
     """Route for healthchecks"""

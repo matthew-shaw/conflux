@@ -10,4 +10,4 @@ flask db upgrade
 : "${ACCESS_LOG:=-}"
 
 echo "Starting Gunicorn on $BIND_ADDR with $WORKERS workers..."
-exec gunicorn --bind "$BIND_ADDR" -w "$WORKERS" --access-logfile "$ACCESS_LOG" mimir:app
+exec gunicorn --bind "$BIND_ADDR" -w "$WORKERS" --access-logfile "$ACCESS_LOG" conflux:app

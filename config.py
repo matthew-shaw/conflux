@@ -11,7 +11,7 @@ class Config(object):
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_STORAGE_URI = os.environ.get("REDIS_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")
-    SERVICE_NAME = "Mímir"
+    SERVICE_NAME = "Conflux"
     SERVICE_PHASE = "Alpha"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"

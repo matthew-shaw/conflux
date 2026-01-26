@@ -1,6 +1,6 @@
 #!/bin/sh
 
-docker compose exec mimisbrunnr psql \
+docker compose exec db psql \
   -U mimir \
   -d mimisbrunnr \
   -c "\

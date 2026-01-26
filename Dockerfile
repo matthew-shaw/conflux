@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create non-root user
 RUN addgroup --system appgroup && adduser --system --group appuser
 
-ENV FLASK_APP=mimir.py \
+ENV FLASK_APP=conflux.py \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
@@ -37,7 +37,7 @@ COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/*
 
 # Copy application code
-COPY --chown=appuser:appgroup mimir.py config.py ./ 
+COPY --chown=appuser:appgroup conflux.py config.py ./ 
 COPY --chown=appuser:appgroup app app
 COPY --chown=appuser:appgroup migrations migrations
 

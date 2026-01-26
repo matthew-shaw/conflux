@@ -1,1 +1,1 @@
-FLASK_APP=mimir.py
+FLASK_APP=conflux.py

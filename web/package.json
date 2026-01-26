@@ -1,7 +1,7 @@
 {
-  "name": "mimir",
+  "name": "conflux",
   "version": "1.0.0",
-  "description": "Mímir",
+  "description": "Conflux",
   "private": true,
   "scripts": {
     "format:check": "prettier src --check",
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/matthew-shaw/mimir.git"
+    "url": "git+https://github.com/matthew-shaw/conflux.git"
   },
   "author": {
     "name": "Matt Shaw",
@@ -25,9 +25,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/matthew-shaw/mimir/issues"
+    "url": "https://github.com/matthew-shaw/conflux/issues"
   },
-  "homepage": "https://github.com/matthew-shaw/mimir#readme",
+  "homepage": "https://github.com/matthew-shaw/conflux#readme",
   "dependencies": {
     "govuk-frontend": "5.14.0"
   },
@@ -45,7 +45,7 @@
     "mini-css-extract-plugin": "^2.10.0",
     "npm-check-updates": "^19.3.1",
     "postcss-loader": "^8.2.0",
-    "postcss-preset-env": "^11.1.1",
+    "postcss-preset-env": "^11.1.2",
     "prettier": "^3.8.1",
     "sass": "^1.97.3",
     "sass-loader": "^16.0.6",
