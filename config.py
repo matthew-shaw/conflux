@@ -9,7 +9,7 @@ class Config(object):
     GRADES = os.environ.get("GRADES", "").split(",")
     LOCATIONS = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
     RATELIMIT_HEADERS_ENABLED = True
-    RATELIMIT_STORAGE_URI = os.environ.get("REDIS_URL")
+    RATELIMIT_STORAGE_URI = os.environ.get("VALKEY_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")
     SERVICE_NAME = "Conflux"
     SERVICE_PHASE = "Alpha"
