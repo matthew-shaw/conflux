@@ -1,0 +1,42 @@
+{%- extends "base.html" -%}
+
+{%- from 'govuk_frontend_jinja/components/panel/macro.html' import govukPanel -%}
+
+{%- block pageTitle -%}Dashboard – {{config['SERVICE_NAME']}}{%- endblock -%}
+
+{%- block content -%}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        {{ super() }}
+        <h1 class="govuk-heading-l">Dashboard</h1>
+    </div>
+</div>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    {{ govukPanel({
+        'titleText': counts.roles,
+        'text': "Roles"
+    }) }}
+  </div>
+  <div class="govuk-grid-column-one-half">
+    {{ govukPanel({
+        'titleText': counts.people,
+        'text': "People"
+    }) }}
+  </div>
+</div>
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-one-half">
+    {{ govukPanel({
+        'titleText': counts.teams,
+        'text': "Teams"
+    }) }}
+  </div>
+  <div class="govuk-grid-column-one-half">
+    {{ govukPanel({
+        'titleText': counts.services,
+        'text': "Services"
+    }) }}
+  </div>
+</div>
+{%- endblock -%}

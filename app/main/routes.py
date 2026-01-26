@@ -2,10 +2,34 @@ from typing import Tuple, Union
 
 from flask import Response, flash, make_response, redirect, render_template, request
 from flask_wtf.csrf import CSRFError  # type: ignore
+from sqlalchemy import func, select
 from werkzeug.exceptions import HTTPException
 
+from app import db
 from app.main import bp
 from app.main.forms import CookiesForm
+from app.models import Person, Role, Service, Team
+
+
+@bp.route("/", methods=["GET"])
+def index() -> str:
+    """Render the index page."""
+    session = db.session
+    counts = {
+        "roles": db.session.execute(
+            db.select(func.count()).select_from(Role).where(Role.archived_at.is_(None))
+        ).scalar_one(),
+        "teams": db.session.execute(
+            db.select(func.count()).select_from(Team).where(Team.archived_at.is_(None))
+        ).scalar_one(),
+        "people": db.session.execute(
+            db.select(func.count()).select_from(Person).where(Person.archived_at.is_(None))
+        ).scalar_one(),
+        "services": db.session.execute(
+            db.select(func.count()).select_from(Service).where(Service.archived_at.is_(None))
+        ).scalar_one(),
+    }
+    return render_template("index.html", counts=counts)
 
 
 @bp.route("/accessibility", methods=["GET"])
