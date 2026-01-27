@@ -2,13 +2,21 @@
 
 Conflux is an organisational knowledge platform that helps teams understand ownership, responsibilities, and dependencies across people, teams, services, and components. It provides a clear, up-to-date view of how work is structured and how changes propagate through the organisation, enabling better decision-making and safer change.
 
+Conflux models the interconnected domains of digital organisations with five key concepts:
+
+- **People** - individuals with a specific role, assigned to a team
+- **Teams** - groups of people responsible for services
+- **Roles** - responsibilities individuals hold
+- **Services** - digital systems owned by teams
+- **Components** - shared or standalone technical building blocks
+
 ## Features
 
-- **Ownership mapping** — _"Who owns this service?"_ Track accountability across teams and services.
-- **Team composition tracking** — _"Who’s in this team, and what do they do?"_ Understand team makeup and role distribution.
-- **Dependency analysis** — _"Which components are shared across services?"_ Reveal architectural reuse and potential points of failure.
-- **Role-based insights** — _"Who are the developers working on critical services?"_ Filter by responsibility and capability across the estate.
-- **Change impact assessment** — _"If we change this component, who needs to know?"_ Anticipate downstream effects before making architectural changes.
+- **Ownership mapping** - _"Who owns this service?"_ Track accountability across teams and services.
+- **Team composition tracking** - _"Who’s in this team, and what do they do?"_ Understand team makeup and role distribution.
+- **Dependency analysis** - _"Which components are shared across services?"_ Reveal architectural reuse and potential points of failure.
+- **Role-based insights** - _"Who are the developers working on critical services?"_ Filter by responsibility and capability across the estate.
+- **Change impact assessment** - _"If we change this component, who needs to know?"_ Anticipate downstream effects before making architectural changes.
 
 ## Requirements
 
@@ -148,7 +156,7 @@ PostgreSQL Database
 
 Valkey Cache
 
-- **What:** Provides fast, in-memory storage for ephemeral data—used for caching, temporary tokens, session data, etc.
+- **What:** Provides fast, in-memory storage for ephemeral data-used for caching, temporary tokens, session data, etc.
 - **Why:** Valkey is extremely fast and well-suited for performance-critical features. It decouples the persistence layer from volatile needs.
 
 ### Network
@@ -193,11 +201,3 @@ erDiagram
     services ||--|{ components : "uses"
     components ||--|{ services : "used by"
 ```
-
-Conflux models the interconnected domains of digital organisations with five key concepts:
-
-- **People** — individuals with a specific role, assigned to a team
-- **Teams** — groups of people responsible for services
-- **Roles** — responsibilities individuals hold
-- **Services** — digital systems owned by teams
-- **Components** — shared or standalone technical building blocks
