@@ -1,28 +1,14 @@
 # Conflux
 
-Conflux is a service directory and organisational knowledge base. It helps teams and leadership to understand who is responsible for what, how systems are connected, and what parts of the architecture depend on others.
+Conflux is an organisational knowledge platform that helps teams understand ownership, responsibilities, and dependencies across people, teams, services, and components. It provides a clear, up-to-date view of how work is structured and how changes propagate through the organisation, enabling better decision-making and safer change.
 
 ## Features
 
-- **Ownership mapping** — “Who owns this service?”
-
-  Track accountability across teams and services.
-
-- **Team composition tracking** — “Who’s in this team, and what do they do?”
-
-  Understand team makeup and role distribution.
-
-- **Dependency analysis** — “Which components are shared across services?”
-
-  Reveal architectural reuse and potential points of failure.
-
-- **Role-based insights** — “Who are the developers working on critical services?”
-
-  Filter by responsibility and capability across the estate.
-
-- **Change impact assessment** — “If we change this component, who needs to know?”
-
-  Anticipate downstream effects before making architectural changes.
+- **Ownership mapping** — _"Who owns this service?"_ Track accountability across teams and services.
+- **Team composition tracking** — _"Who’s in this team, and what do they do?"_ Understand team makeup and role distribution.
+- **Dependency analysis** — _"Which components are shared across services?"_ Reveal architectural reuse and potential points of failure.
+- **Role-based insights** — _"Who are the developers working on critical services?"_ Filter by responsibility and capability across the estate.
+- **Change impact assessment** — _"If we change this component, who needs to know?"_ Anticipate downstream effects before making architectural changes.
 
 ## Requirements
 
