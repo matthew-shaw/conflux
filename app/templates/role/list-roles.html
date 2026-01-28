@@ -28,7 +28,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
     <h2 class="govuk-heading-m">Sort and filter</h3>
-    <form method="get" action="{{ url_for('role.list') }}" novalidate>
+    <form method="get" action="{{ url_for('role.list_roles') }}" novalidate>
       {{ form.sort(params={
         'classes': "govuk-radios--small"
       }) }}
