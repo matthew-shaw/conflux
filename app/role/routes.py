@@ -1,11 +1,11 @@
 import csv
 from datetime import datetime, timezone
 from io import StringIO
-from typing import List
+from typing import Iterator
 from uuid import UUID
 
+from flask import Response as FlaskResponse
 from flask import (
-    Response,
     current_app,
     flash,
     jsonify,
@@ -14,6 +14,7 @@ from flask import (
     request,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 
 from app import db
@@ -28,7 +29,7 @@ from app.role.forms import (
 
 
 @bp.route("/", methods=["GET"])
-def list() -> str:
+def list_roles() -> ResponseReturnValue:
     form: RoleSortFilterForm = RoleSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
@@ -53,7 +54,7 @@ def list() -> str:
         query = query.where(Role.archived_at.is_not(None))
     # No filter if status == "all"
 
-    roles: List[Role] = db.session.execute(query).scalars().all()
+    roles: list[Role] = list(db.session.execute(query).scalars().all())
 
     if request.accept_mimetypes.best == "application/json":
         return jsonify([role.to_dict() for role in roles])
@@ -61,7 +62,7 @@ def list() -> str:
 
 
 @bp.route("/new", methods=["GET", "POST"])
-def create() -> str:
+def create() -> ResponseReturnValue:
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
     if form.validate_on_submit():
@@ -73,7 +74,7 @@ def create() -> str:
                 f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("role.list"))
+            return redirect(url_for("role.list_roles"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
@@ -82,7 +83,7 @@ def create() -> str:
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
-def view(id: UUID) -> str:
+def view(id: UUID) -> ResponseReturnValue:
     role = db.get_or_404(Role, id)
     if request.accept_mimetypes.best == "application/json":
         return jsonify(role.to_dict(include_people=True))
@@ -90,7 +91,7 @@ def view(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
-def edit(id: UUID) -> str:
+def edit(id: UUID) -> ResponseReturnValue:
     role: Role = db.get_or_404(Role, id)
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
@@ -106,7 +107,7 @@ def edit(id: UUID) -> str:
                 f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("role.list"))
+            return redirect(url_for("role.list_roles"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
@@ -115,7 +116,7 @@ def edit(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
-def archive(id: UUID) -> str:
+def archive(id: UUID) -> ResponseReturnValue:
     role: Role = db.get_or_404(Role, id)
     form: ArchiveRoleForm = ArchiveRoleForm()
 
@@ -126,13 +127,13 @@ def archive(id: UUID) -> str:
             f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("role.list"))
+        return redirect(url_for("role.list_roles"))
 
     return render_template("archive-role.html", title="Archive role", role=role, form=form)
 
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
-def restore(id: UUID) -> str:
+def restore(id: UUID) -> ResponseReturnValue:
     role: Role = db.get_or_404(Role, id)
     form: RestoreRoleForm = RestoreRoleForm()
 
@@ -143,16 +144,16 @@ def restore(id: UUID) -> str:
             f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("role.list"))
+        return redirect(url_for("role.list_roles"))
 
     return render_template("restore-role.html", title="Restore role", role=role, form=form)
 
 
 @bp.route("/download", methods=["GET"])
-def download():
-    roles: List[Role] = db.session.execute(db.select(Role).order_by(Role.name)).scalars().all()
+def download() -> ResponseReturnValue:
+    roles: list[Role] = list(db.session.execute(db.select(Role).order_by(Role.name)).scalars().all())
 
-    def generate():
+    def generate() -> Iterator[str]:
         data = StringIO()
         writer = csv.writer(data, quoting=csv.QUOTE_MINIMAL)
 
@@ -180,6 +181,6 @@ def download():
             data.seek(0)
             data.truncate(0)
 
-    response = Response(generate(), mimetype="text/csv", status=200)
+    response: FlaskResponse = FlaskResponse(generate(), mimetype="text/csv", status=200)
     response.headers.set("Content-Disposition", "attachment", filename="roles.csv")
     return response

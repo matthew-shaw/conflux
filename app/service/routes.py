@@ -1,11 +1,11 @@
 import csv
 from datetime import datetime, timezone
 from io import StringIO
-from typing import List
+from typing import Iterator
 from uuid import UUID
 
+from flask import Response as FlaskResponse
 from flask import (
-    Response,
     flash,
     jsonify,
     redirect,
@@ -13,6 +13,7 @@ from flask import (
     request,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
@@ -28,7 +29,7 @@ from app.service.forms import (
 
 
 @bp.route("/", methods=["GET"])
-def list() -> str:
+def list_services() -> ResponseReturnValue:
     form: ServiceSortFilterForm = ServiceSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
@@ -51,7 +52,7 @@ def list() -> str:
         query = query.where(Service.archived_at.is_not(None))
     # No filter if status == "all"
 
-    services: List[Service] = db.session.execute(query).scalars().all()
+    services: list[Service] = list(db.session.execute(query).scalars().all())
 
     if request.accept_mimetypes.best == "application/json":
         return jsonify([service.to_dict() for service in services])
@@ -59,7 +60,7 @@ def list() -> str:
 
 
 @bp.route("/new", methods=["GET", "POST"])
-def create() -> str:
+def create() -> ResponseReturnValue:
     form: ServiceForm = ServiceForm()
 
     # Add options
@@ -67,7 +68,10 @@ def create() -> str:
     form.team.choices.extend((team.id, team.name) for team in teams)
 
     if form.validate_on_submit():
-        service: Service = Service(name=form.name.data, team_id=form.team.data if form.team.data else None)
+        service: Service = Service(
+            name=form.name.data,
+            team_id=UUID(form.team.data) if form.team.data else None,
+        )
         db.session.add(service)
         try:
             db.session.commit()
@@ -75,7 +79,7 @@ def create() -> str:
                 f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("service.list"))
+            return redirect(url_for("service.list_services"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A service with this name already exists.")
@@ -84,15 +88,15 @@ def create() -> str:
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
-def view(id: UUID) -> str:
+def view(id: UUID) -> ResponseReturnValue:
     service = db.get_or_404(Service, id)
     if request.accept_mimetypes.best == "application/json":
-        return jsonify(service.to_dict(include_people=True, include_services=True))
+        return jsonify(service.to_dict(include_team=True))
     return render_template("view-service.html", service=service)
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
-def edit(id: UUID) -> str:
+def edit(id: UUID) -> ResponseReturnValue:
     service: Service = db.get_or_404(Service, id)
     form: ServiceForm = ServiceForm()
 
@@ -105,14 +109,14 @@ def edit(id: UUID) -> str:
         form.team.data = str(service.team_id)
     elif form.validate_on_submit():
         service.name = form.name.data
-        service.team_id = form.team.data if form.team.data else None
+        service.team_id = UUID(form.team.data) if form.team.data else None
         try:
             db.session.commit()
             flash(
                 f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("service.list"))
+            return redirect(url_for("service.list_services"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A service with this name already exists.")
@@ -121,7 +125,7 @@ def edit(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
-def archive(id: UUID) -> str:
+def archive(id: UUID) -> ResponseReturnValue:
     service: Service = db.get_or_404(Service, id)
     form: ArchiveServiceForm = ArchiveServiceForm()
 
@@ -132,13 +136,13 @@ def archive(id: UUID) -> str:
             f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("service.list"))
+        return redirect(url_for("service.list_services"))
 
     return render_template("archive-service.html", title="Archive service", service=service, form=form)
 
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
-def restore(id: UUID) -> str:
+def restore(id: UUID) -> ResponseReturnValue:
     service: Service = db.get_or_404(Service, id)
     form: RestoreServiceForm = RestoreServiceForm()
 
@@ -149,20 +153,20 @@ def restore(id: UUID) -> str:
             f'<a href="{url_for("service.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("service.list"))
+        return redirect(url_for("service.list_services"))
 
     return render_template("restore-service.html", title="Restore service", service=service, form=form)
 
 
 @bp.route("/download", methods=["GET"])
-def download():
-    services: List[Service] = (
+def download() -> ResponseReturnValue:
+    services: list[Service] = list(
         db.session.execute(db.select(Service).options(selectinload(Service.team)).order_by(Service.name))
         .scalars()
         .all()
     )
 
-    def generate():
+    def generate() -> Iterator[str]:
         data = StringIO()
         writer = csv.writer(data, quoting=csv.QUOTE_MINIMAL)
 
@@ -191,6 +195,6 @@ def download():
             data.seek(0)
             data.truncate(0)
 
-    response = Response(generate(), mimetype="text/csv", status=200)
+    response: FlaskResponse = FlaskResponse(generate(), mimetype="text/csv", status=200)
     response.headers.set("Content-Disposition", "attachment", filename="services.csv")
     return response

@@ -1,6 +1,5 @@
-from typing import Tuple, Union
-
 from flask import Response, flash, make_response, redirect, render_template, request
+from flask.typing import ResponseReturnValue
 from flask_wtf.csrf import CSRFError  # type: ignore
 from sqlalchemy import func
 from werkzeug.exceptions import HTTPException
@@ -38,7 +37,7 @@ def accessibility() -> str:
 
 
 @bp.route("/cookies", methods=["GET", "POST"])
-def cookies() -> Union[str, Response]:
+def cookies() -> str | Response:
     """Handle GET and POST requests for managing cookie preferences."""
     form: CookiesForm = CookiesForm()
     # Initialize cookie settings. Defaults to rejecting all cookies.
@@ -55,13 +54,20 @@ def cookies() -> Union[str, Response]:
         response: Response = make_response(render_template("cookies.html", form=form))
 
         # Set individual cookies in the response
-        cookie_params = {
-            "max_age": 31557600,
-            "secure": True,
-            "samesite": "Lax",
-        }  # One year
-        response.set_cookie("functional", functional, **cookie_params)
-        response.set_cookie("analytics", analytics, **cookie_params)
+        response.set_cookie(
+            "functional",
+            functional,
+            max_age=31557600,
+            secure=True,
+            samesite="Lax",
+        )
+        response.set_cookie(
+            "analytics",
+            analytics,
+            max_age=31557600,
+            secure=True,
+            samesite="Lax",
+        )
 
         return response
     elif request.method == "GET":
@@ -77,19 +83,19 @@ def cookies() -> Union[str, Response]:
 
 
 @bp.route("/health", methods=["GET"])
-def health() -> str:
+def health() -> ResponseReturnValue:
     """Route for healthchecks"""
     return "OK", 200
 
 
 @bp.app_errorhandler(HTTPException)
-def handle_http_exception(error: HTTPException) -> Tuple[str, int]:
-    """Handle HTTP exceptions and render appropriate error template."""
-    return render_template(f"{error.code}.html"), error.code
+def handle_http_exception(error: HTTPException) -> ResponseReturnValue:
+    code: int = error.code or 500
+    return render_template(f"{code}.html"), code
 
 
 @bp.app_errorhandler(CSRFError)
-def handle_csrf_error(error: CSRFError) -> Response:
+def handle_csrf_error(error: CSRFError) -> ResponseReturnValue:
     """Handle CSRF errors and display a flash message."""
     flash("The form you were submitting has expired. Please try again.")
     return redirect(request.url)

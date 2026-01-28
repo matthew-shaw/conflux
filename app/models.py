@@ -1,12 +1,15 @@
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional
 
+from flask_sqlalchemy.model import Model as FlaskSQLAlchemyModel
 from sqlalchemy import DateTime, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import db
+
+BaseModel = FlaskSQLAlchemyModel
+
 
 # Join table for services <-> components many-to-many relationship
 service_components: Table = Table(
@@ -29,7 +32,7 @@ service_components: Table = Table(
 )
 
 
-class Role(db.Model):  # noqa: F811
+class Role(BaseModel):  # noqa: F811
     """
     Represents a role that can be performed by a person.
     """
@@ -45,9 +48,9 @@ class Role(db.Model):  # noqa: F811
         onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
-    archived_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
 
-    people: Mapped[List["Person"]] = relationship(
+    people: Mapped[list["Person"]] = relationship(
         "Person",
         back_populates="role",
         cascade="save-update",
@@ -55,8 +58,17 @@ class Role(db.Model):  # noqa: F811
         order_by="Person.name",
     )
 
-    def to_dict(self, include_people: bool = False) -> dict:
-        data = {
+    def __init__(
+        self,
+        *,
+        name: str,
+        grade: str,
+    ) -> None:
+        self.name = name
+        self.grade = grade
+
+    def to_dict(self, include_people: bool = False) -> dict[str, object]:
+        data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
             "grade": self.grade,
@@ -69,7 +81,7 @@ class Role(db.Model):  # noqa: F811
         return data
 
 
-class Team(db.Model):  # noqa: F811
+class Team(BaseModel):  # noqa: F811
     """
     Represents a team to which people belong and which owns services.
     """
@@ -78,7 +90,7 @@ class Team(db.Model):  # noqa: F811
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
-    archived_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -86,14 +98,14 @@ class Team(db.Model):  # noqa: F811
         nullable=False,
     )
 
-    people: Mapped[List["Person"]] = relationship(
+    people: Mapped[list["Person"]] = relationship(
         "Person",
         back_populates="team",
         cascade="save-update",
         passive_deletes=True,
         order_by="Person.name",
     )
-    services: Mapped[List["Service"]] = relationship(
+    services: Mapped[list["Service"]] = relationship(
         "Service",
         back_populates="team",
         cascade="save-update",
@@ -101,8 +113,15 @@ class Team(db.Model):  # noqa: F811
         order_by="Service.name",
     )
 
-    def to_dict(self, include_people: bool = False, include_services: bool = False) -> dict:
-        data = {
+    def __init__(
+        self,
+        *,
+        name: str,
+    ) -> None:
+        self.name = name
+
+    def to_dict(self, include_people: bool = False, include_services: bool = False) -> dict[str, object]:
+        data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
             "updated_at": self.updated_at if self.updated_at else None,
@@ -116,7 +135,7 @@ class Team(db.Model):  # noqa: F811
         return data
 
 
-class Person(db.Model):  # noqa: F811
+class Person(BaseModel):  # noqa: F811
     """
     Represents a person who belongs to a team and performs a role.
     """
@@ -127,7 +146,7 @@ class Person(db.Model):  # noqa: F811
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
     location: Mapped[str] = mapped_column(nullable=False, index=True)
-    archived_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -137,17 +156,17 @@ class Person(db.Model):  # noqa: F811
 
     # Foreign Keys
     role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False, index=True)
-    team_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    team_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("teams.id", ondelete="SET NULL"), nullable=True, index=True
     )
-    manager_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    manager_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("people.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
     # Relationships
     role: Mapped["Role"] = relationship("Role", back_populates="people", passive_deletes=True)
-    team: Mapped[Optional["Team"]] = relationship("Team", back_populates="people", passive_deletes=True)
-    manager: Mapped[Optional["Person"]] = relationship(
+    team: Mapped["Team" | None] = relationship("Team", back_populates="people", passive_deletes=True)
+    manager: Mapped["Person" | None] = relationship(
         "Person",
         remote_side=[id],
         back_populates="reports",
@@ -162,14 +181,29 @@ class Person(db.Model):  # noqa: F811
         order_by="Person.name",
     )
 
+    def __init__(
+        self,
+        *,
+        name: str,
+        location: str,
+        role_id: uuid.UUID,
+        team_id: uuid.UUID | None = None,
+        manager_id: uuid.UUID | None = None,
+    ) -> None:
+        self.name = name
+        self.location = location
+        self.role_id = role_id
+        self.team_id = team_id
+        self.manager_id = manager_id
+
     def to_dict(
         self,
         include_role: bool = False,
         include_team: bool = False,
         include_manager: bool = False,
         include_reports: bool = False,
-    ) -> dict:
-        data = {
+    ) -> dict[str, object]:
+        data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
             "location": self.location,
@@ -188,7 +222,7 @@ class Person(db.Model):  # noqa: F811
         return data
 
 
-class Service(db.Model):  # noqa: F811
+class Service(BaseModel):  # noqa: F811
     """
     Represents a service owned by a team and composed of components.
     """
@@ -197,7 +231,7 @@ class Service(db.Model):  # noqa: F811
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
-    archived_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -205,12 +239,12 @@ class Service(db.Model):  # noqa: F811
         nullable=False,
     )
 
-    team_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    team_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("teams.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
-    team: Mapped[Optional["Team"]] = relationship("Team", back_populates="services", passive_deletes=True)
-    components: Mapped[List["Component"]] = relationship(
+    team: Mapped["Team" | None] = relationship("Team", back_populates="services", passive_deletes=True)
+    components: Mapped[list["Component"]] = relationship(
         "Component",
         secondary=service_components,
         back_populates="services",
@@ -218,8 +252,17 @@ class Service(db.Model):  # noqa: F811
         order_by="Component.name",
     )
 
-    def to_dict(self, include_team: bool = False, include_components: bool = False) -> dict:
-        data = {
+    def __init__(
+        self,
+        *,
+        name: str,
+        team_id: uuid.UUID | None = None,
+    ) -> None:
+        self.name = name
+        self.team_id = team_id
+
+    def to_dict(self, include_team: bool = False, include_components: bool = False) -> dict[str, object]:
+        data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
             "updated_at": self.updated_at if self.updated_at else None,
@@ -233,7 +276,7 @@ class Service(db.Model):  # noqa: F811
         return data
 
 
-class Component(db.Model):  # noqa: F811
+class Component(BaseModel):  # noqa: F811
     """
     Represents a component that can be used by multiple services.
     """
@@ -242,7 +285,7 @@ class Component(db.Model):  # noqa: F811
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
-    archived_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=None)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -250,7 +293,7 @@ class Component(db.Model):  # noqa: F811
         nullable=False,
     )
 
-    services: Mapped[List["Service"]] = relationship(
+    services: Mapped[list["Service"]] = relationship(
         "Service",
         secondary=service_components,
         back_populates="components",
@@ -258,8 +301,15 @@ class Component(db.Model):  # noqa: F811
         order_by="Service.name",
     )
 
-    def to_dict(self, include_services: bool = False) -> dict:
-        data = {
+    def __init__(
+        self,
+        *,
+        name: str,
+    ) -> None:
+        self.name = name
+
+    def to_dict(self, include_services: bool = False) -> dict[str, object]:
+        data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
             "updated_at": self.updated_at if self.updated_at else None,

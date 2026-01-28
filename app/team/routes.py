@@ -1,11 +1,11 @@
 import csv
 from datetime import datetime, timezone
 from io import StringIO
-from typing import List
+from typing import Iterator
 from uuid import UUID
 
+from flask import Response as FlaskResponse
 from flask import (
-    Response,
     flash,
     jsonify,
     redirect,
@@ -13,6 +13,7 @@ from flask import (
     request,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 
 from app import db
@@ -27,7 +28,7 @@ from app.team.forms import (
 
 
 @bp.route("/", methods=["GET"])
-def list() -> str:
+def list_teams() -> ResponseReturnValue:
     form: TeamSortFilterForm = TeamSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
@@ -50,7 +51,7 @@ def list() -> str:
         query = query.where(Team.archived_at.is_not(None))
     # No filter if status == "all"
 
-    teams: List[Team] = db.session.execute(query).scalars().all()
+    teams: list[Team] = list(db.session.execute(query).scalars().all())
 
     if request.accept_mimetypes.best == "application/json":
         return jsonify([team.to_dict() for team in teams])
@@ -58,7 +59,7 @@ def list() -> str:
 
 
 @bp.route("/new", methods=["GET", "POST"])
-def create() -> str:
+def create() -> ResponseReturnValue:
     form: TeamForm = TeamForm()
     if form.validate_on_submit():
         team: Team = Team(name=form.name.data)
@@ -69,7 +70,7 @@ def create() -> str:
                 f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("team.list"))
+            return redirect(url_for("team.list_teams"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A team with this name already exists.")
@@ -78,7 +79,7 @@ def create() -> str:
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
-def view(id: UUID) -> str:
+def view(id: UUID) -> ResponseReturnValue:
     team = db.get_or_404(Team, id)
     if request.accept_mimetypes.best == "application/json":
         return jsonify(team.to_dict(include_people=True, include_services=True))
@@ -86,7 +87,7 @@ def view(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
-def edit(id: UUID) -> str:
+def edit(id: UUID) -> ResponseReturnValue:
     team: Team = db.get_or_404(Team, id)
     form: TeamForm = TeamForm()
 
@@ -100,7 +101,7 @@ def edit(id: UUID) -> str:
                 f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("team.list"))
+            return redirect(url_for("team.list_teams"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A team with this name already exists.")
@@ -109,7 +110,7 @@ def edit(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
-def archive(id: UUID) -> str:
+def archive(id: UUID) -> ResponseReturnValue:
     team: Team = db.get_or_404(Team, id)
     form: ArchiveTeamForm = ArchiveTeamForm()
 
@@ -120,13 +121,13 @@ def archive(id: UUID) -> str:
             f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("team.list"))
+        return redirect(url_for("team.list_teams"))
 
     return render_template("archive-team.html", title="Archive team", team=team, form=form)
 
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
-def restore(id: UUID) -> str:
+def restore(id: UUID) -> ResponseReturnValue:
     team: Team = db.get_or_404(Team, id)
     form: RestoreTeamForm = RestoreTeamForm()
 
@@ -137,16 +138,16 @@ def restore(id: UUID) -> str:
             f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("team.list"))
+        return redirect(url_for("team.list_teams"))
 
     return render_template("restore-team.html", title="Restore team", team=team, form=form)
 
 
 @bp.route("/download", methods=["GET"])
-def download():
-    teams: List[Team] = db.session.execute(db.select(Team).order_by(Team.name)).scalars().all()
+def download() -> ResponseReturnValue:
+    teams: list[Team] = list(db.session.execute(db.select(Team).order_by(Team.name)).scalars().all())
 
-    def generate():
+    def generate() -> Iterator[str]:
         data = StringIO()
         writer = csv.writer(data, quoting=csv.QUOTE_MINIMAL)
 
@@ -173,6 +174,6 @@ def download():
             data.seek(0)
             data.truncate(0)
 
-    response = Response(generate(), mimetype="text/csv", status=200)
+    response: FlaskResponse = FlaskResponse(generate(), mimetype="text/csv", status=200)
     response.headers.set("Content-Disposition", "attachment", filename="teams.csv")
     return response

@@ -1,11 +1,11 @@
 import csv
 from datetime import datetime, timezone
 from io import StringIO
-from typing import List, Union
+from typing import Iterator
 from uuid import UUID
 
+from flask import Response as FlaskResponse
 from flask import (
-    Response,
     current_app,
     flash,
     jsonify,
@@ -14,6 +14,7 @@ from flask import (
     request,
     url_for,
 )
+from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
@@ -29,7 +30,7 @@ from app.person.forms import (
 
 
 @bp.route("/", methods=["GET"])
-def list() -> str:
+def list_people() -> ResponseReturnValue:
     form: PersonSortFilterForm = PersonSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
@@ -54,7 +55,7 @@ def list() -> str:
         query = query.where(Person.archived_at.is_not(None))
     # No filter if status == "all"
 
-    people: List[Person] = db.session.execute(query).scalars().all()
+    people: list[Person] = list(db.session.execute(query).scalars().all())
 
     if request.accept_mimetypes.best == "application/json":
         return jsonify([person.to_dict(include_role=True, include_team=True) for person in people])
@@ -62,7 +63,7 @@ def list() -> str:
 
 
 @bp.route("/new", methods=["GET", "POST"])
-def create() -> Union[str, Response]:
+def create() -> ResponseReturnValue:
     form = PersonForm()
 
     # Add options
@@ -94,7 +95,7 @@ def create() -> Union[str, Response]:
                 f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("person.list"))
+            return redirect(url_for("person.list_people"))
         except IntegrityError:
             db.session.rollback()
             return render_template("create-person.html", form=form)
@@ -102,7 +103,7 @@ def create() -> Union[str, Response]:
 
 
 @bp.route("/<uuid:id>", methods=["GET"])
-def view(id: UUID) -> str:
+def view(id: UUID) -> ResponseReturnValue:
     person = db.get_or_404(Person, id)
     if request.accept_mimetypes.best == "application/json":
         return jsonify(
@@ -117,7 +118,7 @@ def view(id: UUID) -> str:
 
 
 @bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
-def edit(id: UUID) -> Union[str, Response]:
+def edit(id: UUID) -> ResponseReturnValue:
     person: Person = db.get_or_404(Person, id)
     form: PersonForm = PersonForm()
 
@@ -153,7 +154,7 @@ def edit(id: UUID) -> Union[str, Response]:
                 f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("person.list"))
+            return redirect(url_for("person.list_people"))
         except IntegrityError:
             db.session.rollback()
 
@@ -161,7 +162,7 @@ def edit(id: UUID) -> Union[str, Response]:
 
 
 @bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
-def archive(id: UUID) -> Union[str, Response]:
+def archive(id: UUID) -> ResponseReturnValue:
     person: Person = db.get_or_404(Person, id)
     form: ArchivePersonForm = ArchivePersonForm()
 
@@ -172,13 +173,13 @@ def archive(id: UUID) -> Union[str, Response]:
             f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("person.list"))
+        return redirect(url_for("person.list_people"))
 
     return render_template("archive-person.html", title="Archive person", person=person, form=form)
 
 
 @bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
-def restore(id: UUID) -> Union[str, Response]:
+def restore(id: UUID) -> ResponseReturnValue:
     person: Person = db.get_or_404(Person, id)
     form: RestorePersonForm = RestorePersonForm()
 
@@ -189,14 +190,14 @@ def restore(id: UUID) -> Union[str, Response]:
             f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("person.list"))
+        return redirect(url_for("person.list_people"))
 
     return render_template("restore-person.html", title="Restore person", person=person, form=form)
 
 
 @bp.route("/download", methods=["GET"])
-def download():
-    people: List[Person] = (
+def download() -> ResponseReturnValue:
+    people: list[Person] = list(
         db.session.execute(
             db.select(Person)
             .options(
@@ -205,12 +206,10 @@ def download():
                 selectinload(Person.manager),
             )
             .order_by(Person.name)
-        )
-        .scalars()
-        .all()
+        ).scalars()
     )
 
-    def generate():
+    def generate() -> Iterator[str]:
         data = StringIO()
         writer = csv.writer(data, quoting=csv.QUOTE_MINIMAL)
 
@@ -258,6 +257,6 @@ def download():
             data.seek(0)
             data.truncate(0)
 
-    response = Response(generate(), mimetype="text/csv", status=200)
+    response: FlaskResponse = FlaskResponse(generate(), mimetype="text/csv", status=200)
     response.headers.set("Content-Disposition", "attachment", filename="people.csv")
     return response
