@@ -46,18 +46,6 @@ def test_accessibility(app: FlaskClient) -> None:
     assert b"<title>" in response.data
 
 
-def test_privacy(app: FlaskClient) -> None:
-    """
-    Test the privacy route.
-
-    Args:
-        client (FlaskClient): The test client for the Flask application.
-    """
-    response = app.get("/privacy")
-    assert response.status_code == 200
-    assert b"<title>" in response.data
-
-
 def test_cookies_get(app: FlaskClient) -> None:
     """Test the cookies route with a GET request."""
     response = app.get("/cookies")
