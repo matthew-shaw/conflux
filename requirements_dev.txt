@@ -33,7 +33,7 @@ cyclonedx-python-lib==11.6.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable
-faker==40.1.2
+faker==40.4.0
     # via -r requirements_dev.in
 filelock==3.20.3
     # via cachecontrol
