@@ -4,7 +4,7 @@ import pytest
 from flask import Flask
 from flask.testing import FlaskClient
 
-from app import create_app
+from app import create_app, db
 from config import TestConfig
 
 
@@ -17,9 +17,16 @@ def app() -> Generator[FlaskClient, None, None]:
         Flask: The Flask application instance.
     """
     app: Flask = create_app(TestConfig)
-    app.config["WTF_CSRF_ENABLED"] = False  # Disable CSRF for testing
+    app.config["WTF_CSRF_ENABLED"] = False
+
+    with app.app_context():
+        db.create_all()
+
     with app.test_client() as client:
         yield client
+
+    with app.app_context():
+        db.drop_all()
 
 
 def test_index(app: FlaskClient) -> None:
