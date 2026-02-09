@@ -12,20 +12,13 @@ from app.models import Person, Role, Service, Team
 
 @bp.route("/", methods=["GET"])
 def index() -> str:
-    """Render the index page."""
     counts = {
-        "roles": db.session.execute(
-            db.select(func.count()).select_from(Role).where(Role.archived_at.is_(None))
-        ).scalar_one(),
-        "teams": db.session.execute(
-            db.select(func.count()).select_from(Team).where(Team.archived_at.is_(None))
-        ).scalar_one(),
-        "people": db.session.execute(
-            db.select(func.count()).select_from(Person).where(Person.archived_at.is_(None))
-        ).scalar_one(),
-        "services": db.session.execute(
+        "roles": db.session.scalar(db.select(func.count()).select_from(Role).where(Role.archived_at.is_(None))),
+        "teams": db.session.scalar(db.select(func.count()).select_from(Team).where(Team.archived_at.is_(None))),
+        "people": db.session.scalar(db.select(func.count()).select_from(Person).where(Person.archived_at.is_(None))),
+        "services": db.session.scalar(
             db.select(func.count()).select_from(Service).where(Service.archived_at.is_(None))
-        ).scalar_one(),
+        ),
     }
     return render_template("index.html", counts=counts)
 
