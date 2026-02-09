@@ -65,7 +65,7 @@ def create() -> ResponseReturnValue:
 
     # Add options
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
-    form.team.choices.extend((team.id, team.name) for team in teams)
+    form.team.choices = [(team.id, team.name) for team in teams]
 
     if form.validate_on_submit():
         service: Service = Service(
@@ -102,7 +102,7 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     # Add options
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
-    form.team.choices.extend((team.id, team.name) for team in teams)
+    form.team.choices = [(team.id, team.name) for team in teams]
 
     if request.method == "GET":
         form.name.data = service.name

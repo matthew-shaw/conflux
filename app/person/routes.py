@@ -68,17 +68,17 @@ def create() -> ResponseReturnValue:
 
     # Add options
     roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
-    form.role.choices.extend((role.id, role.name) for role in roles)
+    form.role.choices = [(role.id, role.name) for role in roles]
 
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
-    form.team.choices.extend((team.id, team.name) for team in teams)
+    form.team.choices = [(team.id, team.name) for team in teams]
 
     people = (
         db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
     )
-    form.manager.choices.extend((person.id, person.name) for person in people)
+    form.manager.choices = [(person.id, person.name) for person in people]
 
-    form.location.choices.extend((location.lower(), location) for location in current_app.config["LOCATIONS"])
+    form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
 
     if form.validate_on_submit():
         person: Person = Person(
@@ -124,17 +124,17 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     # Add options
     roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
-    form.role.choices.extend((role.id, role.name) for role in roles)
+    form.role.choices = [(role.id, role.name) for role in roles]
 
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
-    form.team.choices.extend((team.id, team.name) for team in teams)
+    form.team.choices = [(team.id, team.name) for team in teams]
 
     people = (
         db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
     )
-    form.manager.choices.extend((person.id, person.name) for person in people)
+    form.manager.choices = [(person.id, person.name) for person in people]
 
-    form.location.choices.extend((location.lower(), location) for location in current_app.config["LOCATIONS"])
+    form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
 
     if request.method == "GET":
         form.name.data = person.name
