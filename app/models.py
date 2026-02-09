@@ -1,15 +1,17 @@
 import uuid
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
-from flask_sqlalchemy.model import Model as FlaskSQLAlchemyModel
 from sqlalchemy import DateTime, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import db
 
-BaseModel = FlaskSQLAlchemyModel
-
+if TYPE_CHECKING:
+    from flask_sqlalchemy.model import Model as BaseModel
+else:
+    BaseModel = db.Model
 
 # Join table for services <-> components many-to-many relationship
 service_components: Table = Table(
@@ -32,7 +34,7 @@ service_components: Table = Table(
 )
 
 
-class Role(BaseModel):  # noqa: F811
+class Role(BaseModel):
     """
     Represents a role that can be performed by a person.
     """
@@ -81,7 +83,7 @@ class Role(BaseModel):  # noqa: F811
         return data
 
 
-class Team(BaseModel):  # noqa: F811
+class Team(BaseModel):
     """
     Represents a team to which people belong and which owns services.
     """
@@ -135,7 +137,7 @@ class Team(BaseModel):  # noqa: F811
         return data
 
 
-class Person(BaseModel):  # noqa: F811
+class Person(BaseModel):
     """
     Represents a person who belongs to a team and performs a role.
     """
@@ -164,9 +166,9 @@ class Person(BaseModel):  # noqa: F811
     )
 
     # Relationships
-    role: Mapped["Role"] = relationship("Role", back_populates="people", passive_deletes=True)
-    team: Mapped["Team" | None] = relationship("Team", back_populates="people", passive_deletes=True)
-    manager: Mapped["Person" | None] = relationship(
+    role: Mapped[Role] = relationship("Role", back_populates="people", passive_deletes=True)
+    team: Mapped[Team | None] = relationship("Team", back_populates="people", passive_deletes=True)
+    manager: Mapped[Person | None] = relationship(
         "Person",
         remote_side=[id],
         back_populates="reports",
@@ -222,7 +224,7 @@ class Person(BaseModel):  # noqa: F811
         return data
 
 
-class Service(BaseModel):  # noqa: F811
+class Service(BaseModel):
     """
     Represents a service owned by a team and composed of components.
     """
@@ -243,7 +245,7 @@ class Service(BaseModel):  # noqa: F811
         ForeignKey("teams.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
-    team: Mapped["Team" | None] = relationship("Team", back_populates="services", passive_deletes=True)
+    team: Mapped[Team | None] = relationship("Team", back_populates="services", passive_deletes=True)
     components: Mapped[list["Component"]] = relationship(
         "Component",
         secondary=service_components,
@@ -276,7 +278,7 @@ class Service(BaseModel):  # noqa: F811
         return data
 
 
-class Component(BaseModel):  # noqa: F811
+class Component(BaseModel):
     """
     Represents a component that can be used by multiple services.
     """
