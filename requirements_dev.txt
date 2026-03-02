@@ -47,7 +47,7 @@ idna==3.11
     # via requests
 iniconfig==2.3.0
     # via pytest
-isort==7.0.0
+isort==8.0.1
     # via -r requirements_dev.in
 librt==0.8.0
     # via mypy
