@@ -18,7 +18,7 @@
 {%- endblock -%}
 
 {%- block bodyStart -%}
-  {%- if "cookies_policy" not in request.cookies -%}
+  {%- if "functional" not in request.cookies or "analytics" not in request.cookies -%}
     {%- set html -%}
       <p class="govuk-body">We use some essential cookies to make this service work.</p>
       <p class="govuk-body">We’d like to set additional cookies so we can remember your settings, understand how people use the service and make improvements.</p>
@@ -107,15 +107,15 @@
 {%- endblock -%}
 
 {%- block header -%}
-  <header class="govuk-header" data-module="govuk-header">
+  <div class="govuk-header">
     <div class="govuk-header__container govuk-width-container">
       <div class="govuk-header__logo">
-        <a href="{{ url_for('main.index') }}" class="govuk-header__link govuk-header__link--homepage">
+        <a href="{{ url_for('main.index') }}" class="govuk-header__homepage-link">
           <span class="govuk-header__product-name">{{ config['SERVICE_NAME'] }}</span>
         </a>
       </div>
     </div>
-  </header>
+  </div>
   {{ govukServiceNavigation({
     'navigation': [
       {
@@ -171,30 +171,30 @@
 {%- endblock -%}
 
 {%- block footer -%}
-  <footer class="govuk-footer">
-    <div class="govuk-width-container">
-      <div class="govuk-footer__meta">
-        <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
-          <h2 class="govuk-visually-hidden">Support links</h2>
-          <ul class="govuk-footer__inline-list">
-            <li class="govuk-footer__inline-list-item">
-              <a class="govuk-footer__link" href="{{ url_for('main.accessibility') }}">
-                Accessibility
-              </a>
-            </li>
-            <li class="govuk-footer__inline-list-item">
-              <a class="govuk-footer__link" href="{{ url_for('main.cookies') }}">
-                Cookies
-              </a>
-            </li>
-          </ul>
-          <div class="govuk-footer__meta-custom">
-            Built by <a href="{{ config['DEPARTMENT_URL'] }}" class="govuk-footer__link">{{ config['DEPARTMENT_NAME'] }}</a>
-          </div>
+<div class="govuk-footer">
+  <div class="govuk-width-container">
+    <div class="govuk-footer__meta">
+      <div class="govuk-footer__meta-item govuk-footer__meta-item--grow">
+        <h2 class="govuk-visually-hidden">Support links</h2>
+        <ul class="govuk-footer__inline-list">
+          <li class="govuk-footer__inline-list-item">
+            <a class="govuk-footer__link" href="{{ url_for('main.accessibility') }}">
+              Accessibility
+            </a>
+          </li>
+          <li class="govuk-footer__inline-list-item">
+            <a class="govuk-footer__link" href="{{ url_for('main.cookies') }}">
+              Cookies
+            </a>
+          </li>
+        </ul>
+        <div class="govuk-footer__meta-custom">
+          Built by <a href="{{ config['DEPARTMENT_URL'] }}" class="govuk-footer__link">{{ config['DEPARTMENT_NAME'] }}</a>
         </div>
       </div>
     </div>
-  </footer>
+  </div>
+</div>
 {%- endblock -%}
 
 {%- block bodyEnd -%}
