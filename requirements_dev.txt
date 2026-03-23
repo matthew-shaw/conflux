@@ -119,7 +119,7 @@ pyproject-hooks==1.2.0
     #   pip-tools
 pytest==9.0.2
     # via pytest-cov
-pytest-cov==7.0.0
+pytest-cov==7.1.0
     # via -r requirements_dev.in
 python-dotenv==1.2.2
     # via -r requirements_dev.in
