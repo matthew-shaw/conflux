@@ -61,7 +61,7 @@ mdurl==0.1.2
     # via markdown-it-py
 msgpack==1.1.2
     # via cachecontrol
-mypy==1.19.1
+mypy==1.20.0
     # via -r requirements_dev.in
 mypy-extensions==1.1.0
     # via
