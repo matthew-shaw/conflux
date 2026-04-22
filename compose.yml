@@ -55,7 +55,7 @@ services:
     networks:
       - network
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql
       - ./data:/data
     healthcheck:
       test:
