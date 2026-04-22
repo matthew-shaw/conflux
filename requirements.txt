@@ -8,7 +8,7 @@ alembic==1.18.4
     # via flask-migrate
 blinker==1.9.0
     # via flask
-click==8.3.1
+click==8.3.2
     # via flask
 deepmerge==2.0
     # via govuk-frontend-wtf
@@ -42,11 +42,11 @@ govuk-frontend-jinja==4.0.0
     #   govuk-frontend-wtf
 govuk-frontend-wtf==3.2.0
     # via -r requirements.in
-greenlet==3.3.2
+greenlet==3.4.0
     # via sqlalchemy
-gunicorn==25.1.0
+gunicorn==25.3.0
     # via -r requirements.in
-idna==3.11
+idna==3.12
     # via email-validator
 itsdangerous==2.2.0
     # via
@@ -59,7 +59,7 @@ jinja2==3.1.6
     #   govuk-frontend-wtf
 limits[redis]==5.8.0
     # via flask-limiter
-mako==1.3.10
+mako==1.3.11
     # via alembic
 markupsafe==3.0.3
     # via
@@ -70,15 +70,15 @@ markupsafe==3.0.3
     #   wtforms
 ordered-set==4.1.0
     # via flask-limiter
-packaging==26.0
+packaging==26.1
     # via
     #   gunicorn
     #   limits
-psycopg2==2.9.11
+psycopg2==2.9.12
     # via -r requirements.in
-redis==7.2.1
+redis==7.4.0
     # via limits
-sqlalchemy==2.0.48
+sqlalchemy==2.0.49
     # via
     #   alembic
     #   flask-sqlalchemy
@@ -88,9 +88,9 @@ typing-extensions==4.15.0
     #   flask-limiter
     #   limits
     #   sqlalchemy
-werkzeug==3.1.6
+werkzeug==3.1.8
     # via flask
-wrapt==2.1.1
+wrapt==2.1.2
     # via deprecated
 wtforms==3.2.1
     # via
