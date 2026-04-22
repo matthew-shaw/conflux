@@ -27,8 +27,12 @@ def format_govuk_datetime(
     if not isinstance(dt, datetime):
         raise TypeError("Expected a datetime object")
 
-    # Convert to UK time
-    dt = dt.astimezone(ZoneInfo("Europe/London"))
+    # Interpret naive datetimes as Europe/London and convert aware datetimes to UK time
+    uk_zone = ZoneInfo("Europe/London")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=uk_zone)
+    else:
+        dt = dt.astimezone(uk_zone)
 
     t: time = dt.time()
 
