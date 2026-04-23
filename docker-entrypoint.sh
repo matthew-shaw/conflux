@@ -9,5 +9,9 @@ flask db upgrade
 : "${BIND_ADDR:=0.0.0.0:8080}"
 : "${ACCESS_LOG:=-}"
 
+ls -la /usr/local/bin
+id -g
+id -u
+
 echo "Starting Gunicorn on $BIND_ADDR with $WORKERS workers..."
 exec gunicorn --bind "$BIND_ADDR" -w "$WORKERS" --access-logfile "$ACCESS_LOG" conflux:app
