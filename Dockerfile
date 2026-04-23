@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup --system appgroup && adduser --system --group appuser
+RUN adduser --system --group appuser
 
 ENV FLASK_APP=conflux.py \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -37,12 +37,12 @@ COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/*
 
 # Copy application code
-COPY --chown=appuser:appgroup conflux.py config.py ./ 
-COPY --chown=appuser:appgroup app app
-COPY --chown=appuser:appgroup migrations migrations
+COPY --chown=appuser:0 conflux.py config.py ./ 
+COPY --chown=appuser:0 app app
+COPY --chown=appuser:0 migrations migrations
 
 # Copy entrypoint script into PATH
-COPY --chown=appuser:appgroup docker-entrypoint.sh /usr/local/bin/
+COPY --chown=appuser:0 docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 USER appuser
