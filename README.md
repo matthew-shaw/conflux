@@ -109,7 +109,7 @@ flowchart TB
     static@{ shape: lin-cyl, label: "Static files" }
     db@{ shape: cyl, label: "PostgreSQL" }
 
-    client -- https:443 --> nginx -- http:5000 --> flask -- postgres:5432 --> db
+    client -- https:443 --> nginx -- http:8080 --> flask -- postgres:5432 --> db
     flask -- valkey:6379 --> valkey
 
     subgraph Network

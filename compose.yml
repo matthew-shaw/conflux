@@ -10,7 +10,7 @@ services:
       VALKEY_URL: redis://${VALKEY_HOST}:${VALKEY_PORT}
       SECRET_KEY: ${SECRET_KEY}
     expose:
-      - 5000
+      - 8080
     networks:
       - network
     healthcheck:
@@ -19,7 +19,7 @@ services:
           "CMD",
           "python",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')",
         ]
       interval: 30s
       timeout: 5s
