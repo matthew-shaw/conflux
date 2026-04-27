@@ -70,7 +70,7 @@ markupsafe==3.0.3
     #   wtforms
 ordered-set==4.1.0
     # via flask-limiter
-packaging==26.1
+packaging==26.2
     # via
     #   gunicorn
     #   limits
