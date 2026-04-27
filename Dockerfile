@@ -1,4 +1,15 @@
-# Stage 1: Build Python wheels
+# Stage 1: Build static web assets
+FROM node:krypton-alpine AS web-builder
+
+WORKDIR /web
+
+COPY web/.browserslistrc web/eslint.config.mjs web/package*.json web/webpack.config.js ./
+COPY web/src src
+
+RUN npm install && \
+    npm run build
+
+# Stage 2: Build Python wheels
 FROM python:3.14-slim AS builder
 
 # Install build dependencies only here
@@ -15,7 +26,7 @@ COPY requirements.txt ./
 RUN pip wheel --no-cache-dir --no-deps -r requirements.txt -w /wheels
 
 
-# Stage 2: Final runtime image
+# Stage 3: Final runtime image
 FROM python:3.14-slim
 
 # Install only runtime libraries
@@ -40,6 +51,8 @@ RUN pip install --no-cache-dir /wheels/*
 COPY --chown=appuser:0 conflux.py config.py ./ 
 COPY --chown=appuser:0 app app
 COPY --chown=appuser:0 migrations migrations
+
+COPY --from=web-builder --chown=appuser:0 /web/dist app/static
 
 # Copy entrypoint script into PATH
 COPY --chown=appuser:0 docker-entrypoint.sh /usr/local/bin/
