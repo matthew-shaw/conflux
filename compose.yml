@@ -38,6 +38,8 @@ services:
         - action: sync+restart
           path: ./app
           target: /home/appuser/app
+    cpus: 4.0
+    mem_limit: 1024mb
 
   db:
     image: postgres:18-alpine
@@ -64,6 +66,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    mem_limit: 512mb
 
   cache:
     image: valkey/valkey:9-alpine
@@ -81,6 +84,7 @@ services:
       start_period: 10s
     volumes:
       - valkey_data:/data
+    mem_limit: 128mb
 
   web:
     build: ./web
@@ -108,6 +112,7 @@ services:
           target: /etc/nginx/conf.d/nginx.conf
         - action: rebuild
           path: ./web/src
+    mem_limit: 256mb
 
 networks:
   network:
