@@ -4,7 +4,7 @@ from flask_wtf.csrf import CSRFError  # type: ignore
 from sqlalchemy import func
 from werkzeug.exceptions import HTTPException
 
-from app import db
+from app import db, limiter
 from app.main import bp
 from app.main.forms import CookiesForm
 from app.models import Person, Role, Service, Team
@@ -75,6 +75,7 @@ def cookies() -> str | Response:
     return render_template("cookies.html", form=form)
 
 
+@limiter.exempt
 @bp.route("/health", methods=["GET"])
 def health() -> ResponseReturnValue:
     """Route for healthchecks"""
