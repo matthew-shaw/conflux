@@ -24,7 +24,6 @@ class PersonForm(FlaskForm):
     )
     location = SelectField(
         "Location",
-        choices=[("", "Select a location")],
         widget=GovSelect(),
         default="",
         coerce=str.lower,
@@ -32,21 +31,18 @@ class PersonForm(FlaskForm):
     )
     role = SelectField(
         "Role",
-        choices=[("", "Select a role")],
         widget=GovSelect(),
         default="",
         validators=[InputRequired(message="Select a role")],
     )
     team = SelectField(
         "Team",
-        choices=[("", "Select a team")],
         widget=GovSelect(),
         default="",
         validators=[Optional()],
     )
     manager = SelectField(
         "Manager",
-        choices=[("", "Select a manager")],
         widget=GovSelect(),
         default="",
         validators=[Optional()],

@@ -68,15 +68,15 @@ def create() -> ResponseReturnValue:
 
     # Add options
     roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
-    form.role.choices = [(role.id, role.name) for role in roles]
+    form.role.choices = [(str(role.id), role.name) for role in roles]
 
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
-    form.team.choices = [(team.id, team.name) for team in teams]
+    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
     people = (
         db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
     )
-    form.manager.choices = [(person.id, person.name) for person in people]
+    form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
 
     form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
 
@@ -127,12 +127,12 @@ def edit(id: UUID) -> ResponseReturnValue:
     form.role.choices = [(role.id, role.name) for role in roles]
 
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
-    form.team.choices = [(team.id, team.name) for team in teams]
+    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
     people = (
         db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
     )
-    form.manager.choices = [(person.id, person.name) for person in people]
+    form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
 
     form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
 
