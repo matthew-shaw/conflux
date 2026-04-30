@@ -1,4 +1,4 @@
-from flask import Response, flash, make_response, redirect, render_template, request
+from flask import Response, flash, redirect, render_template, request
 from flask.typing import ResponseReturnValue
 from flask_wtf.csrf import CSRFError  # type: ignore
 from sqlalchemy import func
