@@ -3,7 +3,7 @@
 {%- from 'govuk_frontend_jinja/components/back-link/macro.html' import govukBackLink -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 
-{%- block pageTitle -%}{%- if form.errors -%}Error: {%- endif -%}Cookies – {{config['SERVICE_NAME']}}{%- endblock -%}
+{%- block pageTitle -%}Cookies – {{config['SERVICE_NAME']}}{%- endblock -%}
 
 {%- block beforeContent -%}
   {{ super() }}
@@ -30,50 +30,9 @@
       {
         'head': [{'text': 'Name'}, {'text': 'Purpose'}, {'text': 'Expires'}],
         'rows': [
-          [{'text': 'cookie_policy'}, {'text': 'Saves your cookie consent settings'}, {'text': '1 year'}],
           [{'text': 'session'}, {'text': 'Temporary storage'}, {'text': 'Session'}]
         ]
       }
     )}}
-
-    <h2 class="govuk-heading-m">Functional cookies</h2>
-    <p class="govuk-body">Functional cookies allow you to take advantage of some functionality, for example remembering
-      settings between visits. The service will work without them.</p>
-    {{ govukTable(
-      {
-        'head': [{'text': 'Name'}, {'text': 'Purpose'}, {'text': 'Expires'}],
-        'rows': [
-          [{'text': 'foo'}, {'text': 'bar'}, {'text': 'baz'}]
-        ]
-      }
-    )}}
-
-    <h2 class="govuk-heading-m">Analytics cookies</h2>
-    <p class="govuk-body">With your permission, we use Google Analytics to collect data about how you use {{config['SERVICE_NAME']}}. This
-      information helps us to improve our service.</p>
-    <p class="govuk-body">Google is not allowed to use or share our analytics data with anyone.</p>
-    <p class="govuk-body">Google Analytics stores anonymised information about:</p>
-    <ul class="govuk-list govuk-list--bullet">
-      <li>how you got to {{config['SERVICE_NAME']}}</li>
-      <li>the pages you visit on {{config['SERVICE_NAME']}} and how long you spend on them</li>
-      <li>any errors you see while using {{config['SERVICE_NAME']}}</li>
-    </ul>
-    {{ govukTable(
-      {
-        'head': [{'text': 'Name'}, {'text': 'Purpose'}, {'text': 'Expires'}],
-        'rows': [
-          [{'text': 'foo'}, {'text': 'bar'}, {'text': 'baz'}]
-        ]
-      }
-    )}}
-
-    <h2 class="govuk-heading-m">Change your cookie settings</h2>
-    <form action="{{ url_for('main.cookies') }}" method="post" novalidate>
-      {{ form.csrf_token }}
-      {{ form.functional }}
-      {{ form.analytics }}
-      {{ form.save }}
-    </form>
-  </div>
 </div>
 {%- endblock -%}

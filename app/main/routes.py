@@ -6,7 +6,6 @@ from werkzeug.exceptions import HTTPException
 
 from app import db, limiter
 from app.main import bp
-from app.main.forms import CookiesForm
 from app.models import Person, Role, Service, Team
 
 
@@ -31,48 +30,8 @@ def accessibility() -> str:
 
 @bp.route("/cookies", methods=["GET", "POST"])
 def cookies() -> str | Response:
-    """Handle GET and POST requests for managing cookie preferences."""
-    form: CookiesForm = CookiesForm()
-    # Initialize cookie settings. Defaults to rejecting all cookies.
-    functional: str = "no"
-    analytics: str = "no"
-
-    if form.validate_on_submit():
-        # Update cookie settings based on form submission
-        functional = form.functional.data
-        analytics = form.analytics.data
-        # Create flash message confirmation before rendering template
-        flash("You've set your cookie preferences.", "success")
-        # Create the response so we can set cookies before returning
-        response: Response = make_response(render_template("cookies.html", form=form))
-
-        # Set individual cookies in the response
-        response.set_cookie(
-            "functional",
-            functional,
-            max_age=31557600,
-            secure=True,
-            samesite="Lax",
-        )
-        response.set_cookie(
-            "analytics",
-            analytics,
-            max_age=31557600,
-            secure=True,
-            samesite="Lax",
-        )
-
-        return response
-    elif request.method == "GET":
-        # Retrieve existing cookie settings if present
-        functional = request.cookies.get("functional", "no")
-        analytics = request.cookies.get("analytics", "no")
-
-        # Pre-populate form with existing settings
-        form.functional.data = functional
-        form.analytics.data = analytics
-
-    return render_template("cookies.html", form=form)
+    """Render the cookies page."""
+    return render_template("cookies.html")
 
 
 @limiter.exempt
