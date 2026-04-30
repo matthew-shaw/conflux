@@ -29,7 +29,7 @@ Conflux models the interconnected domains of digital organisations with five key
 Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
-GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6
+GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6,SCS1,SCS2
 LOCATIONS=Birkenhead,Coventry,Croydon,Durham,Fylde,Gloucester,Hull,Leicester,Nottingham,Peterborough,Plymouth,Swansea,Telford,Weymouth
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=db
