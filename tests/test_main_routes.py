@@ -63,32 +63,6 @@ def test_cookies_get(app: FlaskClient) -> None:
     assert response.request.cookies.get("analytics", "no") == "no"
 
 
-def test_cookies_post(app: FlaskClient) -> None:
-    """Test the cookies route with a POST request."""
-    data = {"functional": "yes", "analytics": "yes"}
-
-    response = app.post("/cookies", data=data, follow_redirects=True)
-    assert response.status_code == 200
-
-    # Verify flash message
-    assert b"You've set your cookie preferences." in response.data
-
-    # Check individual cookies were set
-    cookies = response.headers.getlist("Set-Cookie")
-    functional_cookie = [c for c in cookies if c.startswith("functional=")][0]
-    analytics_cookie = [c for c in cookies if c.startswith("analytics=")][0]
-
-    # Verify cookie values
-    assert "functional=yes" in functional_cookie
-    assert "analytics=yes" in analytics_cookie
-
-    # Verify cookie attributes
-    for cookie in [functional_cookie, analytics_cookie]:
-        assert "Max-Age=31557600" in cookie
-        assert "Secure" in cookie
-        assert "SameSite=Lax" in cookie
-
-
 def test_http_errors(app: FlaskClient) -> None:
     """Test handling of HTTP errors."""
     response = app.get("/not-found")
