@@ -4,8 +4,8 @@ import os
 class Config(object):
     CONTACT_EMAIL = "team@example.com"
     CONTACT_PHONE = "02079460000"
-    DEPARTMENT_NAME = "Mash Software"
-    DEPARTMENT_URL = "https://www.mashsoftware.com/"
+    DEPARTMENT_NAME = "Matt Shaw"
+    DEPARTMENT_URL = "https://github.com/matthew-shaw"
     GRADES = os.environ.get("GRADES", "").split(",")
     LOCATIONS = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
     RATELIMIT_HEADERS_ENABLED = True
