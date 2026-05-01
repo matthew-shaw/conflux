@@ -21,6 +21,7 @@ from app.models import Service
 class ServiceForm(FlaskForm):
     name = StringField(
         "Name",
+        filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
     )

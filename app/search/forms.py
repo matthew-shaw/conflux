@@ -6,6 +6,7 @@ from wtforms.fields import StringField  # type: ignore
 class SearchForm(FlaskForm):
     q: StringField = StringField(
         "Search",
+        filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         description="Search by role, grade, person, location, team, or service",
     )

@@ -19,6 +19,7 @@ from wtforms.validators import InputRequired, Optional
 class PersonForm(FlaskForm):
     name = StringField(
         "Name",
+        filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
     )
