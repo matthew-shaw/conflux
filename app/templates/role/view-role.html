@@ -98,7 +98,7 @@
           'html': '<a href="' ~ url_for("person.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
         },
         {
-          'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>'
+          'html': '<a href="' ~ url_for("team.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>' if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': person.location.title()
