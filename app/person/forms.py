@@ -13,15 +13,25 @@ from wtforms.fields import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import InputRequired, Optional
+from wtforms.validators import Email, InputRequired, Length, Optional
 
 
 class PersonForm(FlaskForm):
     name = StringField(
-        "Name",
+        "Full name",
         filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
+    )
+    email_address = StringField(
+        "Email address",
+        filters=[lambda x: x.strip() if x else x],
+        widget=GovTextInput(),
+        validators=[
+            InputRequired(message="Enter an email address"),
+            Length(max=256, message="Email address must be 256 characters or fewer"),
+            Email(message="Enter an email address in the correct format, like name@example.com"),
+        ],
     )
     location = SelectField(
         "Location",

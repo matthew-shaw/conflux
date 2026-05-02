@@ -22,7 +22,12 @@
       }) %}
         {{ form.csrf_token}}
         {{ form.name(params={
-          'spellcheck': true
+          'spellcheck': false
+        }) }}
+        {{ form.email_address(params={
+          'type': 'email',
+          'autocomplete': 'email',
+          'spellcheck': false
         }) }}
         {{ form.location(params={
           'classes': "govuk-!-width-one-half"

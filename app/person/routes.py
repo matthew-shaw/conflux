@@ -83,6 +83,7 @@ def create() -> ResponseReturnValue:
     if form.validate_on_submit():
         person: Person = Person(
             name=form.name.data,
+            email_address=form.email_address.data,
             location=form.location.data,
             role_id=form.role.data,
             team_id=form.team.data if form.team.data else None,
@@ -138,12 +139,14 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     if request.method == "GET":
         form.name.data = person.name
+        form.email_address.data = person.email_address
         form.location.data = person.location.lower()
         form.role.data = str(person.role_id)
         form.team.data = str(person.team_id)
         form.manager.data = str(person.manager_id)
     elif form.validate_on_submit():
         person.name = form.name.data
+        person.email_address = form.email_address.data
         person.location = form.location.data
         person.role_id = form.role.data
         person.team_id = form.team.data if form.team.data else None

@@ -147,6 +147,7 @@ class Person(BaseModel):
     # Attributes
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
+    email_address: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
     location: Mapped[str] = mapped_column(nullable=False, index=True)
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
@@ -187,12 +188,14 @@ class Person(BaseModel):
         self,
         *,
         name: str,
+        email_address: str,
         location: str,
         role_id: uuid.UUID,
         team_id: uuid.UUID | None = None,
         manager_id: uuid.UUID | None = None,
     ) -> None:
         self.name = name
+        self.email_address = email_address
         self.location = location
         self.role_id = role_id
         self.team_id = team_id
@@ -208,6 +211,7 @@ class Person(BaseModel):
         data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
+            "email_address": self.email_address,
             "location": self.location,
             "updated_at": self.updated_at if self.updated_at else None,
         }

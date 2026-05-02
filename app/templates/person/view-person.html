@@ -27,13 +27,34 @@
       'rows': [
         {
           'key': {
-            'text': "Name"
+            'text': "Full name"
           },
           'value': {
             'text': person.name
           },
           'actions': {
             'items': [
+              {
+                'href': url_for('person.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "name"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Email address"
+          },
+          'value': {
+            'text': person.email_address
+          },
+          'actions': {
+            'items': [
+              {
+                'href': "mailto:" + person.email_address,
+                'text': "Email",
+              },
               {
                 'href': url_for('person.edit', id=person.id),
                 'text': "Change",
