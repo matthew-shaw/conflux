@@ -37,7 +37,6 @@
           {
             "name": "include",
             "in": "query",
-            "description": "Comma-separated related resources to include",
             "schema": {
               "type": "string",
               "example": "role,team,manager,reports"
@@ -264,27 +263,62 @@
           "Weymouth"
         ]
       },
+      "PersonNested": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "location": { "$ref": "#/components/schemas/Location" }
+        }
+      },
+      "RoleNested": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "grade": { "$ref": "#/components/schemas/Grade" }
+        }
+      },
+      "TeamNested": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" }
+        }
+      },
+      "ComponentNested": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" }
+        }
+      },
+      "ServiceNested": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" }
+        }
+      },
       "Person": {
         "type": "object",
         "properties": {
           "id": { "type": "string", "format": "uuid" },
           "name": { "type": "string" },
           "email_address": { "type": "string", "format": "email" },
-          "location": {
-            "$ref": "#/components/schemas/Location"
-          },
+          "location": { "$ref": "#/components/schemas/Location" },
           "updated_at": { "type": "string", "format": "date-time" },
           "archived_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "role": { "$ref": "#/components/schemas/Role" },
-          "team": { "$ref": "#/components/schemas/Team" },
-          "manager": { "$ref": "#/components/schemas/Person" },
+          "role": { "$ref": "#/components/schemas/RoleNested" },
+          "team": { "$ref": "#/components/schemas/TeamNested" },
+          "manager": { "$ref": "#/components/schemas/PersonNested" },
           "reports": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/Person" }
+            "items": { "$ref": "#/components/schemas/PersonNested" }
           }
         }
       },
@@ -293,9 +327,7 @@
         "properties": {
           "id": { "type": "string", "format": "uuid" },
           "name": { "type": "string" },
-          "grade": {
-            "$ref": "#/components/schemas/Grade"
-          },
+          "grade": { "$ref": "#/components/schemas/Grade" },
           "updated_at": { "type": "string", "format": "date-time" }
         }
       },
@@ -312,11 +344,11 @@
           },
           "people": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/Person" }
+            "items": { "$ref": "#/components/schemas/PersonNested" }
           },
           "services": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/Service" }
+            "items": { "$ref": "#/components/schemas/ServiceNested" }
           }
         }
       },
@@ -331,10 +363,10 @@
             "format": "date-time",
             "nullable": true
           },
-          "team": { "$ref": "#/components/schemas/Team" },
+          "team": { "$ref": "#/components/schemas/TeamNested" },
           "components": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/Component" }
+            "items": { "$ref": "#/components/schemas/ComponentNested" }
           }
         }
       },
