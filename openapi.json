@@ -1,0 +1,356 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Conflux API",
+    "version": "1.0.0",
+    "description": "Read-only API for people, teams, services, and components."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Version 1"
+    }
+  ],
+  "paths": {
+    "/people": {
+      "get": {
+        "summary": "List people",
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["name", "location", "updated"],
+              "default": "name"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "archived", "all"],
+              "default": "active"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "description": "Comma-separated related resources to include",
+            "schema": {
+              "type": "string",
+              "example": "role,team,manager,reports"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of people",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Person"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/people/{id}": {
+      "get": {
+        "summary": "Get a person by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "role,team,manager,reports"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Person details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Person"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Person not found"
+          }
+        }
+      }
+    },
+    "/teams": {
+      "get": {
+        "summary": "List teams",
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "people,services"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of teams",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Team"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}": {
+      "get": {
+        "summary": "Get a team by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "people,services"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Team"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found"
+          }
+        }
+      }
+    },
+    "/services": {
+      "get": {
+        "summary": "List services",
+        "parameters": [
+          {
+            "name": "include",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "team,components"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Service"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}": {
+      "get": {
+        "summary": "Get a service by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "team,components"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Grade": {
+        "type": "string",
+        "enum": ["AA", "AO", "EO", "HEO", "SEO", "SEO+", "G7", "G6"]
+      },
+      "Location": {
+        "type": "string",
+        "enum": [
+          "Birkenhead",
+          "Coventry",
+          "Croydon",
+          "Durham",
+          "Fylde",
+          "Gloucester",
+          "Hull",
+          "Leicester",
+          "Nottingham",
+          "Peterborough",
+          "Plymouth",
+          "Swansea",
+          "Telford",
+          "Weymouth"
+        ]
+      },
+      "Person": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "email_address": { "type": "string", "format": "email" },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "role": { "$ref": "#/components/schemas/Role" },
+          "team": { "$ref": "#/components/schemas/Team" },
+          "manager": { "$ref": "#/components/schemas/Person" },
+          "reports": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Person" }
+          }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Team": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "people": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Person" }
+          },
+          "services": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Service" }
+          }
+        }
+      },
+      "Service": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "team": { "$ref": "#/components/schemas/Team" },
+          "components": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Component" }
+          }
+        }
+      },
+      "Component": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time" },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}
