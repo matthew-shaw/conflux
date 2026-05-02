@@ -7,7 +7,6 @@ from uuid import UUID
 from flask import Response as FlaskResponse
 from flask import (
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
@@ -54,8 +53,6 @@ def list_services() -> ResponseReturnValue:
 
     services: list[Service] = list(db.session.execute(query).scalars().all())
 
-    if request.accept_mimetypes.best == "application/json":
-        return jsonify([service.to_dict() for service in services])
     return render_template("list-services.html", title="Services", services=services, form=form)
 
 
@@ -90,8 +87,6 @@ def create() -> ResponseReturnValue:
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
     service = db.get_or_404(Service, id)
-    if request.accept_mimetypes.best == "application/json":
-        return jsonify(service.to_dict(include_team=True))
     return render_template("view-service.html", service=service)
 
 

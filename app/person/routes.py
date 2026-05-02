@@ -8,7 +8,6 @@ from flask import Response as FlaskResponse
 from flask import (
     current_app,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
@@ -57,8 +56,6 @@ def list_people() -> ResponseReturnValue:
 
     people: list[Person] = list(db.session.execute(query).scalars().all())
 
-    if request.accept_mimetypes.best == "application/json":
-        return jsonify([person.to_dict(include_role=True, include_team=True) for person in people])
     return render_template("list-people.html", title="People", people=people, form=form)
 
 
@@ -106,15 +103,6 @@ def create() -> ResponseReturnValue:
 @bp.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
     person = db.get_or_404(Person, id)
-    if request.accept_mimetypes.best == "application/json":
-        return jsonify(
-            person.to_dict(
-                include_role=True,
-                include_team=True,
-                include_manager=True,
-                include_reports=True,
-            )
-        )
     return render_template("view-person.html", person=person)
 
 
