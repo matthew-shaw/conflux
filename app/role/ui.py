@@ -100,7 +100,7 @@ def archive(id: UUID) -> ResponseReturnValue:
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role_ui.archived_at = datetime.now(timezone.utc)
+        role.archived_at = datetime.now(timezone.utc)
         db.session.commit()
         flash(
             f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
@@ -117,7 +117,7 @@ def restore(id: UUID) -> ResponseReturnValue:
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role_ui.archived_at = None
+        role.archived_at = None
         db.session.commit()
         flash(
             f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
@@ -153,7 +153,7 @@ def download() -> ResponseReturnValue:
                     role.name,
                     role.grade,
                     role.updated_at.isoformat(),
-                    role_ui.archived_at.isoformat() if role_ui.archived_at else "",
+                    role.archived_at.isoformat() if role.archived_at else "",
                 )
             )
             yield data.getvalue()
