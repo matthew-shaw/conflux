@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime, timezone
 from io import StringIO
 from typing import Iterator
 from uuid import UUID
@@ -16,7 +15,6 @@ from flask import (
 from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 
-from app import db
 from app.models import Role
 from app.role import ui_bp as ui
 from app.role.forms import (
@@ -25,7 +23,14 @@ from app.role.forms import (
     RoleForm,
     RoleSortFilterForm,
 )
-from app.role.service import get_role, get_roles
+from app.role.service import (
+    archive_role,
+    create_role,
+    get_role,
+    get_roles,
+    restore_role,
+    update_role,
+)
 
 
 @ui.route("/", methods=["GET"])
@@ -47,17 +52,14 @@ def create() -> ResponseReturnValue:
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
     if form.validate_on_submit():
-        role: Role = Role(name=form.name.data, grade=form.grade.data)
-        db.session.add(role)
         try:
-            db.session.commit()
+            role = create_role(form.name.data, form.grade.data)
             flash(
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created',
                 "success",
             )
             return redirect(url_for("role_ui.list_roles"))
         except IntegrityError:
-            db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
             return render_template("create-role.html", form=form)
     return render_template("create-role.html", title="Add a new role", form=form)
@@ -71,7 +73,7 @@ def view(id: UUID) -> ResponseReturnValue:
 
 @ui.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> ResponseReturnValue:
-    role: Role = db.get_or_404(Role, id)
+    role: Role = get_role(id)
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
 
@@ -79,16 +81,14 @@ def edit(id: UUID) -> ResponseReturnValue:
         form.name.data = role.name
         form.grade.data = role.grade
     elif form.validate_on_submit():
-        role.name = form.name.data
         try:
-            db.session.commit()
+            role = update_role(id, form.name.data)
             flash(
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
             )
             return redirect(url_for("role_ui.list_roles"))
         except IntegrityError:
-            db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
 
     return render_template("edit-role.html", title="Edit role", role=role, form=form)
@@ -96,12 +96,11 @@ def edit(id: UUID) -> ResponseReturnValue:
 
 @ui.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> ResponseReturnValue:
-    role: Role = db.get_or_404(Role, id)
+    role: Role = get_role(id)
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role.archived_at = datetime.now(timezone.utc)
-        db.session.commit()
+        role = archive_role(id)
         flash(
             f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
             "success",
@@ -113,12 +112,11 @@ def archive(id: UUID) -> ResponseReturnValue:
 
 @ui.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> ResponseReturnValue:
-    role: Role = db.get_or_404(Role, id)
+    role: Role = get_role(id)
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role.archived_at = None
-        db.session.commit()
+        role = restore_role(id)
         flash(
             f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
             "success",
@@ -130,7 +128,7 @@ def restore(id: UUID) -> ResponseReturnValue:
 
 @ui.route("/download", methods=["GET"])
 def download() -> ResponseReturnValue:
-    roles: list[Role] = list(db.session.execute(db.select(Role).order_by(Role.name)).scalars().all())
+    roles: list[Role] = get_roles()
 
     def generate() -> Iterator[str]:
         data = StringIO()
