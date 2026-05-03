@@ -11,14 +11,14 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <h1 class="govuk-heading-l">Are you sure you want to restore the {{ role.name }} role?</h1>
-    <form method="post" action="{{ url_for('role.restore', id=role.id) }}" novalidate>
+    <form method="post" action="{{ url_for('role_ui.restore', id=role.id) }}" novalidate>
       {{ form.csrf_token }}
       {{ form.confirm }}
       <div class="govuk-button-group">
         {{ form.submit(params={
           'preventDoubleClick': true
         }) }}
-        <a class="govuk-link" href="{{ url_for('role.view', id=role.id) }}">Cancel</a>
+        <a class="govuk-link" href="{{ url_for('role_ui.view', id=role.id) }}">Cancel</a>
       </div>
   </div>
 </div>

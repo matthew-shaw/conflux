@@ -34,9 +34,9 @@
         'active': true if url_for('search.index') in request.path else false
       },
       {
-        'href': url_for('role.list_roles'),
+        'href': url_for('role_ui.list_roles'),
         'text': "Roles",
-        'active': true if url_for('role.list_roles') in request.path else false
+        'active': true if url_for('role_ui.list_roles') in request.path else false
       },
       {
         'href': url_for('person.list_people'),

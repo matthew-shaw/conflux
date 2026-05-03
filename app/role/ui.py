@@ -18,47 +18,31 @@ from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models import Role
-from app.role import bp
+from app.role import ui_bp as ui
 from app.role.forms import (
     ArchiveRoleForm,
     RestoreRoleForm,
     RoleForm,
     RoleSortFilterForm,
 )
+from app.role.service import get_role, get_roles
 
 
-@bp.route("/", methods=["GET"])
+@ui.route("/", methods=["GET"])
 def list_roles() -> ResponseReturnValue:
     form: RoleSortFilterForm = RoleSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
 
-    # Start the base SELECT statement
-    query = db.select(Role)
-
-    # Apply sorting
-    sort = form.sort.data or "name"
-    if sort == "name":
-        query = query.order_by(Role.name)
-    elif sort == "grade":
-        query = query.order_by(Role.grade)
-    elif sort == "updated":
-        query = query.order_by(Role.updated_at.desc())
-
-    # Apply filter based on status
-    status = form.status.data or "active"
-    if status == "active":
-        query = query.where(Role.archived_at.is_(None))
-    elif status == "archived":
-        query = query.where(Role.archived_at.is_not(None))
-    # No filter if status == "all"
-
-    roles: list[Role] = list(db.session.execute(query).scalars().all())
+    roles = get_roles(
+        sort=form.sort.data,
+        status=form.status.data,
+    )
 
     return render_template("list-roles.html", title="Roles", roles=roles, form=form)
 
 
-@bp.route("/new", methods=["GET", "POST"])
+@ui.route("/new", methods=["GET", "POST"])
 def create() -> ResponseReturnValue:
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
@@ -68,10 +52,10 @@ def create() -> ResponseReturnValue:
         try:
             db.session.commit()
             flash(
-                f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created',
+                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("role.list_roles"))
+            return redirect(url_for("role_ui.list_roles"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
@@ -79,13 +63,13 @@ def create() -> ResponseReturnValue:
     return render_template("create-role.html", title="Add a new role", form=form)
 
 
-@bp.route("/<uuid:id>", methods=["GET"])
+@ui.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
-    role = db.get_or_404(Role, id)
+    role = get_role(id)
     return render_template("view-role.html", role=role)
 
 
-@bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> ResponseReturnValue:
     role: Role = db.get_or_404(Role, id)
     form: RoleForm = RoleForm()
@@ -99,10 +83,10 @@ def edit(id: UUID) -> ResponseReturnValue:
         try:
             db.session.commit()
             flash(
-                f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
+                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("role.list_roles"))
+            return redirect(url_for("role_ui.list_roles"))
         except IntegrityError:
             db.session.rollback()
             form.name.errors.append("A role with this name already exists.")
@@ -110,41 +94,41 @@ def edit(id: UUID) -> ResponseReturnValue:
     return render_template("edit-role.html", title="Edit role", role=role, form=form)
 
 
-@bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> ResponseReturnValue:
     role: Role = db.get_or_404(Role, id)
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role.archived_at = datetime.now(timezone.utc)
+        role_ui.archived_at = datetime.now(timezone.utc)
         db.session.commit()
         flash(
-            f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
+            f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("role.list_roles"))
+        return redirect(url_for("role_ui.list_roles"))
 
     return render_template("archive-role.html", title="Archive role", role=role, form=form)
 
 
-@bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> ResponseReturnValue:
     role: Role = db.get_or_404(Role, id)
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role.archived_at = None
+        role_ui.archived_at = None
         db.session.commit()
         flash(
-            f'<a href="{url_for("role.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
+            f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("role.list_roles"))
+        return redirect(url_for("role_ui.list_roles"))
 
     return render_template("restore-role.html", title="Restore role", role=role, form=form)
 
 
-@bp.route("/download", methods=["GET"])
+@ui.route("/download", methods=["GET"])
 def download() -> ResponseReturnValue:
     roles: list[Role] = list(db.session.execute(db.select(Role).order_by(Role.name)).scalars().all())
 
@@ -169,7 +153,7 @@ def download() -> ResponseReturnValue:
                     role.name,
                     role.grade,
                     role.updated_at.isoformat(),
-                    role.archived_at.isoformat() if role.archived_at else "",
+                    role_ui.archived_at.isoformat() if role_ui.archived_at else "",
                 )
             )
             yield data.getvalue()

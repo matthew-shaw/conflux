@@ -18,17 +18,17 @@
     <div class="govuk-button-group">
       {{ govukButton({
         'text': "Add role",
-        'href': url_for('role.create')
+        'href': url_for('role_ui.create')
       }) }}
 
-      <a href="{{ url_for('role.download') }}" class="govuk-link">Download all roles (CSV)</a>  
+      <a href="{{ url_for('role_ui.download') }}" class="govuk-link">Download all roles (CSV)</a>  
     </div>
   </div>
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
     <h2 class="govuk-heading-m">Sort and filter</h3>
-    <form method="get" action="{{ url_for('role.list_roles') }}" novalidate>
+    <form method="get" action="{{ url_for('role_ui.list_roles') }}" novalidate>
       {{ form.sort(params={
         'classes': "govuk-radios--small"
       }) }}
@@ -46,7 +46,7 @@
     {% for role in roles %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("role.view", id=role.id) ~ '" class="govuk-link">' ~ role.name ~ '</a>'
+          'html': '<a href="' ~ url_for("role_ui.view", id=role.id) ~ '" class="govuk-link">' ~ role.name ~ '</a>'
         },
         {
           'text': role.grade
@@ -74,6 +74,7 @@
         'rows': rows
       }) }}
     {% endif %}
+    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('role_api.list_roles') }}">Get data in JSON format</a></p>
   </div>
 </div>
 {%- endblock -%}

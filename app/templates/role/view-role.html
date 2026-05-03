@@ -12,7 +12,7 @@
 {{ super() }}
 {{ govukBackLink({
   'text': "Back",
-  'href': url_for('role.list_roles')
+  'href': url_for('role_ui.list_roles')
 }) }}
 {%- endblock -%}
 
@@ -35,7 +35,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('role.edit', id=role.id),
+                'href': url_for('role_ui.edit', id=role.id),
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
@@ -52,7 +52,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('role.edit', id=role.id),
+                'href': url_for('role_ui.edit', id=role.id),
                 'text': "Change",
                 'visuallyHiddenText': "grade"
               }
@@ -72,7 +72,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('role.restore', id=role.id) if role.archived_at else url_for('role.archive', id=role.id),
+                'href': url_for('role_ui.restore', id=role.id) if role.archived_at else url_for('role_ui.archive', id=role.id),
                 'text': "Restore" if role.archived_at else "Archive",
                 'visuallyHiddenText': "role"
               }
@@ -120,4 +120,5 @@
     {% endif %}
   </div>
 </div>
+<p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('role_api.view', id=role.id) }}">Get data in JSON format</a></p>
 {%- endblock -%}

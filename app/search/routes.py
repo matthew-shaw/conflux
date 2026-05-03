@@ -47,7 +47,7 @@ def index() -> str:
                     "id": role.id,
                     "name": role.name,
                     "updated_at": role.updated_at,
-                    "url": url_for("role.view", id=role.id),
+                    "url": url_for("role_ui.view", id=role.id),
                 }
             )
 

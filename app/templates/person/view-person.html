@@ -73,7 +73,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('role.view', id=person.role.id),
+                'href': url_for('role_ui.view', id=person.role.id),
                 'text': "View",
                 'visuallyHiddenText': "role"
               },
@@ -185,7 +185,7 @@
           'html': '<a href="' ~ url_for("person.view", id=report.id) ~ '" class="govuk-link">' ~ report.name ~ '</a>'
         },
         {
-          'html': '<a href="' ~ url_for("role.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name ~ '</a>'
+          'html': '<a href="' ~ url_for("role_ui.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name ~ '</a>'
         },
         {
           'html': '<a href="' ~ url_for("team.view", id=report.team.id) ~ '" class="govuk-link">' ~ report.team.name ~ '</a>' if report.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
