@@ -44,6 +44,7 @@ def make_role_stub() -> SimpleNamespace:
 
 
 def test_get_roles_builds_query(monkeypatch):
+    """GIVEN archived role filters WHEN get_roles is called THEN the query includes the expected order and where clauses."""
     fake_query = DummyQuery()
     fake_db = SimpleNamespace(
         select=lambda model: fake_query,
@@ -59,6 +60,7 @@ def test_get_roles_builds_query(monkeypatch):
 
 
 def test_get_roles_returns_all_when_status_all(monkeypatch):
+    """GIVEN status=all WHEN get_roles is called THEN no archived filter is applied."""
     fake_query = DummyQuery()
     fake_db = SimpleNamespace(
         select=lambda model: fake_query,
@@ -74,6 +76,7 @@ def test_get_roles_returns_all_when_status_all(monkeypatch):
 
 
 def test_get_role_delegates_to_db_get_or_404(monkeypatch):
+    """GIVEN a role ID WHEN get_role is called THEN the database helper get_or_404 is used."""
     sentinel = object()
     fake_db = SimpleNamespace(get_or_404=lambda model, id: sentinel)
     monkeypatch.setattr(role_service, "db", fake_db)
@@ -82,6 +85,7 @@ def test_get_role_delegates_to_db_get_or_404(monkeypatch):
 
 
 def test_create_role_commits_and_returns_role(monkeypatch):
+    """GIVEN valid role data WHEN create_role is called THEN the role is added and committed."""
     created = []
 
     class FakeRole:
@@ -106,6 +110,8 @@ def test_create_role_commits_and_returns_role(monkeypatch):
 
 
 def test_create_role_rolls_back_on_integrity_error(monkeypatch):
+    """GIVEN a duplicate role name WHEN create_role fails THEN the session rollback is invoked."""
+
     class FakeRole:
         def __init__(self, name: str, grade: str) -> None:
             self.name = name
@@ -132,6 +138,7 @@ def test_create_role_rolls_back_on_integrity_error(monkeypatch):
 
 
 def test_update_role_commits_updated_name(monkeypatch):
+    """GIVEN an existing role WHEN update_role is called THEN the name is updated and the transaction is committed."""
     updated_role = SimpleNamespace(name="Old name")
     commit_called = False
 
@@ -153,6 +160,7 @@ def test_update_role_commits_updated_name(monkeypatch):
 
 
 def test_update_role_rolls_back_on_integrity_error(monkeypatch):
+    """GIVEN an IntegrityError during update_role WHEN the service saves changes THEN rollback is called."""
     updated_role = SimpleNamespace(name="Old name")
     rollback_called = False
 
@@ -177,6 +185,7 @@ def test_update_role_rolls_back_on_integrity_error(monkeypatch):
 
 
 def test_archive_role_sets_archived_at_and_commits(monkeypatch):
+    """GIVEN an active role WHEN archive_role is called THEN archived_at is set and the session commits."""
     fake_role = SimpleNamespace(archived_at=None)
     commit_called = False
 
@@ -198,6 +207,7 @@ def test_archive_role_sets_archived_at_and_commits(monkeypatch):
 
 
 def test_restore_role_clears_archived_at_and_commits(monkeypatch):
+    """GIVEN an archived role WHEN restore_role is called THEN archived_at is cleared and the session commits."""
     fake_role = SimpleNamespace(archived_at="2024-01-01T00:00:00Z")
     commit_called = False
 

@@ -12,6 +12,7 @@ from config import TestConfig
 def app() -> Generator[Flask, None, None]:
     app: Flask = create_app(TestConfig)
     app.config["WTF_CSRF_ENABLED"] = False
+    app.config["TESTING"] = True
 
     with app.app_context():
         db.create_all()
@@ -23,7 +24,7 @@ def app() -> Generator[Flask, None, None]:
 
 
 @pytest.fixture
-def client(app: Flask) -> FlaskClient:
+def test_client(app: Flask) -> FlaskClient:
     return app.test_client()
 
 
