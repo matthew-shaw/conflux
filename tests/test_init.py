@@ -11,40 +11,34 @@ def test_create_app() -> None:
     assert isinstance(app, Flask)
 
 
-def test_config_loaded_with_context() -> None:
+def test_config_loaded_with_context(app: Flask) -> None:
     """Verify config is loaded correctly within an app context."""
-    app: Flask = create_app(TestConfig)
     with app.app_context():
         assert app.config["DEBUG"] == TestConfig.DEBUG
 
 
-def test_config_loaded() -> None:
+def test_config_loaded(app: Flask) -> None:
     """Verify config is loaded correctly (outside app context)."""
-    app: Flask = create_app(TestConfig)
     assert app.config["DEBUG"] == TestConfig.DEBUG
 
 
-def test_jinja_env_config() -> None:
+def test_jinja_env_config(app: Flask) -> None:
     """Verify Jinja environment configuration."""
-    app: Flask = create_app(TestConfig)
     assert app.jinja_env.lstrip_blocks is True
     assert app.jinja_env.trim_blocks is True
 
 
-def test_middleware_applied() -> None:
+def test_middleware_applied(app: Flask) -> None:
     """Verify that the ProxyFix middleware is applied to the app."""
-    app: Flask = create_app(TestConfig)
     assert isinstance(app.wsgi_app, ProxyFix)
 
 
-def test_extensions_initialized() -> None:
+def test_extensions_initialized(app: Flask) -> None:
     """Verify that core Flask extensions are initialized."""
-    app: Flask = create_app(TestConfig)
     assert "csrf" in app.extensions
     assert "limiter" in app.extensions
 
 
-def test_blueprints_registered() -> None:
+def test_blueprints_registered(app: Flask) -> None:
     """Verify that blueprints are registered with the app."""
-    app: Flask = create_app(TestConfig)
     assert "main" in app.blueprints
