@@ -147,7 +147,7 @@ class Person(BaseModel):
     # Attributes
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
-    email_address: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    email_address: Mapped[str] = mapped_column(nullable=True, unique=True, index=True)
     location: Mapped[str] = mapped_column(nullable=False, index=True)
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
