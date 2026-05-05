@@ -44,7 +44,7 @@ govuk-frontend-wtf==3.2.0
     # via -r requirements.in
 greenlet==3.5.0
     # via sqlalchemy
-gunicorn==25.3.0
+gunicorn==26.0.0
     # via -r requirements.in
 idna==3.13
     # via email-validator
