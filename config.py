@@ -6,6 +6,7 @@ class Config(object):
     CONTACT_PHONE = "02079460000"
     DEPARTMENT_NAME = "Matt Shaw"
     DEPARTMENT_URL = "https://github.com/matthew-shaw"
+    DOMAIN = os.environ.get("DOMAIN")
     GRADES = os.environ.get("GRADES", "").split(",")
     LOCATIONS = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
     RATELIMIT_HEADERS_ENABLED = True

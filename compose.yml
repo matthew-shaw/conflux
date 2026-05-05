@@ -5,10 +5,11 @@ services:
     restart: always
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      DOMAIN: ${DOMAIN}
       GRADES: ${GRADES}
       LOCATIONS: ${LOCATIONS}
-      VALKEY_URL: redis://${VALKEY_HOST}:${VALKEY_PORT}
       SECRET_KEY: ${SECRET_KEY}
+      VALKEY_URL: redis://${VALKEY_HOST}:${VALKEY_PORT}
     expose:
       - 8080
     networks:
