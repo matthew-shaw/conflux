@@ -8,19 +8,21 @@
   "servers": [
     {
       "url": "https://localhost/api/v1/",
-      "description": "Local"
+      "description": "Local development server"
     }
   ],
   "paths": {
     "/roles": {
       "get": {
         "summary": "List roles",
+        "description": "Returns a list of roles in the organisation, optionally filtered and sorted.",
         "operationId": "listRoles",
         "tags": ["Role"],
         "parameters": [
           {
             "name": "sort",
             "in": "query",
+            "description": "Field to sort roles by.",
             "schema": {
               "type": "string",
               "enum": ["name", "grade", "updated"],
@@ -30,6 +32,7 @@
           {
             "name": "status",
             "in": "query",
+            "description": "Filter roles by status.",
             "schema": {
               "type": "string",
               "enum": ["active", "archived", "all"],
@@ -57,6 +60,7 @@
     "/roles/{id}": {
       "get": {
         "summary": "Get a role by ID",
+        "description": "Returns detailed information about a specific role.",
         "operationId": "getRole",
         "tags": ["Role"],
         "parameters": [
@@ -64,6 +68,7 @@
             "name": "id",
             "in": "path",
             "required": true,
+            "description": "Unique identifier of the role.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -90,12 +95,14 @@
     "/people": {
       "get": {
         "summary": "List people",
+        "description": "Returns a list of people in the organisation, optionally filtered and sorted.",
         "operationId": "listPeople",
         "tags": ["Person"],
         "parameters": [
           {
             "name": "sort",
             "in": "query",
+            "description": "Field to sort people by.",
             "schema": {
               "type": "string",
               "enum": ["name", "location", "updated"],
@@ -105,6 +112,7 @@
           {
             "name": "status",
             "in": "query",
+            "description": "Filter people by status.",
             "schema": {
               "type": "string",
               "enum": ["active", "archived", "all"],
@@ -132,6 +140,7 @@
     "/people/{id}": {
       "get": {
         "summary": "Get a person by ID",
+        "description": "Returns detailed information about a specific person.",
         "operationId": "getPerson",
         "tags": ["Person"],
         "parameters": [
@@ -139,6 +148,7 @@
             "name": "id",
             "in": "path",
             "required": true,
+            "description": "Unique identifier of the person.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -167,6 +177,7 @@
     "schemas": {
       "Grade": {
         "type": "string",
+        "description": "Civil Service grade associated with a role.",
         "enum": [
           "AA",
           "AO",
@@ -183,6 +194,7 @@
       },
       "Location": {
         "type": "string",
+        "description": "Office location where a person is based.",
         "enum": [
           "Birkenhead",
           "Coventry",
@@ -203,111 +215,137 @@
       },
       "PersonNested": {
         "type": "object",
+        "description": "A lightweight representation of a person.",
         "required": ["id", "name", "email_address", "location", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Unique identifier of the person."
           },
           "name": {
             "type": "string",
+            "description": "Full name of the person.",
             "example": "John Appleseed"
           },
           "email_address": {
             "type": "string",
             "format": "email",
             "nullable": true,
+            "description": "Email address of the person.",
             "example": "john.appleseed@example.com"
           },
           "location": {
+            "description": "Office location of the person.",
             "$ref": "#/components/schemas/Location"
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the person was last updated."
           }
         }
       },
       "RoleNested": {
         "type": "object",
+        "description": "A lightweight representation of a role.",
         "required": ["id", "name", "grade", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Unique identifier of the role."
           },
           "name": {
             "type": "string",
+            "description": "Name of the role.",
             "example": "Senior Software Developer"
           },
           "grade": {
+            "description": "Grade associated with the role.",
             "$ref": "#/components/schemas/Grade"
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the role was last updated."
           }
         }
       },
       "TeamNested": {
         "type": "object",
+        "description": "A lightweight representation of a team.",
         "required": ["id", "name", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Unique identifier of the team."
           },
           "name": {
             "type": "string",
+            "description": "Display name of the team.",
             "example": "Byte Club"
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the team was last updated."
           }
         }
       },
       "Person": {
         "type": "object",
+        "description": "Detailed representation of a person.",
         "required": ["id", "name", "email_address", "location", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Unique identifier of the person."
           },
           "name": {
             "type": "string",
+            "description": "Full name of the person.",
             "example": "John Appleseed"
           },
           "email_address": {
             "type": "string",
             "format": "email",
             "nullable": true,
+            "description": "Email address of the person.",
             "example": "john.appleseed@example.com"
           },
           "location": {
+            "description": "Office location of the person.",
             "$ref": "#/components/schemas/Location"
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the person was last updated."
           },
           "archived_at": {
             "type": "string",
             "format": "date-time",
-            "nullable": true
+            "nullable": true,
+            "description": "Timestamp when the person was archived, if applicable."
           },
           "role": {
+            "description": "Role performed by the person.",
             "$ref": "#/components/schemas/RoleNested"
           },
           "team": {
+            "description": "Team the person belongs to.",
             "$ref": "#/components/schemas/TeamNested"
           },
           "manager": {
+            "description": "Manager of the person.",
             "$ref": "#/components/schemas/PersonNested"
           },
           "reports": {
             "type": "array",
+            "description": "People who report to this person.",
             "items": {
               "$ref": "#/components/schemas/PersonNested"
             }
@@ -316,25 +354,31 @@
       },
       "Role": {
         "type": "object",
+        "description": "Detailed representation of a role.",
         "required": ["id", "name", "grade", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Unique identifier of the role."
           },
           "name": {
             "type": "string",
+            "description": "Name of the role.",
             "example": "Senior Software Developer"
           },
           "grade": {
+            "description": "Grade associated with the role.",
             "$ref": "#/components/schemas/Grade"
           },
           "updated_at": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "Timestamp when the role was last updated."
           },
           "people": {
             "type": "array",
+            "description": "People assigned to this role.",
             "items": {
               "$ref": "#/components/schemas/PersonNested"
             }
