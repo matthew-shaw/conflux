@@ -1,17 +1,88 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Conflux API",
-    "version": "1.0.0",
-    "description": "Read-only API for people, teams, services, and components."
+    "title": "Conflux",
+    "version": "0.3.0",
+    "description": "Read-only API for roles, people, teams, services, and components."
   },
   "servers": [
     {
-      "url": "/api/v1",
-      "description": "Version 1"
+      "url": "https://localhost/api/v1/",
+      "description": "Local"
     }
   ],
   "paths": {
+    "/roles": {
+      "get": {
+        "summary": "List roles",
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["name", "grade", "updated"],
+              "default": "name"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "archived", "all"],
+              "default": "active"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleNested"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles/{id}": {
+      "get": {
+        "summary": "Get a role by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found"
+          }
+        }
+      }
+    },
     "/people": {
       "get": {
         "summary": "List people",
@@ -33,14 +104,6 @@
               "enum": ["active", "archived", "all"],
               "default": "active"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "example": "role,team,manager,reports"
-            }
           }
         ],
         "responses": {
@@ -51,7 +114,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Person"
+                    "$ref": "#/components/schemas/PersonNested"
                   }
                 }
               }
@@ -72,14 +135,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "example": "role,team,manager,reports"
-            }
           }
         ],
         "responses": {
@@ -98,151 +153,25 @@
           }
         }
       }
-    },
-    "/teams": {
-      "get": {
-        "summary": "List teams",
-        "parameters": [
-          {
-            "name": "include",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "example": "people,services"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of teams",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Team"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/teams/{id}": {
-      "get": {
-        "summary": "Get a team by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "example": "people,services"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Team details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Team"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Team not found"
-          }
-        }
-      }
-    },
-    "/services": {
-      "get": {
-        "summary": "List services",
-        "parameters": [
-          {
-            "name": "include",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "example": "team,components"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of services",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Service"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/services/{id}": {
-      "get": {
-        "summary": "Get a service by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "example": "team,components"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Service details",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Service"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Service not found"
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
       "Grade": {
         "type": "string",
-        "enum": ["AA", "AO", "EO", "HEO", "SEO", "SEO+", "G7", "G6"]
+        "enum": [
+          "AA",
+          "AO",
+          "EO",
+          "HEO",
+          "SEO",
+          "SEO+",
+          "G7",
+          "G6",
+          "SCS1",
+          "SCS2"
+        ],
+        "example": "SEO"
       },
       "Location": {
         "type": "string",
@@ -261,125 +190,139 @@
           "Swansea",
           "Telford",
           "Weymouth"
-        ]
+        ],
+        "example": "Plymouth"
       },
       "PersonNested": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "location": { "$ref": "#/components/schemas/Location" }
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Appleseed"
+          },
+          "email_address": {
+            "type": "string",
+            "format": "email",
+            "example": "john.appleseed@example.com"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "RoleNested": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "grade": { "$ref": "#/components/schemas/Grade" }
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Senior Software Developer"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "TeamNested": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" }
-        }
-      },
-      "ComponentNested": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" }
-        }
-      },
-      "ServiceNested": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" }
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Byte Club"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "Person": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "email_address": { "type": "string", "format": "email" },
-          "location": { "$ref": "#/components/schemas/Location" },
-          "updated_at": { "type": "string", "format": "date-time" },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Appleseed"
+          },
+          "email_address": {
+            "type": "string",
+            "format": "email",
+            "example": "john.appleseed@example.com"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "archived_at": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "role": { "$ref": "#/components/schemas/RoleNested" },
-          "team": { "$ref": "#/components/schemas/TeamNested" },
-          "manager": { "$ref": "#/components/schemas/PersonNested" },
+          "role": {
+            "$ref": "#/components/schemas/RoleNested"
+          },
+          "team": {
+            "$ref": "#/components/schemas/TeamNested"
+          },
+          "manager": {
+            "$ref": "#/components/schemas/PersonNested"
+          },
           "reports": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/PersonNested" }
+            "items": {
+              "$ref": "#/components/schemas/PersonNested"
+            }
           }
         }
       },
       "Role": {
         "type": "object",
         "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "grade": { "$ref": "#/components/schemas/Grade" },
-          "updated_at": { "type": "string", "format": "date-time" }
-        }
-      },
-      "Team": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" },
-          "archived_at": {
+          "id": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Senior Software Developer"
+          },
+          "grade": {
+            "$ref": "#/components/schemas/Grade"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "people": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/PersonNested" }
-          },
-          "services": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/ServiceNested" }
-          }
-        }
-      },
-      "Service": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" },
-          "archived_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "team": { "$ref": "#/components/schemas/TeamNested" },
-          "components": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/ComponentNested" }
-          }
-        }
-      },
-      "Component": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid" },
-          "name": { "type": "string" },
-          "updated_at": { "type": "string", "format": "date-time" },
-          "archived_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
+            "items": {
+              "$ref": "#/components/schemas/PersonNested"
+            }
           }
         }
       }
