@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime, timezone
 from io import StringIO
 from typing import Iterator
 from uuid import UUID
@@ -15,112 +14,97 @@ from flask import (
 )
 from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Person, Role, Team
-from app.person import bp
+from app.person import ui_bp as ui
 from app.person.forms import (
     ArchivePersonForm,
     PersonForm,
     PersonSortFilterForm,
     RestorePersonForm,
 )
+from app.person.service import (
+    archive_person,
+    create_person,
+    download_people,
+    get_people,
+    get_person,
+    restore_person,
+    update_person,
+)
+from app.role.service import get_roles
 
 
-@bp.route("/", methods=["GET"])
+@ui.route("/", methods=["GET"])
 def list_people() -> ResponseReturnValue:
     form: PersonSortFilterForm = PersonSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
 
-    # Start the base SELECT statement
-    query = db.select(Person)
-
-    # Apply sorting
-    sort = form.sort.data or "name"
-    if sort == "name":
-        query = query.order_by(Person.name)
-    elif sort == "location":
-        query = query.order_by(Person.location)
-    elif sort == "updated":
-        query = query.order_by(Person.updated_at.desc())
-
-    # Apply filter based on status
-    status = form.status.data or "active"
-    if status == "active":
-        query = query.where(Person.archived_at.is_(None))
-    elif status == "archived":
-        query = query.where(Person.archived_at.is_not(None))
-    # No filter if status == "all"
-
-    people: list[Person] = list(db.session.execute(query).scalars().all())
-
+    people = get_people(
+        sort=form.sort.data,
+        status=form.status.data,
+    )
     return render_template("list-people.html", title="People", people=people, form=form)
 
 
-@bp.route("/new", methods=["GET", "POST"])
+@ui.route("/new", methods=["GET", "POST"])
 def create() -> ResponseReturnValue:
     form = PersonForm()
 
     # Add options
-    roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
+    roles: list[Role] = get_roles()
     form.role.choices = [(str(role.id), role.name) for role in roles]
 
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
     form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
-    people = (
-        db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
-    )
+    people: list[Person] = get_people()
     form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
 
     form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
 
     if form.validate_on_submit():
-        person: Person = Person(
-            name=form.name.data.title(),
-            email_address=form.email_address.data.lower(),
-            location=form.location.data,
-            role_id=form.role.data,
-            team_id=form.team.data if form.team.data else None,
-            manager_id=form.manager.data if form.manager.data else None,
-        )
-        db.session.add(person)
         try:
-            db.session.commit()
+            person = create_person(
+                name=form.name.data,
+                email_address=form.email_address.data,
+                location=form.location.data,
+                role_id=form.role.data,
+                team_id=form.team.data if form.team.data else None,
+                manager_id=form.manager.data if form.manager.data else None,
+            )
             flash(
-                f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been created',
+                f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("person.list_people"))
+            return redirect(url_for("person_ui.list_people"))
         except IntegrityError:
-            db.session.rollback()
+            form.name.errors.append("A person with this name already exists.")
             return render_template("create-person.html", form=form)
     return render_template("create-person.html", title="Add a new person", form=form)
 
 
-@bp.route("/<uuid:id>", methods=["GET"])
+@ui.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
-    person = db.get_or_404(Person, id)
+    person: Person = get_person(id)
     return render_template("view-person.html", person=person)
 
 
-@bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> ResponseReturnValue:
-    person: Person = db.get_or_404(Person, id)
+    person: Person = get_person(id)
     form: PersonForm = PersonForm()
 
     # Add options
-    roles = db.session.execute(db.select(Role).where(Role.archived_at.is_(None)).order_by(Role.name)).scalars().all()
+    roles: list[Role] = get_roles()
     form.role.choices = [(role.id, role.name) for role in roles]
 
     teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
     form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
-    people = (
-        db.session.execute(db.select(Person).where(Person.archived_at.is_(None)).order_by(Person.name)).scalars().all()
-    )
+    people: list[Person] = get_people()
     form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
 
     form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
@@ -136,72 +120,62 @@ def edit(id: UUID) -> ResponseReturnValue:
         form.team.data = str(person.team_id)
         form.manager.data = str(person.manager_id)
     elif form.validate_on_submit():
-        person.name = form.name.data.title()
-        person.email_address = form.email_address.data.lower()
-        person.location = form.location.data
-        person.role_id = form.role.data
-        person.team_id = form.team.data if form.team.data else None
-        person.manager_id = form.manager.data if form.manager.data else None
         try:
-            db.session.commit()
+            update_person(
+                id=id,
+                name=form.name.data,
+                email_address=form.email_address.data,
+                location=form.location.data,
+                role_id=form.role.data,
+                team_id=form.team.data if form.team.data else None,
+                manager_id=form.manager.data if form.manager.data else None,
+            )
             flash(
-                f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
+                f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("person.list_people"))
+            return redirect(url_for("person_ui.list_people"))
         except IntegrityError:
-            db.session.rollback()
+            form.name.errors.append("A person with this name already exists.")
 
     return render_template("edit-person.html", title="Edit person", person=person, form=form)
 
 
-@bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> ResponseReturnValue:
-    person: Person = db.get_or_404(Person, id)
+    person: Person = get_person(id)
     form: ArchivePersonForm = ArchivePersonForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        person.archived_at = datetime.now(timezone.utc)
-        db.session.commit()
+        archive_person(id)
         flash(
-            f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been archived',
+            f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("person.list_people"))
+        return redirect(url_for("person_ui.list_people"))
 
     return render_template("archive-person.html", title="Archive person", person=person, form=form)
 
 
-@bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> ResponseReturnValue:
-    person: Person = db.get_or_404(Person, id)
+    person: Person = get_person(id)
     form: RestorePersonForm = RestorePersonForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        person.archived_at = None
-        db.session.commit()
+        restore_person(id)
         flash(
-            f'<a href="{url_for("person.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been restored',
+            f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("person.list_people"))
+        return redirect(url_for("person_ui.list_people"))
 
     return render_template("restore-person.html", title="Restore person", person=person, form=form)
 
 
-@bp.route("/download", methods=["GET"])
+@ui.route("/download", methods=["GET"])
 def download() -> ResponseReturnValue:
-    people: list[Person] = list(
-        db.session.execute(
-            db.select(Person)
-            .options(
-                selectinload(Person.role),
-                selectinload(Person.team),
-                selectinload(Person.manager),
-            )
-            .order_by(Person.name)
-        ).scalars()
-    )
+    people: list[Person] = download_people()
 
     def generate() -> Iterator[str]:
         data = StringIO()

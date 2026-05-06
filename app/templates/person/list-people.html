@@ -18,17 +18,17 @@
     <div class="govuk-button-group">
       {{ govukButton({
         'text': "Add person",
-        'href': url_for('person.create')
+        'href': url_for('person_ui.create')
       }) }}
 
-      <a href="{{ url_for('person.download') }}" class="govuk-link">Download all people (CSV)</a>  
+      <a href="{{ url_for('person_ui.download') }}" class="govuk-link">Download all people (CSV)</a>  
     </div>
   </div>
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
     <h2 class="govuk-heading-m">Sort and filter</h3>
-    <form method="get" action="{{ url_for('person.list_people') }}" novalidate>
+    <form method="get" action="{{ url_for('person_ui.list_people') }}" novalidate>
       {{ form.sort(params={
         'classes': "govuk-radios--small"
       }) }}
@@ -46,7 +46,7 @@
     {% for person in people %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("person.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
+          'html': '<a href="' ~ url_for("person_ui.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
         },
         {
           'html': '<a href="' ~ url_for("role_ui.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
@@ -78,6 +78,7 @@
         'rows': rows
       }) }}
     {% endif %}
+    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('person_api.list_people') }}">Get data in JSON format</a></p>
   </div>
 </div>
 {%- endblock -%}

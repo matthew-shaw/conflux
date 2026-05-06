@@ -12,7 +12,7 @@
 {{ super() }}
 {{ govukBackLink({
   'text': "Back",
-  'href': url_for('person.list_people')
+  'href': url_for('person_ui.list_people')
 }) }}
 {%- endblock -%}
 
@@ -35,7 +35,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('person.edit', id=person.id),
+                'href': url_for('person_ui.edit', id=person.id),
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
@@ -59,7 +59,7 @@
               ] if person.email_address else []
             ) + [
               {
-                'href': url_for('person.edit', id=person.id),
+                'href': url_for('person_ui.edit', id=person.id),
                 'text': "Change" if person.email_address else "Add",
                 'visuallyHiddenText': "email address"
               }
@@ -81,7 +81,7 @@
                 'visuallyHiddenText': "role"
               },
               {
-                'href': url_for('person.edit', id=person.id),
+                'href': url_for('person_ui.edit', id=person.id),
                 'text': "Change",
                 'visuallyHiddenText': "role"
               }
@@ -103,7 +103,7 @@
                 'visuallyHiddenText': "team"
               },
               {
-                'href': url_for('person.edit', id=person.id),
+                'href': url_for('person_ui.edit', id=person.id),
                 'text': "Change",
                 'visuallyHiddenText': "team"
               }
@@ -120,7 +120,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('person.edit', id=person.id),
+                'href': url_for('person_ui.edit', id=person.id),
                 'text': "Change",
                 'visuallyHiddenText': "location"
               }
@@ -137,12 +137,12 @@
           'actions': {
             'items': [
               {
-                'href': url_for('person.view', id=person.manager.id),
+                'href': url_for('person_ui.view', id=person.manager.id),
                 'text': "View",
                 'visuallyHiddenText': "manager"
               },
               {
-                'href': url_for('person.edit', id=person.id),
+                'href': url_for('person_ui.edit', id=person.id),
                 'text': "Change",
                 'visuallyHiddenText': "manager"
               }
@@ -162,7 +162,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('person.restore', id=person.id) if person.archived_at else url_for('person.archive', id=person.id),
+                'href': url_for('person_ui.restore', id=person.id) if person.archived_at else url_for('person_ui.archive', id=person.id),
                 'text': "Restore" if person.archived_at else "Archive",
                 'visuallyHiddenText': "person"
               }
@@ -185,7 +185,7 @@
     {% for report in person.reports if report.archived_at is none %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("person.view", id=report.id) ~ '" class="govuk-link">' ~ report.name ~ '</a>'
+          'html': '<a href="' ~ url_for("person_ui.view", id=report.id) ~ '" class="govuk-link">' ~ report.name ~ '</a>'
         },
         {
           'html': '<a href="' ~ url_for("role_ui.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name ~ '</a>'
@@ -214,4 +214,5 @@
     {% endif %}
   </div>
 </div>
+<p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('person_api.view', id=person.id) }}">Get data in JSON format</a></p>
 {%- endblock -%}

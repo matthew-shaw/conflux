@@ -12,7 +12,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <form method="post" action="{{ url_for('person.edit', id=person.id) }}" novalidate>
+    <form method="post" action="{{ url_for('person_ui.edit', id=person.id) }}" novalidate>
       {% call govukFieldset({
         'legend': {
           'text': title,
@@ -45,7 +45,7 @@
           {{ form.submit(params={
             'preventDoubleClick': true
           }) }}
-          <a class="govuk-link" href="{{ url_for('person.view', id=person.id) }}">Cancel</a>
+          <a class="govuk-link" href="{{ url_for('person_ui.view', id=person.id) }}">Cancel</a>
         </div>
       {% endcall %}
     </form>

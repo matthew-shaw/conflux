@@ -19,7 +19,7 @@ def test_api_list_roles_uses_service_layer(monkeypatch, test_client):
 
 def test_api_view_uses_service_layer(monkeypatch, test_client):
     """GIVEN the role API detail endpoint WHEN a role is requested THEN the service layer is used to fetch that role."""
-    fake_role = SimpleNamespace(to_dict=lambda: {"id": "42"})
+    fake_role = SimpleNamespace(to_dict=lambda include_people=False: {"id": "42"})
     monkeypatch.setattr(role_api, "get_role", lambda id: fake_role)
 
     response = test_client.get("/api/v1/roles/00000000-0000-0000-0000-000000000000")
@@ -181,7 +181,7 @@ def test_ui_edit_post_success_redirects(monkeypatch, test_client):
     fake_form = DummyForm(submit=True, name="New name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
     monkeypatch.setattr(role_ui, "RoleForm", lambda: fake_form)
-    monkeypatch.setattr(role_ui, "update_role", lambda id, name: fake_role)
+    monkeypatch.setattr(role_ui, "update_role", lambda id, name, grade=None: fake_role)
 
     response = test_client.post("/roles/00000000-0000-0000-0000-000000000000/edit", data={})
 
@@ -198,7 +198,7 @@ def test_ui_edit_post_duplicate_shows_error(monkeypatch, test_client):
     monkeypatch.setattr(
         role_ui,
         "update_role",
-        lambda id, name: (_ for _ in ()).throw(IntegrityError("duplicate", params=None, orig=None)),
+        lambda id, name, grade=None: (_ for _ in ()).throw(IntegrityError("duplicate", params=None, orig=None)),
     )
 
     rendered = {}

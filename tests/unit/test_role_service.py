@@ -152,9 +152,8 @@ def test_update_role_commits_updated_name(monkeypatch):
     )
     monkeypatch.setattr(role_service, "db", fake_db)
 
-    role = role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name")
+    role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1")
 
-    assert role is updated_role
     assert updated_role.name == "New name"
     assert commit_called is True
 
@@ -178,7 +177,7 @@ def test_update_role_rolls_back_on_integrity_error(monkeypatch):
     monkeypatch.setattr(role_service, "db", fake_db)
 
     with pytest.raises(IntegrityError):
-        role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name")
+        role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1")
 
     assert rollback_called is True
     assert updated_role.name == "New name"
@@ -199,10 +198,9 @@ def test_archive_role_sets_archived_at_and_commits(monkeypatch):
     )
     monkeypatch.setattr(role_service, "db", fake_db)
 
-    role = role_service.archive_role(UUID("00000000-0000-0000-0000-000000000000"))
+    role_service.archive_role(UUID("00000000-0000-0000-0000-000000000000"))
 
-    assert role is fake_role
-    assert role.archived_at is not None
+    assert fake_role.archived_at is not None
     assert commit_called is True
 
 
@@ -221,8 +219,7 @@ def test_restore_role_clears_archived_at_and_commits(monkeypatch):
     )
     monkeypatch.setattr(role_service, "db", fake_db)
 
-    role = role_service.restore_role(UUID("00000000-0000-0000-0000-000000000000"))
+    role_service.restore_role(UUID("00000000-0000-0000-0000-000000000000"))
 
-    assert role is fake_role
-    assert role.archived_at is None
+    assert fake_role.archived_at is None
     assert commit_called is True

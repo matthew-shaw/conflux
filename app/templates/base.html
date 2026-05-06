@@ -39,9 +39,9 @@
         'active': true if url_for('role_ui.list_roles') in request.path else false
       },
       {
-        'href': url_for('person.list_people'),
+        'href': url_for('person_ui.list_people'),
         'text': "People",
-        'active': true if url_for('person.list_people') in request.path else false
+        'active': true if url_for('person_ui.list_people') in request.path else false
       },
       {
         'href': url_for('team.list_teams'),
@@ -98,6 +98,9 @@
             </a>
           </li>
         </ul>
+        <div class="govuk-footer__meta-custom">
+          Version <a href="https://github.com/matthew-shaw/conflux/releases" class="govuk-footer__link">{{ config['VERSION'] }}</a>
+        </div>
       </div>
     </div>
   </div>

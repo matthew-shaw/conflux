@@ -60,7 +60,8 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
 
     # Register blueprints. These define different sections of the application.
     from app.main import bp as main_bp
-    from app.person import bp as person_bp
+    from app.person import api_bp as person_api
+    from app.person import ui_bp as person_ui
     from app.role import api_bp as role_api
     from app.role import ui_bp as role_ui
     from app.search import bp as search_bp
@@ -68,7 +69,8 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     from app.team import bp as team_bp
 
     app.register_blueprint(main_bp)
-    app.register_blueprint(person_bp)
+    app.register_blueprint(person_api)
+    app.register_blueprint(person_ui)
     app.register_blueprint(role_api)
     app.register_blueprint(role_ui)
     app.register_blueprint(search_bp)

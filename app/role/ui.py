@@ -39,7 +39,7 @@ def list_roles() -> ResponseReturnValue:
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
 
-    roles = get_roles(
+    roles: list[Role] = get_roles(
         sort=form.sort.data,
         status=form.status.data,
     )
@@ -67,7 +67,7 @@ def create() -> ResponseReturnValue:
 
 @ui.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
-    role = get_role(id)
+    role: Role = get_role(id)
     return render_template("view-role.html", role=role)
 
 
@@ -82,7 +82,7 @@ def edit(id: UUID) -> ResponseReturnValue:
         form.grade.data = role.grade
     elif form.validate_on_submit():
         try:
-            role = update_role(id, form.name.data)
+            update_role(id, name=form.name.data, grade=form.grade.data)
             flash(
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
@@ -100,7 +100,7 @@ def archive(id: UUID) -> ResponseReturnValue:
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role = archive_role(id)
+        archive_role(id)
         flash(
             f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
             "success",
@@ -116,7 +116,7 @@ def restore(id: UUID) -> ResponseReturnValue:
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        role = restore_role(id)
+        restore_role(id)
         flash(
             f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
             "success",

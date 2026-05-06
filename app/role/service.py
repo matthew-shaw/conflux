@@ -103,15 +103,13 @@ def create_role(name: str, grade: str) -> Role:
         raise
 
 
-def update_role(id: UUID, name: str) -> Role:
+def update_role(id: UUID, name: str, grade: str) -> None:
     """Update an existing role's name.
 
     Args:
         id: The UUID of the role to update.
         name: The new name for the role. Must remain unique.
-
-    Returns:
-        The updated Role object.
+        grade: The new grade for the role.
 
     Raises:
         werkzeug.exceptions.NotFound: If no role with the given ID exists.
@@ -119,23 +117,23 @@ def update_role(id: UUID, name: str) -> Role:
             constraint (i.e., another role already has that name).
 
     Example:
-        >>> role = update_role(role_id, "Senior Manager")
+        >>> role = update_role(role_id, "Senior Manager", "G7")
     """
     # Retrieve the role or raise 404 if not found
     role = db.get_or_404(Role, id)
     # Update the role's name
     role.name = name
+    role.grade = grade
     try:
         # Commit the update transaction
         db.session.commit()
-        return role
     except IntegrityError:
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
         raise
 
 
-def archive_role(id: UUID) -> Role:
+def archive_role(id: UUID) -> None:
     """Archive an existing role by setting its archived_at timestamp.
 
     Archived roles are effectively soft-deleted and can be restored later.
@@ -143,9 +141,6 @@ def archive_role(id: UUID) -> Role:
 
     Args:
         id: The UUID of the role to archive.
-
-    Returns:
-        The archived Role object with archived_at set to the current time.
 
     Raises:
         werkzeug.exceptions.NotFound: If no role with the given ID exists.
@@ -159,19 +154,15 @@ def archive_role(id: UUID) -> Role:
     role.archived_at = datetime.now(timezone.utc)
     # Commit the archive action
     db.session.commit()
-    return role
 
 
-def restore_role(id: UUID) -> Role:
+def restore_role(id: UUID) -> None:
     """Restore a previously archived role.
 
     Restoring a role clears its archived_at timestamp, making it active again.
 
     Args:
         id: The UUID of the role to restore.
-
-    Returns:
-        The restored Role object with archived_at set to None.
 
     Raises:
         werkzeug.exceptions.NotFound: If no role with the given ID exists.
@@ -185,4 +176,3 @@ def restore_role(id: UUID) -> Role:
     role.archived_at = None
     # Commit the restore action
     db.session.commit()
-    return role
