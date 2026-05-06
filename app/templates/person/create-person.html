@@ -27,7 +27,8 @@
         {{ form.email_address(params={
           'type': 'email',
           'autocomplete': 'email',
-          'spellcheck': false
+          'spellcheck': false,
+          'value': '@' + config['DOMAIN']
         }) }}
         {{ form.location(params={
           'classes': "govuk-!-width-one-half"
