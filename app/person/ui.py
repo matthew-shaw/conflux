@@ -71,9 +71,9 @@ def create() -> ResponseReturnValue:
                 name=form.name.data,
                 email_address=form.email_address.data,
                 location=form.location.data,
-                role_id=form.role.data,
-                team_id=form.team.data if form.team.data else None,
-                manager_id=form.manager.data if form.manager.data else None,
+                role_id=UUID(form.role.data),
+                team_id=UUID(form.team.data) if form.team.data else None,
+                manager_id=UUID(form.manager.data) if form.manager.data else None,
             )
             flash(
                 f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been created',
@@ -126,9 +126,9 @@ def edit(id: UUID) -> ResponseReturnValue:
                 name=form.name.data,
                 email_address=form.email_address.data,
                 location=form.location.data,
-                role_id=form.role.data,
-                team_id=form.team.data if form.team.data else None,
-                manager_id=form.manager.data if form.manager.data else None,
+                role_id=UUID(form.role.data),
+                team_id=UUID(form.team.data) if form.team.data else None,
+                manager_id=UUID(form.manager.data) if form.manager.data else None,
             )
             flash(
                 f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',

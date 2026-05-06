@@ -47,8 +47,8 @@ def create_person(
     email_address: str,
     location: str,
     role_id: UUID,
-    team_id: UUID,
-    manager_id: UUID,
+    team_id: UUID | None,
+    manager_id: UUID | None,
 ) -> Person:
     person: Person = Person(
         name=name.title(),
@@ -76,8 +76,8 @@ def update_person(
     email_address: str,
     location: str,
     role_id: UUID,
-    team_id: UUID,
-    manager_id: UUID,
+    team_id: UUID | None,
+    manager_id: UUID | None,
 ) -> None:
     # Retrieve the person or raise 404 if not found
     person = db.get_or_404(Person, id)
