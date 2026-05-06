@@ -15,6 +15,8 @@
     "/roles": {
       "get": {
         "summary": "List roles",
+        "operationId": "listRoles",
+        "tags": ["Role"],
         "parameters": [
           {
             "name": "sort",
@@ -55,6 +57,8 @@
     "/roles/{id}": {
       "get": {
         "summary": "Get a role by ID",
+        "operationId": "getRole",
+        "tags": ["Role"],
         "parameters": [
           {
             "name": "id",
@@ -86,6 +90,8 @@
     "/people": {
       "get": {
         "summary": "List people",
+        "operationId": "listPeople",
+        "tags": ["Person"],
         "parameters": [
           {
             "name": "sort",
@@ -126,6 +132,8 @@
     "/people/{id}": {
       "get": {
         "summary": "Get a person by ID",
+        "operationId": "getPerson",
+        "tags": ["Person"],
         "parameters": [
           {
             "name": "id",
@@ -195,6 +203,7 @@
       },
       "PersonNested": {
         "type": "object",
+        "required": ["id", "name", "email_address", "location", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -207,6 +216,7 @@
           "email_address": {
             "type": "string",
             "format": "email",
+            "nullable": true,
             "example": "john.appleseed@example.com"
           },
           "location": {
@@ -220,6 +230,7 @@
       },
       "RoleNested": {
         "type": "object",
+        "required": ["id", "name", "grade", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -240,6 +251,7 @@
       },
       "TeamNested": {
         "type": "object",
+        "required": ["id", "name", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -257,6 +269,7 @@
       },
       "Person": {
         "type": "object",
+        "required": ["id", "name", "email_address", "location", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -269,6 +282,7 @@
           "email_address": {
             "type": "string",
             "format": "email",
+            "nullable": true,
             "example": "john.appleseed@example.com"
           },
           "location": {
@@ -302,6 +316,7 @@
       },
       "Role": {
         "type": "object",
+        "required": ["id", "name", "grade", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
