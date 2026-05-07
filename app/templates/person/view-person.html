@@ -98,7 +98,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('team.view', id=person.team.id),
+                'href': url_for('team_ui.view', id=person.team.id),
                 'text': "View",
                 'visuallyHiddenText': "team"
               },
@@ -191,7 +191,7 @@
           'html': '<a href="' ~ url_for("role_ui.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name ~ '</a>'
         },
         {
-          'html': '<a href="' ~ url_for("team.view", id=report.team.id) ~ '" class="govuk-link">' ~ report.team.name ~ '</a>' if report.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+          'html': '<a href="' ~ url_for("team_ui.view", id=report.team.id) ~ '" class="govuk-link">' ~ report.team.name ~ '</a>' if report.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': report.location.title()

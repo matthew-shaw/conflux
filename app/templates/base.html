@@ -44,9 +44,9 @@
         'active': true if url_for('person_ui.list_people') in request.path else false
       },
       {
-        'href': url_for('team.list_teams'),
+        'href': url_for('team_ui.list_teams'),
         'text': "Teams",
-        'active': true if url_for('team.list_teams') in request.path else false
+        'active': true if url_for('team_ui.list_teams') in request.path else false
       },
       {
         'href': url_for('service.list_services'),

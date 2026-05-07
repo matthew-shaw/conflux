@@ -69,7 +69,7 @@ def index() -> str:
                     "id": team.id,
                     "name": team.name,
                     "updated_at": team.updated_at,
-                    "url": url_for("team.view", id=team.id),
+                    "url": url_for("team_ui.view", id=team.id),
                 }
             )
 

@@ -18,17 +18,17 @@
     <div class="govuk-button-group">
       {{ govukButton({
         'text': "Add team",
-        'href': url_for('team.create')
+        'href': url_for('team_ui.create')
       }) }}
 
-      <a href="{{ url_for('team.download') }}" class="govuk-link">Download all teams (CSV)</a>  
+      <a href="{{ url_for('team_ui.download') }}" class="govuk-link">Download all teams (CSV)</a>  
     </div>
   </div>
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
     <h2 class="govuk-heading-m">Sort and filter</h3>
-    <form method="get" action="{{ url_for('team.list_teams') }}" novalidate>
+    <form method="get" action="{{ url_for('team_ui.list_teams') }}" novalidate>
       {{ form.sort(params={
         'classes': "govuk-radios--small"
       }) }}
@@ -46,7 +46,7 @@
     {% for team in teams %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("team.view", id=team.id) ~ '" class="govuk-link">' ~ team.name ~ '</a>'
+          'html': '<a href="' ~ url_for("team_ui.view", id=team.id) ~ '" class="govuk-link">' ~ team.name ~ '</a>'
         },
         {
           'text': team.people | length
@@ -70,6 +70,7 @@
         'rows': rows
       }) }}
     {% endif %}
+    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('team_api.list_teams') }}">Get data in JSON format</a></p>
   </div>
 </div>
 {%- endblock -%}

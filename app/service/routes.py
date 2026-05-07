@@ -25,6 +25,7 @@ from app.service.forms import (
     ServiceForm,
     ServiceSortFilterForm,
 )
+from app.team.service import get_teams
 
 
 @bp.route("/", methods=["GET"])
@@ -61,7 +62,7 @@ def create() -> ResponseReturnValue:
     form: ServiceForm = ServiceForm()
 
     # Add options
-    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
+    teams: list[Team] = get_teams()
     form.team.choices = [(team.id, team.name) for team in teams]
 
     if form.validate_on_submit():
@@ -96,7 +97,7 @@ def edit(id: UUID) -> ResponseReturnValue:
     form: ServiceForm = ServiceForm()
 
     # Add options
-    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
+    teams: list[Team] = get_teams()
     form.team.choices = [(team.id, team.name) for team in teams]
 
     if request.method == "GET":

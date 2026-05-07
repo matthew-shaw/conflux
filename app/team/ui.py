@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime, timezone
 from io import StringIO
 from typing import Iterator
 from uuid import UUID
@@ -15,132 +14,117 @@ from flask import (
 from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 
-from app import db
 from app.models import Team
-from app.team import bp
+from app.team import ui_bp as ui
 from app.team.forms import (
     ArchiveTeamForm,
     RestoreTeamForm,
     TeamForm,
     TeamSortFilterForm,
 )
+from app.team.service import (
+    archive_team,
+    create_team,
+    get_team,
+    get_teams,
+    restore_team,
+    update_team,
+)
 
 
-@bp.route("/", methods=["GET"])
+@ui.route("/", methods=["GET"])
 def list_teams() -> ResponseReturnValue:
     form: TeamSortFilterForm = TeamSortFilterForm()
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
 
-    # Start the base SELECT statement
-    query = db.select(Team)
-
-    # Apply sorting
-    sort = form.sort.data or "name"
-    if sort == "name":
-        query = query.order_by(Team.name)
-    elif sort == "updated":
-        query = query.order_by(Team.updated_at.desc())
-
-    # Apply filter based on status
-    status = form.status.data or "active"
-    if status == "active":
-        query = query.where(Team.archived_at.is_(None))
-    elif status == "archived":
-        query = query.where(Team.archived_at.is_not(None))
-    # No filter if status == "all"
-
-    teams: list[Team] = list(db.session.execute(query).scalars().all())
+    teams: list[Team] = get_teams(
+        sort=form.sort.data,
+        status=form.status.data,
+    )
 
     return render_template("list-teams.html", title="Teams", teams=teams, form=form)
 
 
-@bp.route("/new", methods=["GET", "POST"])
+@ui.route("/new", methods=["GET", "POST"])
 def create() -> ResponseReturnValue:
     form: TeamForm = TeamForm()
     if form.validate_on_submit():
-        team: Team = Team(name=form.name.data)
-        db.session.add(team)
         try:
-            db.session.commit()
+            team = create_team(form.name.data)
             flash(
-                f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been created',
+                f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been created',
                 "success",
             )
-            return redirect(url_for("team.list_teams"))
+            return redirect(url_for("team_ui.list_teams"))
         except IntegrityError:
-            db.session.rollback()
             form.name.errors.append("A team with this name already exists.")
             return render_template("create-team.html", form=form)
     return render_template("create-team.html", title="Add a new team", form=form)
 
 
-@bp.route("/<uuid:id>", methods=["GET"])
+@ui.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
-    team = db.get_or_404(Team, id)
+    team: Team = get_team(id)
     return render_template("view-team.html", team=team)
 
 
-@bp.route("/<uuid:id>/edit", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> ResponseReturnValue:
-    team: Team = db.get_or_404(Team, id)
+    team: Team = get_team(id)
     form: TeamForm = TeamForm()
 
     if request.method == "GET":
         form.name.data = team.name
     elif form.validate_on_submit():
-        team.name = form.name.data
         try:
-            db.session.commit()
+            update_team(id, name=form.name.data)
             flash(
-                f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
+                f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
                 "success",
             )
-            return redirect(url_for("team.list_teams"))
+            return redirect(url_for("team_ui.list_teams"))
         except IntegrityError:
-            db.session.rollback()
             form.name.errors.append("A team with this name already exists.")
 
     return render_template("edit-team.html", title="Edit team", team=team, form=form)
 
 
-@bp.route("/<uuid:id>/archive", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> ResponseReturnValue:
-    team: Team = db.get_or_404(Team, id)
+    team: Team = get_team(id)
     form: ArchiveTeamForm = ArchiveTeamForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        team.archived_at = datetime.now(timezone.utc)
-        db.session.commit()
+        archive_team(id)
         flash(
-            f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been archived',
+            f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been archived',
             "success",
         )
-        return redirect(url_for("team.list_teams"))
+        return redirect(url_for("team_ui.list_teams"))
 
     return render_template("archive-team.html", title="Archive team", team=team, form=form)
 
 
-@bp.route("/<uuid:id>/restore", methods=["GET", "POST"])
+@ui.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> ResponseReturnValue:
-    team: Team = db.get_or_404(Team, id)
+    team: Team = get_team(id)
     form: RestoreTeamForm = RestoreTeamForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        team.archived_at = None
-        db.session.commit()
+        restore_team(id)
         flash(
-            f'<a href="{url_for("team.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been restored',
+            f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been restored',
             "success",
         )
-        return redirect(url_for("team.list_teams"))
+        return redirect(url_for("team_ui.list_teams"))
 
     return render_template("restore-team.html", title="Restore team", team=team, form=form)
 
 
-@bp.route("/download", methods=["GET"])
+@ui.route("/download", methods=["GET"])
 def download() -> ResponseReturnValue:
-    teams: list[Team] = list(db.session.execute(db.select(Team).order_by(Team.name)).scalars().all())
+    teams: list[Team] = get_teams()
 
     def generate() -> Iterator[str]:
         data = StringIO()

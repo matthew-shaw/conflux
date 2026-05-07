@@ -11,14 +11,14 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <h1 class="govuk-heading-l">Are you sure you want to restore the {{ team.name }} team?</h1>
-    <form method="post" action="{{ url_for('team.restore', id=team.id) }}" novalidate>
+    <form method="post" action="{{ url_for('team_ui.restore', id=team.id) }}" novalidate>
       {{ form.csrf_token }}
       {{ form.confirm }}
       <div class="govuk-button-group">
         {{ form.submit(params={
           'preventDoubleClick': true
         }) }}
-        <a class="govuk-link" href="{{ url_for('team.view', id=team.id) }}">Cancel</a>
+        <a class="govuk-link" href="{{ url_for('team_ui.view', id=team.id) }}">Cancel</a>
       </div>
   </div>
 </div>

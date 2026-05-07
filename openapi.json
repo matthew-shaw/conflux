@@ -2,13 +2,27 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Conflux",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "Read-only API for roles, people, teams, services, and components."
   },
   "servers": [
     {
       "url": "https://localhost/api/v1/",
       "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Role",
+      "description": "Operations related to Roles."
+    },
+    {
+      "name": "Person",
+      "description": "Operations related to People."
+    },
+    {
+      "name": "Team",
+      "description": "Operations related to Teams."
     }
   ],
   "paths": {
@@ -171,6 +185,86 @@
           }
         }
       }
+    },
+    "/teams": {
+      "get": {
+        "summary": "List teams",
+        "description": "Returns a list of teams in the organisation, optionally filtered and sorted.",
+        "operationId": "listTeams",
+        "tags": ["Team"],
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Field to sort teams by.",
+            "schema": {
+              "type": "string",
+              "enum": ["name", "updated"],
+              "default": "name"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter teams by status.",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "archived", "all"],
+              "default": "active"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of teams",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamNested"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/teams/{id}": {
+      "get": {
+        "summary": "Get a team by ID",
+        "description": "Returns detailed information about a specific team.",
+        "operationId": "getTeam",
+        "tags": ["Team"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the team.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Team"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Team not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -294,6 +388,28 @@
           }
         }
       },
+      "ServiceNested": {
+        "type": "object",
+        "description": "A lightweight representation of a service.",
+        "required": ["id", "name", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the service."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the service.",
+            "example": "Case Management"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the service was last updated."
+          }
+        }
+      },
       "Person": {
         "type": "object",
         "description": "Detailed representation of a person.",
@@ -381,6 +497,42 @@
             "description": "People assigned to this role.",
             "items": {
               "$ref": "#/components/schemas/PersonNested"
+            }
+          }
+        }
+      },
+      "Team": {
+        "type": "object",
+        "description": "Detailed representation of a team.",
+        "required": ["id", "name", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the team."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the team.",
+            "example": "Byte Club"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the team was last updated."
+          },
+          "people": {
+            "type": "array",
+            "description": "People assigned to this team.",
+            "items": {
+              "$ref": "#/components/schemas/PersonNested"
+            }
+          },
+          "services": {
+            "type": "array",
+            "description": "Services owned by this team.",
+            "items": {
+              "$ref": "#/components/schemas/ServiceNested"
             }
           }
         }

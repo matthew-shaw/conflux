@@ -201,3 +201,14 @@ erDiagram
     services ||--|{ components : "uses"
     components ||--|{ services : "used by"
 ```
+
+## API Endpoints
+
+| Method | Endpoint              | Description                                                                   |
+| ------ | --------------------- | ----------------------------------------------------------------------------- |
+| `GET`  | `/api/v1/roles`       | Returns a list of roles in the organisation, optionally filtered and sorted.  |
+| `GET`  | `/api/v1/roles/{id}`  | Returns detailed information about a specific role.                           |
+| `GET`  | `/api/v1/people`      | Returns a list of people in the organisation, optionally filtered and sorted. |
+| `GET`  | `/api/v1/people/{id}` | Returns detailed information about a specific person.                         |
+| `GET`  | `/api/v1/teams`       | Returns a list of teams in the organisation, optionally filtered and sorted.  |
+| `GET`  | `/api/v1/teams/{id}`  | Returns detailed information about a specific team.                           |

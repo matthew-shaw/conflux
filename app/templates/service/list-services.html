@@ -49,7 +49,7 @@
           'html': '<a href="' ~ url_for("service.view", id=service.id) ~ '" class="govuk-link">' ~ service.name ~ '</a>'
         },
         {
-          'html': '<a href="' ~ url_for("team.view", id=service.team.id) ~ '" class="govuk-link">' ~ service.team.name ~ '</a>' if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+          'html': '<a href="' ~ url_for("team_ui.view", id=service.team.id) ~ '" class="govuk-link">' ~ service.team.name ~ '</a>' if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': format_govuk_datetime(service.updated_at, include_day=False, truncate_month=True)

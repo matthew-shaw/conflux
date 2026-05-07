@@ -15,7 +15,6 @@ from flask import (
 from flask.typing import ResponseReturnValue
 from sqlalchemy.exc import IntegrityError
 
-from app import db
 from app.models import Person, Role, Team
 from app.person import ui_bp as ui
 from app.person.forms import (
@@ -34,6 +33,7 @@ from app.person.service import (
     update_person,
 )
 from app.role.service import get_roles
+from app.team.service import get_teams
 
 
 @ui.route("/", methods=["GET"])
@@ -57,7 +57,7 @@ def create() -> ResponseReturnValue:
     roles: list[Role] = get_roles()
     form.role.choices = [(str(role.id), role.name) for role in roles]
 
-    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
+    teams: list[Team] = get_teams()
     form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
     people: list[Person] = get_people()
@@ -101,7 +101,7 @@ def edit(id: UUID) -> ResponseReturnValue:
     roles: list[Role] = get_roles()
     form.role.choices = [(role.id, role.name) for role in roles]
 
-    teams = db.session.execute(db.select(Team).where(Team.archived_at.is_(None)).order_by(Team.name)).scalars().all()
+    teams: list[Team] = get_teams()
     form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
     people: list[Person] = get_people()

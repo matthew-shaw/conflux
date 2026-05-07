@@ -12,7 +12,7 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
-    <form method="post" action="{{ url_for('team.create') }}" novalidate>
+    <form method="post" action="{{ url_for('team_ui.create') }}" novalidate>
       {% call govukFieldset({
         'legend': {
           'text': title,
@@ -28,7 +28,7 @@
           {{ form.submit(params={
             'preventDoubleClick': true
           }) }}
-          <a class="govuk-link" href="{{ url_for('team.list_teams') }}">Cancel</a>
+          <a class="govuk-link" href="{{ url_for('team_ui.list_teams') }}">Cancel</a>
         </div>
       {% endcall %}
     </form>

@@ -66,7 +66,8 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     from app.role import ui_bp as role_ui
     from app.search import bp as search_bp
     from app.service import bp as service_bp
-    from app.team import bp as team_bp
+    from app.team import api_bp as team_api
+    from app.team import ui_bp as team_ui
 
     app.register_blueprint(main_bp)
     app.register_blueprint(person_api)
@@ -75,7 +76,8 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     app.register_blueprint(role_ui)
     app.register_blueprint(search_bp)
     app.register_blueprint(service_bp)
-    app.register_blueprint(team_bp)
+    app.register_blueprint(team_api)
+    app.register_blueprint(team_ui)
 
     return app
 

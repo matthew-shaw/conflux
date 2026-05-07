@@ -79,7 +79,7 @@ class Role(BaseModel):
         if self.archived_at:
             data["archived_at"] = self.archived_at.isoformat().replace("+00:00", "Z")
         if include_people:
-            data["people"] = [person.to_dict(include_team=True) for person in self.people]
+            data["people"] = [person.to_dict() for person in self.people]
         return data
 
 
@@ -131,7 +131,7 @@ class Team(BaseModel):
         if self.archived_at:
             data["archived_at"] = self.archived_at.isoformat().replace("+00:00", "Z")
         if include_people:
-            data["people"] = [person.to_dict(include_role=True) for person in self.people]
+            data["people"] = [person.to_dict() for person in self.people]
         if include_services:
             data["services"] = [service.to_dict() for service in self.services]
         return data
@@ -224,7 +224,7 @@ class Person(BaseModel):
         if include_manager and self.manager:
             data["manager"] = self.manager.to_dict()
         if include_reports:
-            data["reports"] = [report.to_dict(include_role=True, include_team=True) for report in self.reports]
+            data["reports"] = [report.to_dict() for report in self.reports]
         return data
 
 

@@ -12,7 +12,7 @@
 {{ super() }}
 {{ govukBackLink({
   'text': "Back",
-  'href': url_for('team.list_teams')
+  'href': url_for('team_ui.list_teams')
 }) }}
 {%- endblock -%}
 
@@ -35,7 +35,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('team.edit', id=team.id),
+                'href': url_for('team_ui.edit', id=team.id),
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
@@ -55,7 +55,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('team.restore', id=team.id) if team.archived_at else url_for('team.archive', id=team.id),
+                'href': url_for('team_ui.restore', id=team.id) if team.archived_at else url_for('team_ui.archive', id=team.id),
                 'text': "Restore" if team.archived_at else "Archive",
                 'visuallyHiddenText': "team"
               }
@@ -110,4 +110,5 @@
     </ul>
   </div>
 </div>
+<p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('team_api.view', id=team.id) }}">Get data in JSON format</a></p>
 {%- endblock -%}
