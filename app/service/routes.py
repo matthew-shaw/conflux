@@ -18,6 +18,7 @@ from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Service, Team
+from app.person import service
 from app.service import bp
 from app.service.forms import (
     ArchiveServiceForm,
@@ -63,7 +64,7 @@ def create() -> ResponseReturnValue:
 
     # Add options
     teams: list[Team] = get_teams()
-    form.team.choices = [(team.id, team.name) for team in teams]
+    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
     if form.validate_on_submit():
         service: Service = Service(
@@ -95,10 +96,11 @@ def view(id: UUID) -> ResponseReturnValue:
 def edit(id: UUID) -> ResponseReturnValue:
     service: Service = db.get_or_404(Service, id)
     form: ServiceForm = ServiceForm()
+    form.service = service
 
     # Add options
     teams: list[Team] = get_teams()
-    form.team.choices = [(team.id, team.name) for team in teams]
+    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
 
     if request.method == "GET":
         form.name.data = service.name

@@ -19,6 +19,8 @@ from app.models import Service
 
 
 class ServiceForm(FlaskForm):
+    service: Service | None = None
+
     name = StringField(
         "Name",
         filters=[lambda x: x.strip() if x else x],
@@ -27,7 +29,6 @@ class ServiceForm(FlaskForm):
     )
     team = SelectField(
         "Team",
-        choices=[("", "Select a team")],
         widget=GovSelect(),
         default="",
         validators=[Optional()],
@@ -35,8 +36,9 @@ class ServiceForm(FlaskForm):
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
     def validate_name(self, field):
-        # Check if a service with this name already exists
-        if Service.query.filter_by(name=field.data).first():
+        existing_service = Service.query.filter_by(name=field.data).first()
+
+        if existing_service and existing_service != self.service:
             raise ValidationError("A service with this name already exists.")
 
 
