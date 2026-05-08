@@ -1,3 +1,6 @@
+import json
+import logging
+from datetime import datetime, timezone
 from typing import Type
 
 from flask import Flask
@@ -12,6 +15,46 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.utils.govuk_datetime import format_govuk_datetime
 from config import Config
+
+
+class JSONFormatter(logging.Formatter):
+
+    def format(self, record: logging.LogRecord) -> str:  # type: ignore[override]
+        # Base log structure
+        timestamp = datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+
+        log = {
+            "timestamp": timestamp,
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "func": record.funcName,
+            "lineno": record.lineno,
+        }
+
+        # Attach any extra fields that might be present
+        extras = getattr(record, "extras", None)
+        if extras and isinstance(extras, dict):
+            log.update(extras)
+
+        return json.dumps(log, default=str)
+
+
+def configure_structured_logging(app: "Flask") -> None:
+    """Configure root logger to emit JSON structured logs to stdout."""
+    level_name = app.config.get("LOG_LEVEL", "INFO")
+    level = getattr(logging, level_name.upper(), logging.INFO)
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(JSONFormatter())
+
+    root = logging.getLogger()
+    # Avoid adding duplicate handlers in reload/test environments
+    if not any(isinstance(h, logging.StreamHandler) for h in root.handlers):
+        root.addHandler(handler)
+    root.setLevel(level)
+
 
 # Initialize Flask extensions. These are initialized here for easier access.
 csrf: CSRFProtect = CSRFProtect()
@@ -31,6 +74,8 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     """
     app: Flask = Flask(__name__)  # type: ignore[assignment]
     app.config.from_object(config_class)
+    # Configure structured JSON logging
+    configure_structured_logging(app)
     app.jinja_env.globals["format_govuk_datetime"] = format_govuk_datetime
     app.jinja_env.lstrip_blocks = True
     app.jinja_env.trim_blocks = True

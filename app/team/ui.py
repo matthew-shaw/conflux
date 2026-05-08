@@ -1,4 +1,5 @@
 import csv
+import logging
 from io import StringIO
 from typing import Iterator
 from uuid import UUID
@@ -32,6 +33,8 @@ from app.team.service import (
     update_team,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @ui.route("/", methods=["GET"])
 def list_teams() -> ResponseReturnValue:
@@ -45,6 +48,9 @@ def list_teams() -> ResponseReturnValue:
             status=form.status.data,
         )
     except SQLAlchemyError:
+        logger.exception(
+            f"Database error listing teams (sort={form.sort.data},status={form.status.data})",
+        )
         abort(503)
 
     return render_template("list-teams.html", title="Teams", teams=teams, form=form)
@@ -60,11 +66,14 @@ def create() -> ResponseReturnValue:
                 f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been created',
                 "success",
             )
+            logger.info(f"Created team id={team.id} name={team.name}")
             return redirect(url_for("team_ui.list_teams"))
         except IntegrityError:
             form.name.errors.append("A team with this name already exists.")
+            logger.warning(f"IntegrityError creating team name={form.name.data}", exc_info=True)
             return render_template("create-team.html", form=form)
         except SQLAlchemyError:
+            logger.exception(f"Database error creating team name={form.name.data}")
             abort(503)
     return render_template("create-team.html", title="Add a new team", form=form)
 
@@ -74,6 +83,7 @@ def view(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
     except SQLAlchemyError:
+        logger.exception(f"Database error viewing team {id}")
         abort(503)
     return render_template("view-team.html", team=team)
 
@@ -95,10 +105,16 @@ def edit(id: UUID) -> ResponseReturnValue:
                 f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
                 "success",
             )
+            logger.info(f"Updated team id={team.id} name={form.name.data}")
             return redirect(url_for("team_ui.list_teams"))
         except IntegrityError:
             form.name.errors.append("A team with this name already exists.")
+            logger.warning(
+                f"IntegrityError updating team id={id} name={form.name.data}",
+                exc_info=True,
+            )
         except SQLAlchemyError:
+            logger.exception(f"Database error updating team {id}")
             abort(503)
 
     return render_template("edit-team.html", title="Edit team", team=team, form=form)
@@ -109,18 +125,21 @@ def archive(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
     except SQLAlchemyError:
+        logger.exception(f"Database error fetching team for archive {id}")
         abort(503)
     form: ArchiveTeamForm = ArchiveTeamForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             archive_team(id)
+            logger.info(f"Archived team {id}")
             flash(
                 f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("team_ui.list_teams"))
         except SQLAlchemyError:
+            logger.exception(f"Database error archiving team {id}")
             abort(503)
 
     return render_template("archive-team.html", title="Archive team", team=team, form=form)
@@ -131,18 +150,21 @@ def restore(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
     except SQLAlchemyError:
+        logger.exception(f"Database error fetching team for restore {id}")
         abort(503)
     form: RestoreTeamForm = RestoreTeamForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             restore_team(id)
+            logger.info(f"Restored team {id}")
             flash(
                 f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("team_ui.list_teams"))
         except SQLAlchemyError:
+            logger.exception(f"Database error restoring team {id}")
             abort(503)
 
     return render_template("restore-team.html", title="Restore team", team=team, form=form)
@@ -153,6 +175,7 @@ def download() -> ResponseReturnValue:
     try:
         teams: list[Team] = get_teams()
     except SQLAlchemyError:
+        logger.exception("Database error downloading teams")
         abort(503)
 
     def generate() -> Iterator[str]:

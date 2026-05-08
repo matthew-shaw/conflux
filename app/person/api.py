@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from flask import Response, jsonify, request
@@ -5,6 +6,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.person import api_bp as api
 from app.person.service import get_people, get_person
+
+logger = logging.getLogger(__name__)
 
 
 @api.route("/", methods=["GET"])
@@ -16,6 +19,7 @@ def list_people() -> Response:
         )
         return jsonify([person.to_dict() for person in people])
     except SQLAlchemyError:
+        logger.exception("Database error listing people")
         resp = jsonify({"error": "Database error"})
         resp.status_code = 503
         return resp
@@ -34,6 +38,7 @@ def view(id: UUID) -> Response:
             )
         )
     except SQLAlchemyError:
+        logger.exception(f"Database error viewing person {id}")
         resp = jsonify({"error": "Database error"})
         resp.status_code = 503
         return resp

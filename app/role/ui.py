@@ -1,4 +1,5 @@
 import csv
+import logging
 from io import StringIO
 from typing import Iterator
 from uuid import UUID
@@ -33,6 +34,8 @@ from app.role.service import (
     update_role,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @ui.route("/", methods=["GET"])
 def list_roles() -> ResponseReturnValue:
@@ -46,6 +49,9 @@ def list_roles() -> ResponseReturnValue:
             status=form.status.data,
         )
     except SQLAlchemyError:
+        logger.exception(
+            f"Database error listing roles (sort={form.sort.data},status={form.status.data})",
+        )
         abort(503)
 
     return render_template("list-roles.html", title="Roles", roles=roles, form=form)
@@ -62,9 +68,11 @@ def create() -> ResponseReturnValue:
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created',
                 "success",
             )
+            logger.info(f"Created role id={role.id} name={role.name}")
             return redirect(url_for("role_ui.list_roles"))
         except IntegrityError:
             form.name.errors.append("A role with this name already exists.")
+            logger.warning(f"IntegrityError creating role name={form.name.data}", exc_info=True)
             return render_template("create-role.html", form=form)
     return render_template("create-role.html", title="Add a new role", form=form)
 
@@ -74,6 +82,7 @@ def view(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
     except SQLAlchemyError:
+        logger.exception(f"Database error viewing role {id}")
         abort(503)
     return render_template("view-role.html", role=role)
 
@@ -97,10 +106,17 @@ def edit(id: UUID) -> ResponseReturnValue:
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
             )
+            logger.info(f"Updated role id={role.id} name={form.name.data}")
             return redirect(url_for("role_ui.list_roles"))
         except IntegrityError:
             form.name.errors.append("A role with this name already exists.")
-
+            logger.warning(
+                f"IntegrityError updating role id={id} name={form.name.data}",
+                exc_info=True,
+            )
+        except SQLAlchemyError:
+            logger.exception(f"Database error updating role {id}")
+            abort(503)
     return render_template("edit-role.html", title="Edit role", role=role, form=form)
 
 
@@ -109,18 +125,21 @@ def archive(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
     except SQLAlchemyError:
+        logger.exception(f"Database error fetching role for archive {id}")
         abort(503)
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             archive_role(id)
+            logger.info(f"Archived role {id}")
             flash(
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("role_ui.list_roles"))
         except SQLAlchemyError:
+            logger.exception(f"Database error archiving role {id}")
             abort(503)
 
     return render_template("archive-role.html", title="Archive role", role=role, form=form)
@@ -131,18 +150,21 @@ def restore(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
     except SQLAlchemyError:
+        logger.exception(f"Database error fetching role for restore {id}")
         abort(503)
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             restore_role(id)
+            logger.info(f"Restored role {id}")
             flash(
                 f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("role_ui.list_roles"))
         except SQLAlchemyError:
+            logger.exception(f"Database error restoring role {id}")
             abort(503)
 
     return render_template("restore-role.html", title="Restore role", role=role, form=form)
@@ -153,6 +175,7 @@ def download() -> ResponseReturnValue:
     try:
         roles: list[Role] = get_roles()
     except SQLAlchemyError:
+        logger.exception("Database error downloading roles")
         abort(503)
 
     def generate() -> Iterator[str]:

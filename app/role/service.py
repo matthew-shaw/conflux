@@ -6,6 +6,7 @@ database access from the role views (ui.py and api.py) should go through
 these functions.
 """
 
+import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -13,6 +14,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app import db
 from app.models import Role
+
+logger = logging.getLogger(__name__)
 
 
 def get_roles(sort: str = "name", status: str = "active") -> list[Role]:
@@ -59,6 +62,10 @@ def get_roles(sort: str = "name", status: str = "active") -> list[Role]:
             db.session.rollback()
         except Exception:
             pass
+        logger.debug(
+            f"Database error retrieving roles (sort={sort},status={status})",
+            exc_info=True,
+        )
         raise
 
 
@@ -100,16 +107,20 @@ def create_role(name: str, grade: str) -> Role:
     role = Role(name=name, grade=grade)
     # Add the new role instance to the session
     db.session.add(role)
+    logger.info(f"Creating role: {name} grade={grade}")
     try:
         # Attempt to commit the transaction to persist the role
         db.session.commit()
+        logger.info(f"Created role: {name} (id={getattr(role, 'id', None)})")
         return role
     except IntegrityError:
         # Rollback on constraint violation (e.g., duplicate name)
         db.session.rollback()
+        logger.debug(f"IntegrityError creating role {name}", exc_info=True)
         raise
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error creating role {name}", exc_info=True)
         raise
 
 
@@ -134,15 +145,19 @@ def update_role(id: UUID, name: str, grade: str) -> None:
     # Update the role's name
     role.name = name
     role.grade = grade
+    logger.info(f"Updating role {id} -> name={name} grade={grade}")
     try:
         # Commit the update transaction
         db.session.commit()
+        logger.info(f"Updated role {id}")
     except IntegrityError:
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
+        logger.debug(f"IntegrityError updating role {id} to name={name}", exc_info=True)
         raise
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error updating role {id}", exc_info=True)
         raise
 
 
@@ -165,11 +180,14 @@ def archive_role(id: UUID) -> None:
     role = db.get_or_404(Role, id)
     # Set the archived_at timestamp to mark the role as archived
     role.archived_at = datetime.now(timezone.utc)
+    logger.info(f"Archiving role {id}")
     try:
         # Commit the archive action
         db.session.commit()
+        logger.info(f"Archived role {id}")
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error archiving role {id}", exc_info=True)
         raise
 
 
@@ -191,9 +209,12 @@ def restore_role(id: UUID) -> None:
     role = db.get_or_404(Role, id)
     # Clear the archived_at timestamp to mark the role as active
     role.archived_at = None
+    logger.info(f"Restoring role {id}")
     try:
         # Commit the restore action
         db.session.commit()
+        logger.info(f"Restored role {id}")
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error restoring role {id}", exc_info=True)
         raise

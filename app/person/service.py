@@ -6,6 +6,7 @@ database access from the person views (ui.py and api.py) should go through
 these functions.
 """
 
+import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -14,6 +15,8 @@ from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Person
+
+logger = logging.getLogger(__name__)
 
 
 def get_people(sort: str = "name", status: str = "active") -> list[Person]:
@@ -42,6 +45,10 @@ def get_people(sort: str = "name", status: str = "active") -> list[Person]:
             db.session.rollback()
         except Exception:
             pass
+        logger.debug(
+            f"Database error retrieving people (sort={sort},status={status})",
+            exc_info=True,
+        )
         raise
 
 
@@ -67,16 +74,20 @@ def create_person(
     )
     # Add the new person instance to the session
     db.session.add(person)
+    logger.info(f"Creating person: {name} email={email_address}")
     try:
         # Attempt to commit the transaction to persist the person
         db.session.commit()
+        logger.info(f"Created person: {name} (id={getattr(person, 'id', None)})")
         return person
     except IntegrityError:
         # Rollback on constraint violation (e.g., duplicate name)
         db.session.rollback()
+        logger.debug(f"IntegrityError creating person {name}", exc_info=True)
         raise
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error creating person {name}", exc_info=True)
         raise
 
 
@@ -98,15 +109,19 @@ def update_person(
     person.role_id = role_id
     person.team_id = team_id
     person.manager_id = manager_id
+    logger.info(f"Updating person {id} -> name={name} email={email_address}")
     try:
         # Commit the update transaction
         db.session.commit()
+        logger.info(f"Updated person {id}")
     except IntegrityError:
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
+        logger.debug(f"IntegrityError updating person {id} to name={name}", exc_info=True)
         raise
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error updating person {id}", exc_info=True)
         raise
 
 
@@ -115,11 +130,14 @@ def archive_person(id: UUID) -> None:
     person = db.get_or_404(Person, id)
     # Set the archived_at timestamp to mark the person as archived
     person.archived_at = datetime.now(timezone.utc)
+    logger.info(f"Archiving person {id}")
     try:
         # Commit the archive action
         db.session.commit()
+        logger.info(f"Archived person {id}")
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error archiving person {id}", exc_info=True)
         raise
 
 
@@ -128,11 +146,14 @@ def restore_person(id: UUID) -> None:
     person = db.get_or_404(Person, id)
     # Clear the archived_at timestamp to mark the person as active
     person.archived_at = None
+    logger.info(f"Restoring person {id}")
     try:
         # Commit the restore action
         db.session.commit()
+        logger.info(f"Restored person {id}")
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error restoring person {id}", exc_info=True)
         raise
 
 
@@ -156,4 +177,5 @@ def download_people() -> list[Person]:
             db.session.rollback()
         except Exception:
             pass
+        logger.debug("Database error downloading people", exc_info=True)
         raise

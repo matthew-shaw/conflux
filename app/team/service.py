@@ -6,6 +6,7 @@ database access from the team views (ui.py and api.py) should go through
 these functions.
 """
 
+import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
@@ -13,6 +14,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app import db
 from app.models import Team
+
+logger = logging.getLogger(__name__)
 
 
 def get_teams(sort: str = "name", status: str = "active") -> list[Team]:
@@ -98,16 +101,20 @@ def create_team(name: str) -> Team:
     team = Team(name=name)
     # Add the new team instance to the session
     db.session.add(team)
+    logger.info(f"Creating team: {name}")
     try:
         # Attempt to commit the transaction to persist the team
         db.session.commit()
+        logger.info(f"Created team: {name} (id={getattr(team, 'id', None)})")
         return team
     except IntegrityError:
         # Rollback on constraint violation (e.g., duplicate name)
         db.session.rollback()
+        logger.debug(f"IntegrityError creating team {name}", exc_info=True)
         raise
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error creating team {name}", exc_info=True)
         raise
 
 
@@ -130,15 +137,19 @@ def update_team(id: UUID, name: str) -> None:
     team = db.get_or_404(Team, id)
     # Update the team's name
     team.name = name
+    logger.info(f"Updating team {id} -> name={name}")
     try:
         # Commit the update transaction
         db.session.commit()
+        logger.info(f"Updated team {id}")
     except IntegrityError:
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
+        logger.debug(f"IntegrityError updating team {id} to name={name}", exc_info=True)
         raise
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error updating team {id}", exc_info=True)
         raise
 
 
@@ -161,11 +172,14 @@ def archive_team(id: UUID) -> None:
     team = db.get_or_404(Team, id)
     # Set the archived_at timestamp to mark the team as archived
     team.archived_at = datetime.now(timezone.utc)
+    logger.info(f"Archiving team {id}")
     try:
         # Commit the archive action
         db.session.commit()
+        logger.info(f"Archived team {id}")
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error archiving team {id}", exc_info=True)
         raise
 
 
@@ -187,9 +201,12 @@ def restore_team(id: UUID) -> None:
     team = db.get_or_404(Team, id)
     # Clear the archived_at timestamp to mark the team as active
     team.archived_at = None
+    logger.info(f"Restoring team {id}")
     try:
         # Commit the restore action
         db.session.commit()
+        logger.info(f"Restored team {id}")
     except SQLAlchemyError:
         db.session.rollback()
+        logger.debug(f"Database error restoring team {id}", exc_info=True)
         raise
