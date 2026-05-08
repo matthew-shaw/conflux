@@ -5,6 +5,7 @@ from uuid import UUID
 
 from flask import Response as FlaskResponse
 from flask import (
+    abort,
     current_app,
     flash,
     redirect,
@@ -13,7 +14,7 @@ from flask import (
     url_for,
 )
 from flask.typing import ResponseReturnValue
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.models import Role
 from app.role import ui_bp as ui
@@ -39,10 +40,13 @@ def list_roles() -> ResponseReturnValue:
     form.sort.data = request.args.get("sort", "name", type=str)
     form.status.data = request.args.get("status", "active", type=str)
 
-    roles: list[Role] = get_roles(
-        sort=form.sort.data,
-        status=form.status.data,
-    )
+    try:
+        roles: list[Role] = get_roles(
+            sort=form.sort.data,
+            status=form.status.data,
+        )
+    except SQLAlchemyError:
+        abort(503)
 
     return render_template("list-roles.html", title="Roles", roles=roles, form=form)
 
@@ -67,13 +71,19 @@ def create() -> ResponseReturnValue:
 
 @ui.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
-    role: Role = get_role(id)
+    try:
+        role: Role = get_role(id)
+    except SQLAlchemyError:
+        abort(503)
     return render_template("view-role.html", role=role)
 
 
 @ui.route("/<uuid:id>/edit", methods=["GET", "POST"])
 def edit(id: UUID) -> ResponseReturnValue:
-    role: Role = get_role(id)
+    try:
+        role: Role = get_role(id)
+    except SQLAlchemyError:
+        abort(503)
     form: RoleForm = RoleForm()
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
 
@@ -96,39 +106,54 @@ def edit(id: UUID) -> ResponseReturnValue:
 
 @ui.route("/<uuid:id>/archive", methods=["GET", "POST"])
 def archive(id: UUID) -> ResponseReturnValue:
-    role: Role = get_role(id)
+    try:
+        role: Role = get_role(id)
+    except SQLAlchemyError:
+        abort(503)
     form: ArchiveRoleForm = ArchiveRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        archive_role(id)
-        flash(
-            f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
-            "success",
-        )
-        return redirect(url_for("role_ui.list_roles"))
+        try:
+            archive_role(id)
+            flash(
+                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
+                "success",
+            )
+            return redirect(url_for("role_ui.list_roles"))
+        except SQLAlchemyError:
+            abort(503)
 
     return render_template("archive-role.html", title="Archive role", role=role, form=form)
 
 
 @ui.route("/<uuid:id>/restore", methods=["GET", "POST"])
 def restore(id: UUID) -> ResponseReturnValue:
-    role: Role = get_role(id)
+    try:
+        role: Role = get_role(id)
+    except SQLAlchemyError:
+        abort(503)
     form: RestoreRoleForm = RestoreRoleForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
-        restore_role(id)
-        flash(
-            f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
-            "success",
-        )
-        return redirect(url_for("role_ui.list_roles"))
+        try:
+            restore_role(id)
+            flash(
+                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
+                "success",
+            )
+            return redirect(url_for("role_ui.list_roles"))
+        except SQLAlchemyError:
+            abort(503)
 
     return render_template("restore-role.html", title="Restore role", role=role, form=form)
 
 
 @ui.route("/download", methods=["GET"])
 def download() -> ResponseReturnValue:
-    roles: list[Role] = get_roles()
+    try:
+        roles: list[Role] = get_roles()
+    except SQLAlchemyError:
+        abort(503)
 
     def generate() -> Iterator[str]:
         data = StringIO()

@@ -9,7 +9,7 @@ these functions.
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app import db
 from app.models import Role
@@ -52,7 +52,14 @@ def get_roles(sort: str = "name", status: str = "active") -> list[Role]:
         query = query.where(Role.archived_at.is_not(None))
     # If status == "all", no filter is applied
 
-    return list(db.session.execute(query).scalars().all())
+    try:
+        return list(db.session.execute(query).scalars().all())
+    except SQLAlchemyError:
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        raise
 
 
 def get_role(id: UUID) -> Role:
@@ -101,6 +108,9 @@ def create_role(name: str, grade: str) -> Role:
         # Rollback on constraint violation (e.g., duplicate name)
         db.session.rollback()
         raise
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def update_role(id: UUID, name: str, grade: str) -> None:
@@ -131,6 +141,9 @@ def update_role(id: UUID, name: str, grade: str) -> None:
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
         raise
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def archive_role(id: UUID) -> None:
@@ -152,8 +165,12 @@ def archive_role(id: UUID) -> None:
     role = db.get_or_404(Role, id)
     # Set the archived_at timestamp to mark the role as archived
     role.archived_at = datetime.now(timezone.utc)
-    # Commit the archive action
-    db.session.commit()
+    try:
+        # Commit the archive action
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def restore_role(id: UUID) -> None:
@@ -174,5 +191,9 @@ def restore_role(id: UUID) -> None:
     role = db.get_or_404(Role, id)
     # Clear the archived_at timestamp to mark the role as active
     role.archived_at = None
-    # Commit the restore action
-    db.session.commit()
+    try:
+        # Commit the restore action
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise

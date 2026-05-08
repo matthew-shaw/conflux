@@ -9,7 +9,7 @@ these functions.
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app import db
 from app.models import Team
@@ -50,7 +50,15 @@ def get_teams(sort: str = "name", status: str = "active") -> list[Team]:
         query = query.where(Team.archived_at.is_not(None))
     # If status == "all", no filter is applied
 
-    return list(db.session.execute(query).scalars().all())
+    try:
+        return list(db.session.execute(query).scalars().all())
+    except SQLAlchemyError:
+        # defensive rollback and bubble up for handlers to translate to HTTP responses
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        raise
 
 
 def get_team(id: UUID) -> Team:
@@ -98,6 +106,9 @@ def create_team(name: str) -> Team:
         # Rollback on constraint violation (e.g., duplicate name)
         db.session.rollback()
         raise
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def update_team(id: UUID, name: str) -> None:
@@ -126,6 +137,9 @@ def update_team(id: UUID, name: str) -> None:
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
         raise
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def archive_team(id: UUID) -> None:
@@ -147,8 +161,12 @@ def archive_team(id: UUID) -> None:
     team = db.get_or_404(Team, id)
     # Set the archived_at timestamp to mark the team as archived
     team.archived_at = datetime.now(timezone.utc)
-    # Commit the archive action
-    db.session.commit()
+    try:
+        # Commit the archive action
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def restore_team(id: UUID) -> None:
@@ -169,5 +187,9 @@ def restore_team(id: UUID) -> None:
     team = db.get_or_404(Team, id)
     # Clear the archived_at timestamp to mark the team as active
     team.archived_at = None
-    # Commit the restore action
-    db.session.commit()
+    try:
+        # Commit the restore action
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise

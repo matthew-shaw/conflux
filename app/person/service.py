@@ -9,7 +9,7 @@ these functions.
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from app import db
@@ -35,7 +35,14 @@ def get_people(sort: str = "name", status: str = "active") -> list[Person]:
         query = query.where(Person.archived_at.is_not(None))
     # No filter if status == "all"
 
-    return list(db.session.execute(query).scalars().all())
+    try:
+        return list(db.session.execute(query).scalars().all())
+    except SQLAlchemyError:
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        raise
 
 
 def get_person(id: UUID) -> Person:
@@ -68,6 +75,9 @@ def create_person(
         # Rollback on constraint violation (e.g., duplicate name)
         db.session.rollback()
         raise
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def update_person(
@@ -95,6 +105,9 @@ def update_person(
         # Rollback if the new name violates uniqueness constraint
         db.session.rollback()
         raise
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def archive_person(id: UUID) -> None:
@@ -102,8 +115,12 @@ def archive_person(id: UUID) -> None:
     person = db.get_or_404(Person, id)
     # Set the archived_at timestamp to mark the person as archived
     person.archived_at = datetime.now(timezone.utc)
-    # Commit the archive action
-    db.session.commit()
+    try:
+        # Commit the archive action
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def restore_person(id: UUID) -> None:
@@ -111,21 +128,32 @@ def restore_person(id: UUID) -> None:
     person = db.get_or_404(Person, id)
     # Clear the archived_at timestamp to mark the person as active
     person.archived_at = None
-    # Commit the restore action
-    db.session.commit()
+    try:
+        # Commit the restore action
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        raise
 
 
 def download_people() -> list[Person]:
-    return list(
-        db.session.execute(
-            db.select(Person)
-            .options(
-                selectinload(Person.role),
-                selectinload(Person.team),
-                selectinload(Person.manager),
+    try:
+        return list(
+            db.session.execute(
+                db.select(Person)
+                .options(
+                    selectinload(Person.role),
+                    selectinload(Person.team),
+                    selectinload(Person.manager),
+                )
+                .order_by(Person.name)
             )
-            .order_by(Person.name)
+            .scalars()
+            .all()
         )
-        .scalars()
-        .all()
-    )
+    except SQLAlchemyError:
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        raise
