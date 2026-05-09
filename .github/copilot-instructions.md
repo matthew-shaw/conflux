@@ -72,7 +72,16 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 
 - **Native Typing:** Strictly use Python built-in types for annotations wherever possible (e.g., use `list`, `dict`, `set`, `tuple` instead of importing `List`, `Dict`, `Set`, `Tuple` from the `typing` module).
 - Avoid unnecessary imports from `typing` unless using specific constructs that don't have built-in equivalents (like `Any`, `Callable`, or `Literal`).
-- **Return Types:** Every function and method must have an explicit return type annotation, even if it is -> None.
+- **Return Types:** Every function and method must have an explicit return type annotation, even if it is `-> None`.
+- **String Formatting:** Strictly use Python f-strings for all string interpolation and formatting. Do not use older methods such as `.format()` or `%` formatting.
+
+## Documentation & Commenting Expectations
+
+- **Docstrings:** Provide concise, PEP-compliant docstrings for all public modules, classes, and methods. Focus on the "what" and "why" to support editor autocomplete and static analysis.
+- **Style:** Do not use overly dense or decorative comment blocks (e.g., massive ASCII art headers or redundant file headers).
+- **In-line Comments:** Use in-line comments sparingly. They must only be used to explain complex logic, non-obvious intent, or specific domain context. Do not use them to explain what the code is doing line-by-line.
+- **Language:** All documentation, docstrings, and comments must use **UK English** (e.g., _behaviour_, _initialise_, _authorised_).
+- **Type Information:** Since the codebase targets Python 3.14 and uses strict type hinting, avoid duplicating type information within docstrings. Let the type annotations serve as the source of truth.
 
 ## Database & ORM Expectations (SQLAlchemy)
 
