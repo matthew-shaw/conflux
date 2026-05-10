@@ -49,7 +49,6 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 
 ## Architecture & Structural Boundaries
 
-- **Core Pattern:** Strictly follow the application structure and conventions from Miguel Grinberg's "Flask Mega-Tutorial" (Part XV).
 - Use the **Application Factory Pattern**. Extensions must be instantiated globally in `app/__init__.py` but initialised strictly inside `create_app()`.
 - `app/models.py` contains ALL SQLAlchemy models. Do not create separate model files to avoid circular import loops.
 - `app/{domain}/` contains domain-specific Flask Blueprints. Respect the strict MVC-style internal split:
@@ -59,6 +58,8 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 - `tests/` is strictly split into `unit/` and `integration/`.
 - `web/` contains Node.js/Webpack frontend assets (including GOV.UK Frontend) and Nginx configuration. Do not leak these concerns into the Flask backend.
 - **No HTTP Leakage**. The service layer must NEVER return HTTP status codes, `jsonify` payloads, or Werkzeug response objects. It must return native Python objects (dicts, lists, models) or raise custom domain exceptions. The view layer is strictly responsible for catching these exceptions and translating them into HTTP 400/404/500 responses.
+- **Caching:** Valkey is the dedicated in-memory cache and session store. Do not introduce Redis, Memcached, or in-memory Python dictionaries for global state caching.
+- **Container Orchestration & Health:** The application runs in a strictly constrained Docker Compose environment (e.g., 1024MB memory limit for the app). Do not write memory-heavy operations (like loading massive querysets into RAM). Furthermore, the `/health` endpoint is critical for container startup sequencing (`service_healthy` conditions) and must never be modified, renamed, or removed.
 
 ## Logging Expectations
 
@@ -96,10 +97,11 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 - Strictly use **SQLAlchemy 2.0 style** model class and attribute definitions (e.g., `Mapped[str]`, `mapped_column()`) via Flask-SQLAlchemy v3.x. Do not use legacy 1.x declarative styles.
 - All database models must be strictly normalised to **3rd Normal Form (3NF)**.
 - **Many-to-Many Relationships:** Always resolve M2M relationships using explicit link (association) tables or models. Never use PostgreSQL arrays or JSON fields to fake relations.
-- **Domain Rules:** People belong to teams; People perform roles; Teams own services; Services depend on components.
+- **Domain Rules:** People belong to teams; People perform roles; Teams own services; Services depend on components; **People can manage other People (self-referential).**
 - **Delete Semantics:** Preserve existing behaviours:
   - `Role -> Person` uses `ON DELETE RESTRICT`
   - `Team -> Person` and `Team -> Service` use `ON DELETE SET NULL`
+  - **`Person -> Manager` self-reference uses `ON DELETE SET NULL`**
   - `Service <-> Component` is many-to-many via explicit link table `service_components`
 - **Primary Keys:** Use PostgreSQL UUID identifiers for all primary entities. Avoid introducing integer identifiers.
 - **Timestamps:** Timestamps must always be timezone-aware and in UTC. When in string format, they must always be in strict ISO 8601 format, explicitly substituting `+00:00` for `Z` (Zulu time). Use existing utilities like `app.utils.govuk_datetime` where appropriate.
@@ -108,18 +110,24 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 
 ### Serialisation Patterns
 
-Models must implement explicit `to_dict()` serialisers to prevent recursive serialisation.
+Models must implement explicit `to_dict()` serialisers to prevent recursive serialisation and support the API's Nested vs Detailed schema pattern.
 Example structure:
 
 ```python
 def to_dict(self, include_relations: bool = False) -> dict:
+    # Baseline matches the *Nested OpenAPI schemas
     data = {
         "id": str(self.id),
         "name": self.name,
         # Ensure UTC datetime objects are strictly formatted with Z instead of +00:00
-        "created_at": self.created_at.isoformat().replace("+00:00", "Z") if self.created_at else None
+        "updated_at": self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None
     }
-    # Add relationship expansion logic here if requested, avoiding deep nesting
+
+    # Expanded relations match the Detailed OpenAPI schemas
+    if include_relations:
+        # Use eager loaded relationships here
+        pass
+
     return data
 ```
 
@@ -131,9 +139,14 @@ def to_dict(self, include_relations: bool = False) -> dict:
 
 ## API Expectations
 
-- The API is versioned under `/api/v1/`, primarily read-only, JSON-based, and UUID-driven.
-- Timestamp Formats: All API timestamp responses must be UTC, timezone-aware, and strictly formatted as ISO 8601 strings ending in `Z` (not `+00:00`).
-- Preserve existing response structures, field naming conventions, filtering behaviour, and sorting semantics.
+- **Read-Only Baseline:** The API is versioned under `/api/v1/`, primarily read-only (`GET` only), JSON-based, and UUID-driven. Do not introduce mutating endpoints (`POST`, `PUT`, `DELETE`) unless explicitly instructed.
+- **Timestamp Formats:** All API timestamp responses must be UTC, timezone-aware, and strictly formatted as ISO 8601 strings ending in `Z` (not `+00:00`).
+- **Collection Filtering & Sorting:** All list endpoints (e.g., `/api/v1/components`) must implement standard query parameters:
+  - `status`: Must accept `active`, `archived`, or `all` (defaulting to `active`).
+  - `sort`: Must accept specific, documented entity fields (defaulting to `name`).
+- **Nested vs. Detailed Representations:** Strictly adhere to the schema patterns defined in `openapi.json`:
+  - List endpoints (e.g., `GET /teams`) must return lightweight `*Nested` schemas (no expanded relationships).
+  - Detail endpoints (e.g., `GET /teams/{id}`) must return full, detailed schemas with expanded relationships.
 - Always update `openapi.json` at the repository root when modifying API behaviour.
 
 ## Testing Expectations
