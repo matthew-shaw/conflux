@@ -50,7 +50,7 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 ## Architecture & Structural Boundaries
 
 - **Core Pattern:** Strictly follow the application structure and conventions from Miguel Grinberg's "Flask Mega-Tutorial" (Part XV).
-- Use the **Application Factory Pattern**. Extensions must be instantiated globally in `app/__init__.py` but initialized strictly inside `create_app()`.
+- Use the **Application Factory Pattern**. Extensions must be instantiated globally in `app/__init__.py` but initialised strictly inside `create_app()`.
 - `app/models.py` contains ALL SQLAlchemy models. Do not create separate model files to avoid circular import loops.
 - `app/{domain}/` contains domain-specific Flask Blueprints. Respect the strict MVC-style internal split:
   - `api.py` & `ui.py` (Controllers): Handle request parsing, form validation, and response formatting ONLY. **Strict Rule: These files MUST NEVER import the database session or execute SQLAlchemy queries.**
@@ -67,6 +67,14 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 - **View Layer (`api.py` & `ui.py`):** Logging in controllers must focus ONLY on the HTTP request/response cycle (e.g., incoming request paths, WTForms validation failures, and final HTTP status codes).
 - **Service Layer (`service.py`):** The service layer is strictly responsible for logging the outcomes of business logic, database transactions, and model persistency (both successes and failures).
 - **Data Sanitisation:** Never log sensitive organisational data, credentials, or Personally Identifiable Information (PII) such as email addresses in the JSON log payloads. Log identifiers (UUIDs) and state changes instead.
+
+## Exception Handling Expectations
+
+- **No Generic Catching:** Never use bare `except:` or catch the base `Exception` class unless operating within a top-level global error handler. Always catch explicit, specific exception types.
+- **Service Layer (Library Exceptions):** Do not invent custom domain exception class hierarchies. The service layer must leverage the exceptions provided by underlying packages (e.g., `sqlalchemy.exc.NoResultFound` or `sqlalchemy.exc.IntegrityError`).
+- **Log and Re-raise:** When an exception is caught in the service layer, log the specific error context using structured JSON (utilising Python f-strings for message formatting), and then explicitly re-raise the exception to be handled upstream. It must never call `flask.abort()`.
+- **View Layer (Translation):** Controllers (`api.py` and `ui.py`) are strictly responsible for catching these specific integration/library exceptions from the service layer and translating them into the appropriate HTTP status codes (e.g., mapping `NoResultFound` to a 404) and JSON error payloads.
+- **No Silent Failures:** Never swallow exceptions silently using `pass`.
 
 ## Code Style & Type Hinting
 
@@ -98,9 +106,9 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 - **Archival:** Primary entities use soft archival through `archived_at` and `updated_at`. Avoid hard deletes.
 - **Performance / N+1 Prevention:** When querying lists of records that require relationship expansion, you must use explicit SQLAlchemy 2.0 eager loading (e.g., `options(selectinload(...))`) in the service layer. Do not rely on lazy loading inside loops.
 
-### Serialization Patterns
+### Serialisation Patterns
 
-Models must implement explicit `to_dict()` serializers to prevent recursive serialization.
+Models must implement explicit `to_dict()` serialisers to prevent recursive serialisation.
 Example structure:
 
 ```python
@@ -118,8 +126,8 @@ def to_dict(self, include_relations: bool = False) -> dict:
 ## Database Migrations
 
 - Keep migrations small, focused, and additive.
-- Do not modify historical migrations in migrations/versions/.
-- Strict Rule: Do not manually write Alembic migration scripts. Always generate them using the containerised CLI, e.g., docker compose exec web flask db migrate -m "description", and then manually review the output in migrations/versions/.
+- Do not modify historical migrations in `migrations/versions/`.
+- Strict Rule: Do not manually write Alembic migration scripts. Always generate them using the containerised CLI, e.g., `docker compose exec app flask db migrate -m "description"`, and then manually review the output in `migrations/versions/`.
 
 ## API Expectations
 
@@ -142,22 +150,22 @@ def to_dict(self, include_relations: bool = False) -> dict:
   THEN [expected outcome or state]
   """
   ```
-- Use @pytest.mark.parametrize to test multiple sets of inputs and expected outputs.
+- Use `@pytest.mark.parametrize` to test multiple sets of inputs and expected outputs.
 
 ### Test Categorisation (Unit vs Integration)
 
 Strictly stick to Unit and Integration tests. Do not write functional, end-to-end, or acceptance tests. Place tests in their respective directories:
 
-- Unit Tests (tests/unit/): Test the functionality of an individual unit of code isolated from its dependencies. These act as the first line of defence, testing from the inside out (from the programmer's point of view). heavily use monkeypatch to mock external dependencies.
-- Integration Tests (tests/integration/): Test multiple components working together properly, focusing on functionality the user will utilize. These test from the outside in (from the end user's point of view). Use the client fixture (app.test_client()) here to issue HTTP requests.
+- Unit Tests (`tests/unit/`): Test the functionality of an individual unit of code isolated from its dependencies. These act as the first line of defence, testing from the inside out (from the programmer's point of view). Use `monkeypatch` to mock external dependencies.
+- Integration Tests (`tests/integration/`): Test multiple components working together properly, focusing on functionality the user will utilise. These test from the outside in (from the end user's point of view). Use the client fixture (`app.test_client()`) here to issue HTTP requests.
 
-### Fixtures and Setup (tests/conftest.py)
+### Fixtures and Setup (`tests/conftest.py`)
 
 - Place all shared test setup logic and factory data in `tests/conftest.py` using `@pytest.fixture`.
 - Always rely on an app fixture configured with `TESTING=True` and an isolated test database.
-- Build domain-specific fixtures (e.g., authenticated_client, mock_person, mock_team) to encapsulate complex state setup.
+- Build domain-specific fixtures (e.g., `authenticated_client`, `mock_person`, `mock_team`) to encapsulate complex state setup.
 
 ### Context Management
 
-- Strict Rule: Always execute database queries, model assertions, or service layer calls inside an explicit application context using with `app.app_context():` within your tests.
+- Strict Rule: Always execute database queries, model assertions, or service layer calls inside an explicit application context using `with app.app_context():` within your tests.
 - Do not attempt to query the database using the test client response object directly.
