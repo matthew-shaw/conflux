@@ -1,6 +1,7 @@
 {%- extends "base.html" -%}
 
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/pagination/macro.html' import govukPagination -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
@@ -35,6 +36,7 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
         'classes': "govuk-button--secondary"
@@ -43,7 +45,7 @@
   </div>
   <div class="govuk-grid-column-three-quarters">
     {% set rows = [] %}
-    {% for person in people %}
+    {% for person in people.items %}
       {% set _ = rows.append([
         {
           'html': '<a href="' ~ url_for("person_ui.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
@@ -65,7 +67,7 @@
 
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " people",
+        'caption': "Showing " ~ people.first ~ " to " ~ people.last ~ " of " ~ people.total ~ " people",
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
@@ -78,7 +80,35 @@
         'rows': rows
       }) }}
     {% endif %}
-    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('person_api.list_people') }}">Get data in JSON format</a></p>
+
+    {% set pages = [] %}
+    {% for page in people.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+      {%  if page %}
+        {% set _ = pages.append(
+          {
+            'number': page,
+            'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+            'current': page == people.page
+          }
+        ) %}
+      {% else %}
+        {% set _ = pages.append({
+          'ellipsis': true
+        }) %}
+      {% endif %}
+    {% endfor %}
+
+    {{ govukPagination({
+      'previous': {
+        'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+      } if people.has_prev else None,
+      'next': {
+        'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+      } if people.has_next else None,
+      'items': pages
+    }) }}
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data) }}">Get data in JSON format</a></p>
   </div>
 </div>
 {%- endblock -%}

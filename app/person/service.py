@@ -10,6 +10,7 @@ import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
@@ -19,7 +20,14 @@ from app.models import Person
 logger = logging.getLogger(__name__)
 
 
-def get_people(sort: str = "name", status: str = "active") -> list[Person]:
+def get_people(
+    sort: str = "name",
+    status: str = "active",
+    page: int = 1,
+    per_page: int = 25,
+) -> Pagination:
+    """Retrieve a paginated list of people."""
+
     # Start the base SELECT statement
     query = db.select(Person)
 
@@ -39,16 +47,33 @@ def get_people(sort: str = "name", status: str = "active") -> list[Person]:
     # No filter if status == "all"
 
     try:
-        return list(db.session.execute(query).scalars().all())
+        return db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False,
+        )
+
     except SQLAlchemyError:
-        try:
-            db.session.rollback()
-        except Exception:
-            pass
+        db.session.rollback()
         logger.debug(
-            f"Database error retrieving people (sort={sort},status={status})",
+            f"Database error retrieving people (sort={sort}, status={status}, page={page}, per_page={per_page})",
             exc_info=True,
         )
+        raise
+
+
+def get_active_people() -> list[Person]:
+    """Retrieve a list of all people without pagination."""
+    try:
+        return list(
+            db.session.execute(db.select(Person).order_by(Person.name).where(Person.archived_at.is_(None)))
+            .scalars()
+            .all()
+        )
+    except SQLAlchemyError:
+        db.session.rollback()
+        logger.debug("Database error retrieving all people", exc_info=True)
         raise
 
 

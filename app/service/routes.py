@@ -18,7 +18,6 @@ from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Service, Team
-from app.person import service
 from app.service import bp
 from app.service.forms import (
     ArchiveServiceForm,

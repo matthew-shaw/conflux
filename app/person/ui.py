@@ -15,6 +15,7 @@ from flask import (
     url_for,
 )
 from flask.typing import ResponseReturnValue
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.models import Person, Role, Team
@@ -29,6 +30,7 @@ from app.person.service import (
     archive_person,
     create_person,
     download_people,
+    get_active_people,
     get_people,
     get_person,
     restore_person,
@@ -42,22 +44,29 @@ logger = logging.getLogger(__name__)
 
 @ui.route("/", methods=["GET"])
 def list_people() -> ResponseReturnValue:
-    form: PersonSortFilterForm = PersonSortFilterForm()
-    form.sort.data = request.args.get("sort", "name", type=str)
-    form.status.data = request.args.get("status", "active", type=str)
+    form: PersonSortFilterForm = PersonSortFilterForm(request.args)
+
+    page: int = request.args.get("page", 1, type=int)
+
     try:
-        people = get_people(
+        people: Pagination = get_people(
             sort=form.sort.data,
             status=form.status.data,
+            page=page,
+            per_page=form.per_page.data,
         )
     except SQLAlchemyError:
         logger.exception(
-            "Database error listing people (sort=%s,status=%s)",
-            form.sort.data,
-            form.status.data,
+            f"Database error listing people (sort={form.sort.data},status={form.status.data},page={page},per_page={form.per_page.data})"
         )
         abort(503)
-    return render_template("list-people.html", title="People", people=people, form=form)
+
+    return render_template(
+        "list-people.html",
+        title="People",
+        people=people,
+        form=form,
+    )
 
 
 @ui.route("/new", methods=["GET", "POST"])
@@ -78,7 +87,7 @@ def create() -> ResponseReturnValue:
         abort(503)
     form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
     try:
-        people: list[Person] = get_people()
+        people: list[Person] = get_active_people()
     except SQLAlchemyError:
         logger.exception("Database error retrieving managers for create person form")
         abort(503)
@@ -145,7 +154,7 @@ def edit(id: UUID) -> ResponseReturnValue:
         abort(503)
     form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
     try:
-        people: list[Person] = get_people()
+        people: list[Person] = get_active_people()
     except SQLAlchemyError:
         logger.exception("Database error retrieving managers for edit person form")
         abort(503)

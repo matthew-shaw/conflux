@@ -16,6 +16,8 @@ def list_people() -> Response:
         people = get_people(
             sort=request.args.get("sort", "name", type=str),
             status=request.args.get("status", "active", type=str),
+            page=request.args.get("page", 1, type=int),
+            per_page=request.args.get("per_page", 25, type=int),
         )
         return jsonify([person.to_dict() for person in people])
     except SQLAlchemyError:
