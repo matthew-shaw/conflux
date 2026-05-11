@@ -198,9 +198,6 @@ def download_people() -> list[Person]:
             .all()
         )
     except SQLAlchemyError:
-        try:
-            db.session.rollback()
-        except Exception:
-            pass
+        db.session.rollback()
         logger.debug("Database error downloading people", exc_info=True)
         raise

@@ -57,10 +57,11 @@ def get_teams(sort: str = "name", status: str = "active") -> list[Team]:
         return list(db.session.execute(query).scalars().all())
     except SQLAlchemyError:
         # defensive rollback and bubble up for handlers to translate to HTTP responses
-        try:
-            db.session.rollback()
-        except Exception:
-            pass
+        db.session.rollback()
+        logger.debug(
+            f"Database error retrieving teams (sort={sort},status={status})",
+            exc_info=True,
+        )
         raise
 
 

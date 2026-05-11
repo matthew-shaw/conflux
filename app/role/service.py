@@ -58,10 +58,7 @@ def get_roles(sort: str = "name", status: str = "active") -> list[Role]:
     try:
         return list(db.session.execute(query).scalars().all())
     except SQLAlchemyError:
-        try:
-            db.session.rollback()
-        except Exception:
-            pass
+        db.session.rollback()
         logger.debug(
             f"Database error retrieving roles (sort={sort},status={status})",
             exc_info=True,
