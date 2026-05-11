@@ -46,7 +46,7 @@ greenlet==3.5.0
     # via sqlalchemy
 gunicorn==26.0.0
     # via -r requirements.in
-idna==3.13
+idna==3.14
     # via email-validator
 itsdangerous==2.2.0
     # via
