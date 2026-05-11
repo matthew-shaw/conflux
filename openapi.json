@@ -52,6 +52,24 @@
               "enum": ["active", "archived", "all"],
               "default": "active"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for paginated results.",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of results per page for paginated results..",
+            "schema": {
+              "type": "integer",
+              "default": "25"
+            }
           }
         ],
         "responses": {
@@ -132,6 +150,24 @@
               "enum": ["active", "archived", "all"],
               "default": "active"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for paginated results.",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of results per page for paginated results..",
+            "schema": {
+              "type": "integer",
+              "default": "25"
+            }
           }
         ],
         "responses": {
@@ -211,6 +247,24 @@
               "type": "string",
               "enum": ["active", "archived", "all"],
               "default": "active"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for paginated results.",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of results per page for paginated results..",
+            "schema": {
+              "type": "integer",
+              "default": "25"
             }
           }
         ],
