@@ -124,6 +124,10 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     app.register_blueprint(team_api)
     app.register_blueprint(team_ui)
 
+    limiter.exempt(person_api)
+    limiter.exempt(role_api)
+    limiter.exempt(team_api)
+
     return app
 
 
