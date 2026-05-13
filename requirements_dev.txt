@@ -45,7 +45,7 @@ flake8==7.3.0
     #   pep8-naming
 flake8-bugbear==25.11.29
     # via -r requirements_dev.in
-idna==3.14
+idna==3.15
     # via requests
 iniconfig==2.3.0
     # via pytest
@@ -63,7 +63,7 @@ mdurl==0.1.2
     # via markdown-it-py
 msgpack==1.1.2
     # via cachecontrol
-mypy==2.0.0
+mypy==2.1.0
     # via -r requirements_dev.in
 mypy-extensions==1.1.0
     # via
@@ -129,7 +129,7 @@ pytokens==0.4.1
     # via black
 pyyaml==6.0.3
     # via bandit
-requests==2.33.1
+requests==2.34.0
     # via
     #   cachecontrol
     #   pip-audit
