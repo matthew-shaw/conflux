@@ -58,6 +58,17 @@ class ServiceSortFilterForm(FlaskForm):
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
     )
+    per_page = SelectField(
+        "Items per page",
+        widget=GovSelect(),
+        choices=[
+            (10, "10"),
+            (25, "25"),
+            (50, "50"),
+        ],
+        default=25,
+        coerce=int,
+    )
 
 
 class ArchiveServiceForm(FlaskForm):

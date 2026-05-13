@@ -49,9 +49,9 @@
         'active': true if url_for('team_ui.list_teams') in request.path else false
       },
       {
-        'href': url_for('service.list_services'),
+        'href': url_for('service_ui.list_services'),
         'text': "Services",
-        'active': true if url_for('service.list_services') in request.path else false
+        'active': true if url_for('service_ui.list_services') in request.path else false
       }
     ]
   }) }}

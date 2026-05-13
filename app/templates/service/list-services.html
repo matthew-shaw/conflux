@@ -1,6 +1,7 @@
 {%- extends "base.html" -%}
 
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/pagination/macro.html' import govukPagination -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
@@ -18,23 +19,24 @@
     <div class="govuk-button-group">
       {{ govukButton({
         'text': "Add service",
-        'href': url_for('service.create')
+        'href': url_for('service_ui.create')
       }) }}
 
-      <a href="{{ url_for('service.download') }}" class="govuk-link">Download all services (CSV)</a>  
+      <a href="{{ url_for('service_ui.download') }}" class="govuk-link">Download all services (CSV)</a>  
     </div>
   </div>
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
     <h2 class="govuk-heading-m">Sort and filter</h3>
-    <form method="get" action="{{ url_for('service.list_services') }}" novalidate>
+    <form method="get" action="{{ url_for('service_ui.list_services') }}" novalidate>
       {{ form.sort(params={
         'classes': "govuk-radios--small"
       }) }}
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
         'classes': "govuk-button--secondary"
@@ -46,7 +48,7 @@
     {% for service in services %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("service.view", id=service.id) ~ '" class="govuk-link">' ~ service.name ~ '</a>'
+          'html': '<a href="' ~ url_for("service_ui.view", id=service.id) ~ '" class="govuk-link">' ~ service.name ~ '</a>'
         },
         {
           'html': '<a href="' ~ url_for("team_ui.view", id=service.team.id) ~ '" class="govuk-link">' ~ service.team.name ~ '</a>' if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
@@ -59,7 +61,7 @@
 
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " services",
+        'caption': "Showing " ~ services.first ~ " to " ~ services.last ~ " of " ~ services.total ~ " services",
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
@@ -70,6 +72,35 @@
         'rows': rows
       }) }}
     {% endif %}
+
+    {% set pages = [] %}
+    {% for page in services.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+      {%  if page %}
+        {% set _ = pages.append(
+          {
+            'number': page,
+            'href': url_for('service_ui.list_services', page=page, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
+            'current': page == services.page
+          }
+        ) %}
+      {% else %}
+        {% set _ = pages.append({
+          'ellipsis': true
+        }) %}
+      {% endif %}
+    {% endfor %}
+
+    {{ govukPagination({
+      'previous': {
+        'href': url_for('service_ui.list_services', page=services.prev_num, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
+      } if services.has_prev else None,
+      'next': {
+        'href': url_for('service_ui.list_services', page=services.next_num, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
+      } if services.has_next else None,
+      'items': pages
+    }) }}
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('service_api.list_services', page=services.page, per_page=services.per_page, sort=form.sort.data, status=form.status.data) }}">Get data in JSON format</a></p>
   </div>
 </div>
 {%- endblock -%}

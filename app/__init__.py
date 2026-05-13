@@ -110,7 +110,8 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     from app.role import api_bp as role_api
     from app.role import ui_bp as role_ui
     from app.search import bp as search_bp
-    from app.service import bp as service_bp
+    from app.service import api_bp as service_api
+    from app.service import ui_bp as service_ui
     from app.team import api_bp as team_api
     from app.team import ui_bp as team_ui
 
@@ -120,12 +121,14 @@ def create_app(config_class: Type[Config] = Config) -> Flask:
     app.register_blueprint(role_api)
     app.register_blueprint(role_ui)
     app.register_blueprint(search_bp)
-    app.register_blueprint(service_bp)
+    app.register_blueprint(service_api)
+    app.register_blueprint(service_ui)
     app.register_blueprint(team_api)
     app.register_blueprint(team_ui)
 
     limiter.exempt(person_api)
     limiter.exempt(role_api)
+    limiter.exempt(service_api)
     limiter.exempt(team_api)
 
     return app

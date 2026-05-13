@@ -12,7 +12,7 @@
 {{ super() }}
 {{ govukBackLink({
   'text': "Back",
-  'href': url_for('service.list_services')
+  'href': url_for('service_ui.list_services')
 }) }}
 {%- endblock -%}
 
@@ -35,7 +35,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('service.edit', id=service.id),
+                'href': url_for('service_ui.edit', id=service.id),
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
@@ -55,7 +55,7 @@
           'actions': {
             'items': [
               {
-                'href': url_for('service.restore', id=service.id) if service.archived_at else url_for('service.archive', id=service.id),
+                'href': url_for('service_ui.restore', id=service.id) if service.archived_at else url_for('service_ui.archive', id=service.id),
                 'text': "Restore" if service.archived_at else "Archive",
                 'visuallyHiddenText': "service"
               }
@@ -77,7 +77,7 @@
                 'visuallyHiddenText': "team"
               },
               {
-                'href': url_for('service.edit', id=service.id),
+                'href': url_for('service_ui.edit', id=service.id),
                 'text': "Change",
                 'visuallyHiddenText': "team"
               }
