@@ -4,6 +4,7 @@ import os
 class Config(object):
     CONTACT_EMAIL = "team@example.com"
     CONTACT_PHONE = "02079460000"
+    DEBUG = os.environ.get("DEBUG", False)
     DEPARTMENT_NAME = "Matt Shaw"
     DEPARTMENT_URL = "https://github.com/matthew-shaw"
     DOMAIN = os.environ.get("DOMAIN")
@@ -18,7 +19,7 @@ class Config(object):
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    VERSION = "0.6.0"
+    VERSION = "0.7.0"
 
 
 class TestConfig(Config):

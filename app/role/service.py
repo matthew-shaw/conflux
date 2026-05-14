@@ -10,7 +10,9 @@ import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Role
@@ -18,93 +20,76 @@ from app.models import Role
 logger = logging.getLogger(__name__)
 
 
-def get_roles(sort: str = "name", status: str = "active") -> list[Role]:
-    """Retrieve a list of roles with optional sorting and filtering.
+def get_roles(
+    sort: str = "name",
+    status: str = "active",
+    page: int = 1,
+    per_page: int = 25,
+) -> Pagination:
+    """Retrieve a paginated list of roles."""
 
-    Args:
-        sort: Sort order for results. Valid values are "name", "grade", or
-            "updated". Defaults to "name".
-        status: Filter by archive status. Valid values are "active" (non-archived),
-            "archived" (archived only), or "all" (no filter). Defaults to "active".
-
-    Returns:
-        A list of Role objects matching the specified criteria, sorted as requested.
-
-    Example:
-        >>> active_roles = get_roles()  # Get active roles sorted by name
-        >>> archived_roles = get_roles(sort="updated", status="archived")
-    """
     # Start the base SELECT statement
     query = db.select(Role)
 
-    # Apply sorting based on the sort parameter
+    # Apply sorting
     if sort == "name":
         query = query.order_by(Role.name)
     elif sort == "grade":
         query = query.order_by(Role.grade)
     elif sort == "updated":
-        # Sort by most recently updated first
         query = query.order_by(Role.updated_at.desc())
 
-    # Apply filter based on status parameter
+    # Apply filter based on status
     if status == "active":
-        # Only return non-archived roles
         query = query.where(Role.archived_at.is_(None))
     elif status == "archived":
-        # Only return archived roles
         query = query.where(Role.archived_at.is_not(None))
-    # If status == "all", no filter is applied
+    # No filter if status == "all"
 
     try:
-        return list(db.session.execute(query).scalars().all())
+        return db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False,
+        )
+
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(
-            f"Database error retrieving roles (sort={sort},status={status})",
+            f"Database error retrieving roles (sort={sort}, status={status}, page={page}, per_page={per_page})",
             exc_info=True,
         )
         raise
 
 
+def get_active_roles() -> list[Role]:
+    """Retrieve a list of all roles without pagination."""
+    try:
+        return list(
+            db.session.execute(db.select(Role).order_by(Role.name).where(Role.archived_at.is_(None))).scalars().all()
+        )
+    except SQLAlchemyError:
+        db.session.rollback()
+        logger.debug("Database error retrieving all roles", exc_info=True)
+        raise
+
+
 def get_role(id: UUID) -> Role:
-    """Retrieve a single role by its ID.
-
-    Args:
-        id: The UUID of the role to retrieve.
-
-    Returns:
-        The Role object with the specified ID.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no role with the given ID exists.
-
-    Example:
-        >>> role = get_role(UUID('12345678-1234-5678-1234-567812345678'))
-    """
     return db.get_or_404(Role, id)
 
 
-def create_role(name: str, grade: str) -> Role:
-    """Create a new role in the database.
-
-    Args:
-        name: The name of the new role. Must be unique.
-        grade: The grade/level of the role.
-
-    Returns:
-        The newly created Role object with all database-assigned fields populated.
-
-    Raises:
-        sqlalchemy.exc.IntegrityError: If a role with the same name already exists,
-            indicating a uniqueness constraint violation.
-
-    Example:
-        >>> role = create_role(name="Senior Manager", grade="Grade 7")
-    """
-    role = Role(name=name, grade=grade)
+def create_role(
+    name: str,
+    grade: str,
+) -> Role:
+    role: Role = Role(
+        name=name,
+        grade=grade,
+    )
     # Add the new role instance to the session
     db.session.add(role)
-    logger.info(f"Creating role: {name} grade={grade}")
+    logger.info(f"Creating role: {name}")
     try:
         # Attempt to commit the transaction to persist the role
         db.session.commit()
@@ -121,28 +106,17 @@ def create_role(name: str, grade: str) -> Role:
         raise
 
 
-def update_role(id: UUID, name: str, grade: str) -> None:
-    """Update an existing role's name.
-
-    Args:
-        id: The UUID of the role to update.
-        name: The new name for the role. Must remain unique.
-        grade: The new grade for the role.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no role with the given ID exists.
-        sqlalchemy.exc.IntegrityError: If the new name violates the uniqueness
-            constraint (i.e., another role already has that name).
-
-    Example:
-        >>> role = update_role(role_id, "Senior Manager", "G7")
-    """
+def update_role(
+    id: UUID,
+    name: str,
+    grade: str,
+) -> None:
     # Retrieve the role or raise 404 if not found
     role = db.get_or_404(Role, id)
-    # Update the role's name
+    # Update the role's attributes with the new values
     role.name = name
     role.grade = grade
-    logger.info(f"Updating role {id} -> name={name} grade={grade}")
+    logger.info(f"Updating role {id} -> name={name}")
     try:
         # Commit the update transaction
         db.session.commit()
@@ -159,20 +133,6 @@ def update_role(id: UUID, name: str, grade: str) -> None:
 
 
 def archive_role(id: UUID) -> None:
-    """Archive an existing role by setting its archived_at timestamp.
-
-    Archived roles are effectively soft-deleted and can be restored later.
-    The timestamp is set to the current UTC time.
-
-    Args:
-        id: The UUID of the role to archive.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no role with the given ID exists.
-
-    Example:
-        >>> role = archive_role(role_id)
-    """
     # Retrieve the role or raise 404 if not found
     role = db.get_or_404(Role, id)
     # Set the archived_at timestamp to mark the role as archived
@@ -189,19 +149,6 @@ def archive_role(id: UUID) -> None:
 
 
 def restore_role(id: UUID) -> None:
-    """Restore a previously archived role.
-
-    Restoring a role clears its archived_at timestamp, making it active again.
-
-    Args:
-        id: The UUID of the role to restore.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no role with the given ID exists.
-
-    Example:
-        >>> role = restore_role(role_id)
-    """
     # Retrieve the role or raise 404 if not found
     role = db.get_or_404(Role, id)
     # Clear the archived_at timestamp to mark the role as active
@@ -214,4 +161,23 @@ def restore_role(id: UUID) -> None:
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(f"Database error restoring role {id}", exc_info=True)
+        raise
+
+
+def download_roles() -> list[Role]:
+    try:
+        return list(
+            db.session.execute(
+                db.select(Role)
+                .options(
+                    selectinload(Role.grade),
+                )
+                .order_by(Role.name)
+            )
+            .scalars()
+            .all()
+        )
+    except SQLAlchemyError:
+        db.session.rollback()
+        logger.debug("Database error downloading roles", exc_info=True)
         raise

@@ -2,10 +2,17 @@ from flask_wtf import FlaskForm
 from govuk_frontend_wtf.wtforms_widgets import (
     GovCheckboxInput,
     GovRadioInput,
+    GovSelect,
     GovSubmitInput,
     GovTextInput,
 )
-from wtforms.fields import BooleanField, RadioField, StringField, SubmitField
+from wtforms.fields import (
+    BooleanField,
+    RadioField,
+    SelectField,
+    StringField,
+    SubmitField,
+)
 from wtforms.validators import InputRequired, ValidationError
 
 from app.models import Role
@@ -48,6 +55,17 @@ class RoleSortFilterForm(FlaskForm):
         widget=GovRadioInput(),
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
+    )
+    per_page = SelectField(
+        "Items per page",
+        widget=GovSelect(),
+        choices=[
+            (10, "10"),
+            (25, "25"),
+            (50, "50"),
+        ],
+        default=25,
+        coerce=int,
     )
 
 

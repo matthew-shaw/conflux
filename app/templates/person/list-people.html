@@ -81,33 +81,35 @@
       }) }}
     {% endif %}
 
-    {% set pages = [] %}
-    {% for page in people.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
-      {%  if page %}
-        {% set _ = pages.append(
-          {
-            'number': page,
-            'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
-            'current': page == people.page
-          }
-        ) %}
-      {% else %}
-        {% set _ = pages.append({
-          'ellipsis': true
-        }) %}
-      {% endif %}
-    {% endfor %}
+    {% if people.pages > 1 %}
+      {% set pages = [] %}
+      {% for page in people.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+        {%  if page %}
+          {% set _ = pages.append(
+            {
+              'number': page,
+              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+              'current': page == people.page
+            }
+          ) %}
+        {% else %}
+          {% set _ = pages.append({
+            'ellipsis': true
+          }) %}
+        {% endif %}
+      {% endfor %}
 
-    {{ govukPagination({
-      'previous': {
-        'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
-      } if people.has_prev else None,
-      'next': {
-        'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
-      } if people.has_next else None,
-      'items': pages
-    }) }}
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+      {{ govukPagination({
+        'previous': {
+          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+        } if people.has_prev else None,
+        'next': {
+          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+        } if people.has_next else None,
+        'items': pages
+      }) }}
+    {% endif %}
+    
     <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data) }}">Get data in JSON format</a></p>
   </div>
 </div>

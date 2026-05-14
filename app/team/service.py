@@ -65,6 +65,18 @@ def get_teams(sort: str = "name", status: str = "active") -> list[Team]:
         raise
 
 
+def get_active_teams() -> list[Team]:
+    """Retrieve a list of all teams without pagination."""
+    try:
+        return list(
+            db.session.execute(db.select(Team).order_by(Team.name).where(Team.archived_at.is_(None))).scalars().all()
+        )
+    except SQLAlchemyError:
+        db.session.rollback()
+        logger.debug("Database error retrieving all teams", exc_info=True)
+        raise
+
+
 def get_team(id: UUID) -> Team:
     """Retrieve a single team by its ID.
 

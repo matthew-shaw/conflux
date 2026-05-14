@@ -7,7 +7,6 @@ from uuid import UUID
 from flask import Response as FlaskResponse
 from flask import (
     abort,
-    current_app,
     flash,
     redirect,
     render_template,
@@ -30,13 +29,12 @@ from app.service.service import (
     archive_service,
     create_service,
     download_services,
-    get_active_services,
     get_service,
     get_services,
     restore_service,
     update_service,
 )
-from app.team.service import get_teams
+from app.team.service import get_active_teams
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +72,7 @@ def create() -> ResponseReturnValue:
 
     # Add options
     try:
-        teams: list[Team] = get_teams()
+        teams: list[Team] = get_active_teams()
     except SQLAlchemyError:
         logger.exception("Database error retrieving teams for create service form")
         abort(503)
@@ -123,7 +121,7 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     # Add options
     try:
-        teams: list[Team] = get_teams()
+        teams: list[Team] = get_active_teams()
     except SQLAlchemyError:
         logger.exception("Database error retrieving teams for edit service form")
         abort(503)

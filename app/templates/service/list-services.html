@@ -73,33 +73,35 @@
       }) }}
     {% endif %}
 
-    {% set pages = [] %}
-    {% for page in services.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
-      {%  if page %}
-        {% set _ = pages.append(
-          {
-            'number': page,
-            'href': url_for('service_ui.list_services', page=page, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
-            'current': page == services.page
-          }
-        ) %}
-      {% else %}
-        {% set _ = pages.append({
-          'ellipsis': true
-        }) %}
-      {% endif %}
-    {% endfor %}
+    {% if services.pages > 1 %}
+      {% set pages = [] %}
+      {% for page in services.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+        {%  if page %}
+          {% set _ = pages.append(
+            {
+              'number': page,
+              'href': url_for('service_ui.list_services', page=page, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
+              'current': page == services.page
+            }
+          ) %}
+        {% else %}
+          {% set _ = pages.append({
+            'ellipsis': true
+          }) %}
+        {% endif %}
+      {% endfor %}
 
-    {{ govukPagination({
-      'previous': {
-        'href': url_for('service_ui.list_services', page=services.prev_num, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
-      } if services.has_prev else None,
-      'next': {
-        'href': url_for('service_ui.list_services', page=services.next_num, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
-      } if services.has_next else None,
-      'items': pages
-    }) }}
-    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+      {{ govukPagination({
+        'previous': {
+          'href': url_for('service_ui.list_services', page=services.prev_num, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
+        } if services.has_prev else None,
+        'next': {
+          'href': url_for('service_ui.list_services', page=services.next_num, per_page=services.per_page, sort=form.sort.data, status=form.status.data),
+        } if services.has_next else None,
+        'items': pages
+      }) }}
+    {% endif %}
+    
     <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('service_api.list_services', page=services.page, per_page=services.per_page, sort=form.sort.data, status=form.status.data) }}">Get data in JSON format</a></p>
   </div>
 </div>

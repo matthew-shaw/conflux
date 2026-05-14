@@ -16,6 +16,8 @@ def list_roles() -> Response:
         roles = get_roles(
             sort=request.args.get("sort", "name", type=str),
             status=request.args.get("status", "active", type=str),
+            page=request.args.get("page", 1, type=int),
+            per_page=request.args.get("per_page", 25, type=int),
         )
         return jsonify([role.to_dict() for role in roles])
     except SQLAlchemyError:
@@ -29,7 +31,11 @@ def list_roles() -> Response:
 def view(id: UUID) -> Response:
     try:
         role = get_role(id)
-        return jsonify(role.to_dict(include_people=True))
+        return jsonify(
+            role.to_dict(
+                include_people=True,
+            )
+        )
     except SQLAlchemyError:
         logger.exception(f"Database error viewing role {id}")
         resp = jsonify({"error": "Database error"})

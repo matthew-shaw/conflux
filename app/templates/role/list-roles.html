@@ -1,6 +1,7 @@
 {%- extends "base.html" -%}
 
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/pagination/macro.html' import govukPagination -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
@@ -35,6 +36,7 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
         'classes': "govuk-button--secondary"
@@ -62,7 +64,7 @@
 
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " roles",
+        'caption': "Showing " ~ roles.first ~ " to " ~ roles.last ~ " of " ~ roles.total ~ " roles",
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
@@ -74,7 +76,37 @@
         'rows': rows
       }) }}
     {% endif %}
-    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('role_api.list_roles') }}">Get data in JSON format</a></p>
+
+    {% if roles.pages > 1 %}
+      {% set pages = [] %}
+      {% for page in roles.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+        {%  if page %}
+          {% set _ = pages.append(
+            {
+              'number': page,
+              'href': url_for('role_ui.list_roles', page=page, per_page=roles.per_page, sort=form.sort.data, status=form.status.data),
+              'current': page == roles.page
+            }
+          ) %}
+        {% else %}
+          {% set _ = pages.append({
+            'ellipsis': true
+          }) %}
+        {% endif %}
+      {% endfor %}
+
+      {{ govukPagination({
+        'previous': {
+          'href': url_for('role_ui.list_roles', page=roles.prev_num, per_page=roles.per_page, sort=form.sort.data, status=form.status.data),
+        } if roles.has_prev else None,
+        'next': {
+          'href': url_for('role_ui.list_roles', page=roles.next_num, per_page=roles.per_page, sort=form.sort.data, status=form.status.data),
+        } if roles.has_next else None,
+        'items': pages
+      }) }}
+    {% endif %}
+    
+    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('role_api.list_roles', page=roles.page, per_page=roles.per_page, sort=form.sort.data, status=form.status.data) }}">Get data in JSON format</a></p>
   </div>
 </div>
 {%- endblock -%}

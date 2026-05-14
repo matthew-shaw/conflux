@@ -36,8 +36,8 @@ from app.person.service import (
     restore_person,
     update_person,
 )
-from app.role.service import get_roles
-from app.team.service import get_teams
+from app.role.service import get_active_roles
+from app.team.service import get_active_teams
 
 logger = logging.getLogger(__name__)
 
@@ -75,13 +75,13 @@ def create() -> ResponseReturnValue:
 
     # Add options
     try:
-        roles: list[Role] = get_roles()
+        roles: list[Role] = get_active_roles()
     except SQLAlchemyError:
         logger.exception("Database error retrieving roles for create person form")
         abort(503)
     form.role.choices = [(str(role.id), role.name) for role in roles]
     try:
-        teams: list[Team] = get_teams()
+        teams: list[Team] = get_active_teams()
     except SQLAlchemyError:
         logger.exception("Database error retrieving teams for create person form")
         abort(503)
@@ -142,13 +142,13 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     # Add options
     try:
-        roles: list[Role] = get_roles()
+        roles: list[Role] = get_active_roles()
     except SQLAlchemyError:
         logger.exception("Database error retrieving roles for edit person form")
         abort(503)
     form.role.choices = [(role.id, role.name) for role in roles]
     try:
-        teams: list[Team] = get_teams()
+        teams: list[Team] = get_active_teams()
     except SQLAlchemyError:
         logger.exception("Database error retrieving teams for edit person form")
         abort(503)
