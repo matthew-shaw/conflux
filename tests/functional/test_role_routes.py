@@ -9,7 +9,11 @@ from app.role import ui as role_ui
 def test_api_list_roles_uses_service_layer(monkeypatch, test_client):
     """GIVEN the role API list endpoint WHEN the list route is called THEN the service layer provides the returned role payload."""
     fake_roles = [SimpleNamespace(to_dict=lambda: {"id": "1"})]
-    monkeypatch.setattr(role_api, "get_roles", lambda sort, status: fake_roles)
+    monkeypatch.setattr(
+        role_api,
+        "get_roles",
+        lambda **kwargs: fake_roles,
+    )
 
     response = test_client.get("/api/v1/roles/?sort=grade&status=all")
 
@@ -33,10 +37,26 @@ def test_ui_list_roles_uses_service_layer(monkeypatch, test_client):
     fake_form = SimpleNamespace(
         sort=SimpleNamespace(data="grade"),
         status=SimpleNamespace(data="active"),
+        per_page=SimpleNamespace(data=25),
         validate_on_submit=lambda: False,
     )
-    monkeypatch.setattr(role_ui, "RoleSortFilterForm", lambda: fake_form)
-    monkeypatch.setattr(role_ui, "get_roles", lambda sort, status: ["role1"])
+    fake_roles = SimpleNamespace(
+        items=["role1"],
+        page=1,
+        per_page=25,
+        total=1,
+        pages=1,
+    )
+    monkeypatch.setattr(
+        role_ui,
+        "RoleSortFilterForm",
+        lambda *args, **kwargs: fake_form,
+    )
+    monkeypatch.setattr(
+        role_ui,
+        "get_roles",
+        lambda **kwargs: fake_roles,
+    )
 
     rendered = {}
 
@@ -52,7 +72,7 @@ def test_ui_list_roles_uses_service_layer(monkeypatch, test_client):
     assert response.status_code == 200
     assert response.get_data(as_text=True) == "rendered"
     assert rendered["template"] == "list-roles.html"
-    assert rendered["context"]["roles"] == ["role1"]
+    assert rendered["context"]["roles"].items == ["role1"]
     assert rendered["context"]["form"] is fake_form
 
 
@@ -277,7 +297,11 @@ def test_ui_download_returns_csv(monkeypatch, test_client):
         updated_at=SimpleNamespace(isoformat=lambda: "2024-01-01T00:00:00"),
         archived_at=None,
     )
-    monkeypatch.setattr(role_ui, "get_roles", lambda: [fake_role])
+    monkeypatch.setattr(
+        role_ui,
+        "download_roles",
+        lambda: [fake_role],
+    )
 
     response = test_client.get("/roles/download")
 

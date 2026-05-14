@@ -20,15 +20,9 @@ class DummyQuery:
         return self
 
 
-class DummyResult:
-    def __init__(self, values):
-        self._values = values
-
-    def scalars(self):
-        return self
-
-    def all(self):
-        return self._values
+class DummyPagination:
+    def __init__(self, items):
+        self.items = items
 
 
 def make_role_stub() -> SimpleNamespace:
@@ -48,14 +42,14 @@ def test_get_roles_builds_query(monkeypatch):
     fake_query = DummyQuery()
     fake_db = SimpleNamespace(
         select=lambda model: fake_query,
-        session=SimpleNamespace(execute=lambda query: DummyResult(["role1", "role2"])),
+        paginate=lambda *args, **kwargs: DummyPagination(["role1", "role2"]),
     )
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "Role", make_role_stub())
 
     roles = role_service.get_roles(sort="updated", status="archived")
 
-    assert roles == ["role1", "role2"]
+    assert roles.items == ["role1", "role2"]
     assert fake_query.calls == [("order_by", "updated_desc"), ("where", "archived")]
 
 
@@ -64,14 +58,14 @@ def test_get_roles_returns_all_when_status_all(monkeypatch):
     fake_query = DummyQuery()
     fake_db = SimpleNamespace(
         select=lambda model: fake_query,
-        session=SimpleNamespace(execute=lambda query: DummyResult(["role1"])),
+        paginate=lambda *args, **kwargs: DummyPagination(["role1"]),
     )
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "Role", make_role_stub())
 
     roles = role_service.get_roles(sort="name", status="all")
 
-    assert roles == ["role1"]
+    assert roles.items == ["role1"]
     assert fake_query.calls == [("order_by", "name_col")]
 
 
