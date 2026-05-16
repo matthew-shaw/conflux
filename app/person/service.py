@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from app import db
@@ -78,7 +78,11 @@ def get_active_people() -> list[Person]:
 
 
 def get_person(id: UUID) -> Person:
-    return db.get_or_404(Person, id)
+    try:
+        return db.session.execute(db.select(Person).filter_by(id=id)).scalar_one()
+    except NoResultFound:
+        logger.debug(f"Person not found {id}", exc_info=True)
+        raise
 
 
 def create_person(
@@ -126,7 +130,7 @@ def update_person(
     manager_id: UUID | None,
 ) -> None:
     # Retrieve the person or raise 404 if not found
-    person = db.get_or_404(Person, id)
+    person = get_person(id)
     # Update the person's attributes with the new values
     person.name = name.title()
     person.email_address = email_address.lower()
@@ -134,7 +138,7 @@ def update_person(
     person.role_id = role_id
     person.team_id = team_id
     person.manager_id = manager_id
-    logger.info(f"Updating person {id} -> name={name} email={email_address}")
+    logger.info(f"Updating person {id} -> name={name}")
     try:
         # Commit the update transaction
         db.session.commit()
@@ -152,7 +156,7 @@ def update_person(
 
 def archive_person(id: UUID) -> None:
     # Retrieve the person or raise 404 if not found
-    person = db.get_or_404(Person, id)
+    person = get_person(id)
     # Set the archived_at timestamp to mark the person as archived
     person.archived_at = datetime.now(timezone.utc)
     logger.info(f"Archiving person {id}")
@@ -168,7 +172,7 @@ def archive_person(id: UUID) -> None:
 
 def restore_person(id: UUID) -> None:
     # Retrieve the person or raise 404 if not found
-    person = db.get_or_404(Person, id)
+    person = get_person(id)
     # Clear the archived_at timestamp to mark the person as active
     person.archived_at = None
     logger.info(f"Restoring person {id}")

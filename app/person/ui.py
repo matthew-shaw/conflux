@@ -16,7 +16,7 @@ from flask import (
 )
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app.models import Person, Role, Team
 from app.person import ui_bp as ui
@@ -109,14 +109,14 @@ def create() -> ResponseReturnValue:
                 f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been created',
                 "success",
             )
-            logger.info("Created person id=%s name=%s", person.id, person.name)
+            logger.info(f"Created person id={person.id} name={person.name}")
             return redirect(url_for("person_ui.list_people"))
         except IntegrityError:
             form.name.errors.append("A person with this name already exists.")
-            logger.warning("IntegrityError creating person name=%s", form.name.data, exc_info=True)
+            logger.warning(f"IntegrityError creating person name={form.name.data}", exc_info=True)
             return render_template("create-person.html", form=form)
         except SQLAlchemyError:
-            logger.exception("Database error creating person name=%s", form.name.data)
+            logger.exception(f"Database error creating person name={form.name.data}")
             abort(503)
     return render_template("create-person.html", title="Add a new person", form=form)
 
@@ -125,8 +125,10 @@ def create() -> ResponseReturnValue:
 def view(id: UUID) -> ResponseReturnValue:
     try:
         person: Person = get_person(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error viewing person %s", id)
+        logger.exception(f"Database error viewing person {id}")
         abort(503)
     return render_template("view-person.html", person=person)
 
@@ -135,8 +137,10 @@ def view(id: UUID) -> ResponseReturnValue:
 def edit(id: UUID) -> ResponseReturnValue:
     try:
         person: Person = get_person(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error fetching person %s for edit", id)
+        logger.exception(f"Database error fetching person {id} for edit")
         abort(503)
     form: PersonForm = PersonForm()
 
@@ -187,12 +191,12 @@ def edit(id: UUID) -> ResponseReturnValue:
                 f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
                 "success",
             )
-            logger.info("Updated person id=%s", id)
+            logger.info(f"Updated person id={id}")
             return redirect(url_for("person_ui.list_people"))
         except IntegrityError:
             form.name.errors.append("A person with this name already exists.")
         except SQLAlchemyError:
-            logger.exception("Database error updating person %s", id)
+            logger.exception(f"Database error updating person {id}")
             abort(503)
 
     return render_template("edit-person.html", title="Edit person", person=person, form=form)
@@ -202,22 +206,24 @@ def edit(id: UUID) -> ResponseReturnValue:
 def archive(id: UUID) -> ResponseReturnValue:
     try:
         person: Person = get_person(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error fetching person %s for archive", id)
+        logger.exception(f"Database error fetching person {id} for archive")
         abort(503)
     form: ArchivePersonForm = ArchivePersonForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             archive_person(id)
-            logger.info("Archived person %s", id)
+            logger.info(f"Archived person {id}")
             flash(
                 f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("person_ui.list_people"))
         except SQLAlchemyError:
-            logger.exception("Database error archiving person %s", id)
+            logger.exception(f"Database error archiving person {id}")
             abort(503)
 
     return render_template("archive-person.html", title="Archive person", person=person, form=form)
@@ -227,22 +233,24 @@ def archive(id: UUID) -> ResponseReturnValue:
 def restore(id: UUID) -> ResponseReturnValue:
     try:
         person: Person = get_person(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error fetching person %s for restore", id)
+        logger.exception(f"Database error fetching person {id} for restore")
         abort(503)
     form: RestorePersonForm = RestorePersonForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             restore_person(id)
-            logger.info("Restored person %s", id)
+            logger.info(f"Restored person {id}")
             flash(
                 f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("person_ui.list_people"))
         except SQLAlchemyError:
-            logger.exception("Database error restoring person %s", id)
+            logger.exception(f"Database error restoring person {id}")
             abort(503)
 
     return render_template("restore-person.html", title="Restore person", person=person, form=form)

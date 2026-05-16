@@ -2,7 +2,7 @@ import logging
 from uuid import UUID
 
 from flask import Response, jsonify, request
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 
 from app.person import api_bp as api
 from app.person.service import get_people, get_person
@@ -39,6 +39,11 @@ def view(id: UUID) -> Response:
                 include_team=True,
             )
         )
+    except NoResultFound:
+        logger.warning(f"Person not found {id}")
+        resp = jsonify({"error": "Person not found"})
+        resp.status_code = 404
+        return resp
     except SQLAlchemyError:
         logger.exception(f"Database error viewing person {id}")
         resp = jsonify({"error": "Database error"})
