@@ -15,7 +15,7 @@ from flask import (
 )
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app.models import Service, Team
 from app.service import ui_bp as ui
@@ -88,14 +88,14 @@ def create() -> ResponseReturnValue:
                 f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been created',
                 "success",
             )
-            logger.info("Created service id=%s name=%s", service.id, service.name)
+            logger.info(f"Created service id={service.id} name={service.name}")
             return redirect(url_for("service_ui.list_services"))
         except IntegrityError:
             form.name.errors.append("A service with this name already exists.")
-            logger.warning("IntegrityError creating service name=%s", form.name.data, exc_info=True)
+            logger.warning(f"IntegrityError creating service name={form.name.data}", exc_info=True)
             return render_template("create-service.html", form=form)
         except SQLAlchemyError:
-            logger.exception("Database error creating service name=%s", form.name.data)
+            logger.exception(f"Database error creating service name={form.name.data}")
             abort(503)
     return render_template("create-service.html", title="Add a new service", form=form)
 
@@ -104,8 +104,10 @@ def create() -> ResponseReturnValue:
 def view(id: UUID) -> ResponseReturnValue:
     try:
         service: Service = get_service(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error viewing service %s", id)
+        logger.exception(f"Database error viewing service {id}")
         abort(503)
     return render_template("view-service.html", service=service)
 
@@ -114,8 +116,10 @@ def view(id: UUID) -> ResponseReturnValue:
 def edit(id: UUID) -> ResponseReturnValue:
     try:
         service: Service = get_service(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error fetching service %s for edit", id)
+        logger.exception(f"Database error fetching service {id} for edit")
         abort(503)
     form: ServiceForm = ServiceForm(service=service)
 
@@ -141,12 +145,12 @@ def edit(id: UUID) -> ResponseReturnValue:
                 f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been updated',
                 "success",
             )
-            logger.info("Updated service id=%s", id)
+            logger.info(f"Updated service id={id}")
             return redirect(url_for("service_ui.list_services"))
         except IntegrityError:
             form.name.errors.append("A service with this name already exists.")
         except SQLAlchemyError:
-            logger.exception("Database error updating service %s", id)
+            logger.exception(f"Database error updating service {id}")
             abort(503)
 
     return render_template("edit-service.html", title="Edit service", service=service, form=form)
@@ -156,22 +160,24 @@ def edit(id: UUID) -> ResponseReturnValue:
 def archive(id: UUID) -> ResponseReturnValue:
     try:
         service: Service = get_service(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error fetching service %s for archive", id)
+        logger.exception(f"Database error fetching service {id} for archive")
         abort(503)
     form: ArchiveServiceForm = ArchiveServiceForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             archive_service(id)
-            logger.info("Archived service %s", id)
+            logger.info(f"Archived service {id}")
             flash(
                 f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("service_ui.list_services"))
         except SQLAlchemyError:
-            logger.exception("Database error archiving service %s", id)
+            logger.exception(f"Database error archiving service {id}")
             abort(503)
 
     return render_template("archive-service.html", title="Archive service", service=service, form=form)
@@ -181,22 +187,24 @@ def archive(id: UUID) -> ResponseReturnValue:
 def restore(id: UUID) -> ResponseReturnValue:
     try:
         service: Service = get_service(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
-        logger.exception("Database error fetching service %s for restore", id)
+        logger.exception(f"Database error fetching service {id} for restore")
         abort(503)
     form: RestoreServiceForm = RestoreServiceForm()
 
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             restore_service(id)
-            logger.info("Restored service %s", id)
+            logger.info(f"Restored service {id}")
             flash(
                 f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("service_ui.list_services"))
         except SQLAlchemyError:
-            logger.exception("Database error restoring service %s", id)
+            logger.exception(f"Database error restoring service {id}")
             abort(503)
 
     return render_template("restore-service.html", title="Restore service", service=service, form=form)

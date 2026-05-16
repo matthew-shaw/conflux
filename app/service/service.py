@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from app import db
@@ -76,7 +76,11 @@ def get_active_services() -> list[Service]:
 
 
 def get_service(id: UUID) -> Service:
-    return db.get_or_404(Service, id)
+    try:
+        return db.session.execute(db.select(Service).filter_by(id=id)).scalar_one()
+    except NoResultFound:
+        logger.debug(f"Service not found {id}", exc_info=True)
+        raise
 
 
 def create_service(
@@ -112,7 +116,7 @@ def update_service(
     team_id: UUID | None,
 ) -> None:
     # Retrieve the service or raise 404 if not found
-    service = db.get_or_404(Service, id)
+    service = get_service(id)
     # Update the service's attributes with the new values
     service.name = name.title()
     service.team_id = team_id
@@ -134,7 +138,7 @@ def update_service(
 
 def archive_service(id: UUID) -> None:
     # Retrieve the service or raise 404 if not found
-    service = db.get_or_404(Service, id)
+    service = get_service(id)
     # Set the archived_at timestamp to mark the service as archived
     service.archived_at = datetime.now(timezone.utc)
     logger.info(f"Archiving service {id}")
@@ -150,7 +154,7 @@ def archive_service(id: UUID) -> None:
 
 def restore_service(id: UUID) -> None:
     # Retrieve the service or raise 404 if not found
-    service = db.get_or_404(Service, id)
+    service = get_service(id)
     # Clear the archived_at timestamp to mark the service as active
     service.archived_at = None
     logger.info(f"Restoring service {id}")

@@ -2,7 +2,7 @@ import logging
 from uuid import UUID
 
 from flask import Response, jsonify, request
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 
 from app.service import api_bp as api
 from app.service.service import get_service, get_services
@@ -36,6 +36,11 @@ def view(id: UUID) -> Response:
                 include_team=True,
             )
         )
+    except NoResultFound:
+        logger.warning(f"Service not found {id}")
+        resp = jsonify({"error": "Service not found"})
+        resp.status_code = 404
+        return resp
     except SQLAlchemyError:
         logger.exception(f"Database error viewing service {id}")
         resp = jsonify({"error": "Database error"})
