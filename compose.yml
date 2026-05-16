@@ -4,6 +4,7 @@ services:
     container_name: app
     restart: always
     environment:
+      CONTACT_EMAIL: ${CONTACT_EMAIL}
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       DOMAIN: ${DOMAIN}
       GRADES: ${GRADES}
