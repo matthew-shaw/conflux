@@ -11,8 +11,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import selectinload
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app import db
 from app.models import Role
@@ -76,7 +75,11 @@ def get_active_roles() -> list[Role]:
 
 
 def get_role(id: UUID) -> Role:
-    return db.get_or_404(Role, id)
+    try:
+        return db.session.execute(db.select(Role).filter_by(id=id)).scalar_one()
+    except NoResultFound:
+        logger.debug(f"Role not found {id}", exc_info=True)
+        raise
 
 
 def create_role(
@@ -112,7 +115,7 @@ def update_role(
     grade: str,
 ) -> None:
     # Retrieve the role or raise 404 if not found
-    role = db.get_or_404(Role, id)
+    role = get_role(id)
     # Update the role's attributes with the new values
     role.name = name
     role.grade = grade
@@ -134,7 +137,7 @@ def update_role(
 
 def archive_role(id: UUID) -> None:
     # Retrieve the role or raise 404 if not found
-    role = db.get_or_404(Role, id)
+    role = get_role(id)
     # Set the archived_at timestamp to mark the role as archived
     role.archived_at = datetime.now(timezone.utc)
     logger.info(f"Archiving role {id}")
@@ -150,7 +153,7 @@ def archive_role(id: UUID) -> None:
 
 def restore_role(id: UUID) -> None:
     # Retrieve the role or raise 404 if not found
-    role = db.get_or_404(Role, id)
+    role = get_role(id)
     # Clear the archived_at timestamp to mark the role as active
     role.archived_at = None
     logger.info(f"Restoring role {id}")
@@ -166,17 +169,7 @@ def restore_role(id: UUID) -> None:
 
 def download_roles() -> list[Role]:
     try:
-        return list(
-            db.session.execute(
-                db.select(Role)
-                .options(
-                    selectinload(Role.grade),
-                )
-                .order_by(Role.name)
-            )
-            .scalars()
-            .all()
-        )
+        return list(db.session.execute(db.select(Role).order_by(Role.name)).scalars().all())
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug("Database error downloading roles", exc_info=True)

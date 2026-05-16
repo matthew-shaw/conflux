@@ -2,7 +2,7 @@ import logging
 from uuid import UUID
 
 from flask import Response, jsonify, request
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 
 from app.role import api_bp as api
 from app.role.service import get_role, get_roles
@@ -36,6 +36,11 @@ def view(id: UUID) -> Response:
                 include_people=True,
             )
         )
+    except NoResultFound:
+        logger.warning(f"Role not found {id}")
+        resp = jsonify({"error": "Role not found"})
+        resp.status_code = 404
+        return resp
     except SQLAlchemyError:
         logger.exception(f"Database error viewing role {id}")
         resp = jsonify({"error": "Database error"})

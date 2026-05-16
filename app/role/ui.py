@@ -16,7 +16,7 @@ from flask import (
 )
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app.models import Role
 from app.role import ui_bp as ui
@@ -99,6 +99,8 @@ def create() -> ResponseReturnValue:
 def view(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error viewing role {id}")
         abort(503)
@@ -109,6 +111,8 @@ def view(id: UUID) -> ResponseReturnValue:
 def edit(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error fetching role {id} for edit")
         abort(503)
@@ -150,6 +154,8 @@ def edit(id: UUID) -> ResponseReturnValue:
 def archive(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error fetching role for archive {id}")
         abort(503)
@@ -175,6 +181,8 @@ def archive(id: UUID) -> ResponseReturnValue:
 def restore(id: UUID) -> ResponseReturnValue:
     try:
         role: Role = get_role(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error fetching role for restore {id}")
         abort(503)
