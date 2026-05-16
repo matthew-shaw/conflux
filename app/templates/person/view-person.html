@@ -96,18 +96,26 @@
             'text': person.team.name if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
-            'items': [
-              {
-                'href': url_for('team_ui.view', id=person.team.id),
-                'text': "View",
-                'visuallyHiddenText': "team"
-              },
-              {
-                'href': url_for('person_ui.edit', id=person.id),
-                'text': "Change",
-                'visuallyHiddenText': "team"
-              }
-            ]
+            'items': (
+              [
+                {
+                  'href': url_for('team_ui.view', id=person.team.id),
+                  'text': "View",
+                  'visuallyHiddenText': "team"
+                },
+                {
+                  'href': url_for('person_ui.edit', id=person.id),
+                  'text': "Change",
+                  'visuallyHiddenText': "team"
+                }
+              ] if person.team else [
+                {
+                  'href': url_for('person_ui.edit', id=person.id),
+                  'text': "Add",
+                  'visuallyHiddenText': "team"
+                }
+              ]
+            )
           }
         },
         {
@@ -135,18 +143,26 @@
             'text': person.manager.name if person.manager else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
-            'items': [
-              {
-                'href': url_for('person_ui.view', id=person.manager.id),
-                'text': "View",
-                'visuallyHiddenText': "manager"
-              },
-              {
-                'href': url_for('person_ui.edit', id=person.id),
-                'text': "Change",
-                'visuallyHiddenText': "manager"
-              }
-            ]
+            'items': (
+              [
+                {
+                  'href': url_for('person_ui.view', id=person.manager.id),
+                  'text': "View",
+                  'visuallyHiddenText': "manager"
+                },
+                {
+                  'href': url_for('person_ui.edit', id=person.id),
+                  'text': "Change",
+                  'visuallyHiddenText': "manager"
+                }
+              ] if person.manager else [
+                {
+                  'href': url_for('person_ui.edit', id=person.id),
+                  'text': "Add",
+                  'visuallyHiddenText': "manager"
+                }
+              ]
+            )
           }
         },
         {

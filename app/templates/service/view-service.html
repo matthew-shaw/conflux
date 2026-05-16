@@ -70,18 +70,26 @@
             'text': service.team.name if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
-            'items': [
-              {
-                'href': url_for('team_ui.view', id=service.team.id),
-                'text': "View",
-                'visuallyHiddenText': "team"
-              },
-              {
-                'href': url_for('service_ui.edit', id=service.id),
-                'text': "Change",
-                'visuallyHiddenText': "team"
-              }
-            ]
+            'items': (
+              [
+                {
+                  'href': url_for('team_ui.view', id=service.team.id),
+                  'text': "View",
+                  'visuallyHiddenText': "team"
+                },
+                {
+                  'href': url_for('service_ui.edit', id=service.id),
+                  'text': "Change",
+                  'visuallyHiddenText': "team"
+                }
+              ] if service.team else [
+                {
+                  'href': url_for('service_ui.edit', id=service.id),
+                  'text': "Add",
+                  'visuallyHiddenText': "team"
+                }
+              ]
+            )
           }
         },
         {
