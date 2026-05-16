@@ -69,13 +69,28 @@ def test_get_roles_returns_all_when_status_all(monkeypatch):
     assert fake_query.calls == [("order_by", "name_col")]
 
 
-def test_get_role_delegates_to_db_get_or_404(monkeypatch):
-    """GIVEN a role ID WHEN get_role is called THEN the database helper get_or_404 is used."""
+def test_get_role_uses_session_execute(monkeypatch):
+    """GIVEN a role ID WHEN get_role is called THEN the database session executes a select query."""
     sentinel = object()
-    fake_db = SimpleNamespace(get_or_404=lambda model, id: sentinel)
+    executed = {}
+
+    class FakeSelect:
+        def filter_by(self, id):
+            executed["filtered_id"] = id
+            return self
+
+    def fake_execute(query):
+        executed["query"] = query
+        return SimpleNamespace(scalar_one=lambda: sentinel)
+
+    fake_db = SimpleNamespace(
+        select=lambda model: FakeSelect(),
+        session=SimpleNamespace(execute=fake_execute),
+    )
     monkeypatch.setattr(role_service, "db", fake_db)
 
     assert role_service.get_role(UUID("00000000-0000-0000-0000-000000000000")) is sentinel
+    assert isinstance(executed["query"], FakeSelect)
 
 
 def test_create_role_commits_and_returns_role(monkeypatch):
@@ -140,11 +155,9 @@ def test_update_role_commits_updated_name(monkeypatch):
         nonlocal commit_called
         commit_called = True
 
-    fake_db = SimpleNamespace(
-        get_or_404=lambda model, id: updated_role,
-        session=SimpleNamespace(commit=nonlocal_set_true, rollback=lambda: None),
-    )
+    fake_db = SimpleNamespace(session=SimpleNamespace(commit=nonlocal_set_true, rollback=lambda: None))
     monkeypatch.setattr(role_service, "db", fake_db)
+    monkeypatch.setattr(role_service, "get_role", lambda id: updated_role)
 
     role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1")
 
@@ -164,11 +177,9 @@ def test_update_role_rolls_back_on_integrity_error(monkeypatch):
         nonlocal rollback_called
         rollback_called = True
 
-    fake_db = SimpleNamespace(
-        get_or_404=lambda model, id: updated_role,
-        session=SimpleNamespace(commit=fake_commit, rollback=fake_rollback),
-    )
+    fake_db = SimpleNamespace(session=SimpleNamespace(commit=fake_commit, rollback=fake_rollback))
     monkeypatch.setattr(role_service, "db", fake_db)
+    monkeypatch.setattr(role_service, "get_role", lambda id: updated_role)
 
     with pytest.raises(IntegrityError):
         role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1")
@@ -186,11 +197,9 @@ def test_archive_role_sets_archived_at_and_commits(monkeypatch):
         nonlocal commit_called
         commit_called = True
 
-    fake_db = SimpleNamespace(
-        get_or_404=lambda model, id: fake_role,
-        session=SimpleNamespace(commit=fake_commit),
-    )
+    fake_db = SimpleNamespace(session=SimpleNamespace(commit=fake_commit, rollback=lambda: None))
     monkeypatch.setattr(role_service, "db", fake_db)
+    monkeypatch.setattr(role_service, "get_role", lambda id: fake_role)
 
     role_service.archive_role(UUID("00000000-0000-0000-0000-000000000000"))
 
@@ -207,11 +216,9 @@ def test_restore_role_clears_archived_at_and_commits(monkeypatch):
         nonlocal commit_called
         commit_called = True
 
-    fake_db = SimpleNamespace(
-        get_or_404=lambda model, id: fake_role,
-        session=SimpleNamespace(commit=fake_commit),
-    )
+    fake_db = SimpleNamespace(session=SimpleNamespace(commit=fake_commit, rollback=lambda: None))
     monkeypatch.setattr(role_service, "db", fake_db)
+    monkeypatch.setattr(role_service, "get_role", lambda id: fake_role)
 
     role_service.restore_role(UUID("00000000-0000-0000-0000-000000000000"))
 

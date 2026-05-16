@@ -176,7 +176,7 @@ def test_ui_edit_get_populates_form(monkeypatch, test_client):
     fake_role = SimpleNamespace(name="Old name", grade="Grade 1")
     fake_form = DummyForm()
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
-    monkeypatch.setattr(role_ui, "RoleForm", lambda: fake_form)
+    monkeypatch.setattr(role_ui, "RoleForm", lambda *args, **kwargs: fake_form)
 
     rendered = {}
 
@@ -200,7 +200,7 @@ def test_ui_edit_post_success_redirects(monkeypatch, test_client):
     fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1")
     fake_form = DummyForm(submit=True, name="New name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
-    monkeypatch.setattr(role_ui, "RoleForm", lambda: fake_form)
+    monkeypatch.setattr(role_ui, "RoleForm", lambda *args, **kwargs: fake_form)
     monkeypatch.setattr(role_ui, "update_role", lambda id, name, grade=None: fake_role)
 
     response = test_client.post("/roles/00000000-0000-0000-0000-000000000000/edit", data={})
@@ -214,7 +214,7 @@ def test_ui_edit_post_duplicate_shows_error(monkeypatch, test_client):
     fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1")
     fake_form = DummyForm(submit=True, name="New name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
-    monkeypatch.setattr(role_ui, "RoleForm", lambda: fake_form)
+    monkeypatch.setattr(role_ui, "RoleForm", lambda *args, **kwargs: fake_form)
     monkeypatch.setattr(
         role_ui,
         "update_role",
