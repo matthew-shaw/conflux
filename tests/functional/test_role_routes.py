@@ -7,7 +7,9 @@ from app.role import ui as role_ui
 
 
 def test_api_list_roles_uses_service_layer(monkeypatch, test_client):
-    """GIVEN the role API list endpoint WHEN the list route is called THEN the service layer provides the returned role payload."""
+    """GIVEN the role API list endpoint
+    WHEN the list route is called
+    THEN the service layer provides the returned role payload."""
     fake_roles = [SimpleNamespace(to_dict=lambda: {"id": "1"})]
     monkeypatch.setattr(
         role_api,
@@ -124,7 +126,9 @@ def test_ui_create_post_success_redirects(monkeypatch, test_client):
 
 
 def test_ui_create_post_invalid_form_renders_form(monkeypatch, test_client):
-    """GIVEN a create role submission with validation errors WHEN posted THEN the page is re-rendered instead of redirecting."""
+    """GIVEN a create role submission with validation errors
+    WHEN posted
+    THEN the page is re-rendered instead of redirecting."""
     fake_form = DummyForm(submit=False, name="", grade="")
     monkeypatch.setattr(role_ui, "RoleForm", lambda: fake_form)
 
@@ -146,7 +150,9 @@ def test_ui_create_post_invalid_form_renders_form(monkeypatch, test_client):
 
 
 def test_ui_create_post_duplicate_shows_error(monkeypatch, test_client):
-    """GIVEN a duplicate role name WHEN create_role fails with IntegrityError THEN the duplicate error is added to the form."""
+    """GIVEN a duplicate role name
+    WHEN create_role fails with IntegrityError
+    THEN the duplicate error is added to the form."""
     fake_form = DummyForm(submit=True, name="Role Name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "RoleForm", lambda: fake_form)
     monkeypatch.setattr(
@@ -210,7 +216,9 @@ def test_ui_edit_post_success_redirects(monkeypatch, test_client):
 
 
 def test_ui_edit_post_duplicate_shows_error(monkeypatch, test_client):
-    """GIVEN a duplicate role name WHEN edit_role fails with IntegrityError THEN the duplicate error is attached to the form."""
+    """GIVEN a duplicate role name
+    WHEN edit_role fails with IntegrityError
+    THEN the duplicate error is attached to the form."""
     fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1")
     fake_form = DummyForm(submit=True, name="New name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
@@ -289,7 +297,8 @@ def test_ui_restore_post_success_redirects(monkeypatch, test_client):
 
 
 def test_ui_download_returns_csv(monkeypatch, test_client):
-    """GIVEN the download endpoint WHEN requested THEN a CSV file is returned with the correct content type and headers."""
+    """GIVEN the download endpoint WHEN requested
+    THEN a CSV file is returned with the correct content type and headers."""
     fake_role = SimpleNamespace(
         id="1",
         name="Role One",

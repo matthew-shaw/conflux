@@ -38,7 +38,9 @@ def make_role_stub() -> SimpleNamespace:
 
 
 def test_get_roles_builds_query(monkeypatch):
-    """GIVEN archived role filters WHEN get_roles is called THEN the query includes the expected order and where clauses."""
+    """GIVEN archived role filters
+    WHEN get_roles is called
+    THEN the query includes the expected order and where clauses."""
     fake_query = DummyQuery()
     fake_db = SimpleNamespace(
         select=lambda model: fake_query,
