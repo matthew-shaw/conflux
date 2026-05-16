@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app import db
 from app.models import Team
@@ -78,21 +78,11 @@ def get_active_teams() -> list[Team]:
 
 
 def get_team(id: UUID) -> Team:
-    """Retrieve a single team by its ID.
-
-    Args:
-        id: The UUID of the team to retrieve.
-
-    Returns:
-        The Team object with the specified ID.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no team with the given ID exists.
-
-    Example:
-        >>> team = get_team(UUID('12345678-1234-5678-1234-567812345678'))
-    """
-    return db.get_or_404(Team, id)
+    try:
+        return db.session.execute(db.select(Team).filter_by(id=id)).scalar_one()
+    except NoResultFound:
+        logger.debug(f"Team not found {id}", exc_info=True)
+        raise
 
 
 def create_team(name: str) -> Team:
@@ -147,7 +137,7 @@ def update_team(id: UUID, name: str) -> None:
         >>> team = update_team(team_id, "Senior Manager", "G7")
     """
     # Retrieve the team or raise 404 if not found
-    team = db.get_or_404(Team, id)
+    team = get_team(id)
     # Update the team's name
     team.name = name
     logger.info(f"Updating team {id} -> name={name}")
@@ -182,7 +172,7 @@ def archive_team(id: UUID) -> None:
         >>> team = archive_team(team_id)
     """
     # Retrieve the team or raise 404 if not found
-    team = db.get_or_404(Team, id)
+    team = get_team(id)
     # Set the archived_at timestamp to mark the team as archived
     team.archived_at = datetime.now(timezone.utc)
     logger.info(f"Archiving team {id}")
@@ -211,7 +201,7 @@ def restore_team(id: UUID) -> None:
         >>> team = restore_team(team_id)
     """
     # Retrieve the team or raise 404 if not found
-    team = db.get_or_404(Team, id)
+    team = get_team(id)
     # Clear the archived_at timestamp to mark the team as active
     team.archived_at = None
     logger.info(f"Restoring team {id}")

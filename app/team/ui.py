@@ -14,7 +14,7 @@ from flask import (
     url_for,
 )
 from flask.typing import ResponseReturnValue
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app.models import Team
 from app.team import ui_bp as ui
@@ -82,6 +82,8 @@ def create() -> ResponseReturnValue:
 def view(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error viewing team {id}")
         abort(503)
@@ -92,6 +94,8 @@ def view(id: UUID) -> ResponseReturnValue:
 def edit(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         abort(503)
     form: TeamForm = TeamForm(team=team)
@@ -124,6 +128,8 @@ def edit(id: UUID) -> ResponseReturnValue:
 def archive(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error fetching team for archive {id}")
         abort(503)
@@ -149,6 +155,8 @@ def archive(id: UUID) -> ResponseReturnValue:
 def restore(id: UUID) -> ResponseReturnValue:
     try:
         team: Team = get_team(id)
+    except NoResultFound:
+        abort(404)
     except SQLAlchemyError:
         logger.exception(f"Database error fetching team for restore {id}")
         abort(503)
