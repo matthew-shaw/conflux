@@ -117,7 +117,7 @@ def edit(id: UUID) -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception("Database error fetching service %s for edit", id)
         abort(503)
-    form: ServiceForm = ServiceForm()
+    form: ServiceForm = ServiceForm(service=service)
 
     # Add options
     try:

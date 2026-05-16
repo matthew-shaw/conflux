@@ -35,10 +35,14 @@ class ServiceForm(FlaskForm):
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
+    def __init__(self, *args, service=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.service = service
+
     def validate_name(self, field):
         existing_service = Service.query.filter_by(name=field.data).first()
 
-        if existing_service and existing_service != self.service:
+        if existing_service and (self.service is None or existing_service.id != self.service.id):
             raise ValidationError("A service with this name already exists.")
 
 

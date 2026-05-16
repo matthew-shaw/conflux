@@ -33,9 +33,14 @@ class RoleForm(FlaskForm):
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
+    def __init__(self, *args, role=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role = role
+
     def validate_name(self, field):
-        # Check if a role with this name already exists
-        if Role.query.filter_by(name=field.data).first():
+        existing_role = Role.query.filter_by(name=field.data).first()
+
+        if existing_role and (self.role is None or existing_role.id != self.role.id):
             raise ValidationError("A role with this name already exists.")
 
 

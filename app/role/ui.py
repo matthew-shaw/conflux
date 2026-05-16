@@ -112,7 +112,7 @@ def edit(id: UUID) -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(f"Database error fetching role {id} for edit")
         abort(503)
-    form: RoleForm = RoleForm()
+    form: RoleForm = RoleForm(role=role)
 
     # Add options
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]

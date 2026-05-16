@@ -20,9 +20,14 @@ class TeamForm(FlaskForm):
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
+    def __init__(self, *args, team=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.team = team
+
     def validate_name(self, field):
-        # Check if a team with this name already exists
-        if Team.query.filter_by(name=field.data).first():
+        existing_team = Team.query.filter_by(name=field.data).first()
+
+        if existing_team and (self.team is None or existing_team.id != self.team.id):
             raise ValidationError("A team with this name already exists.")
 
 

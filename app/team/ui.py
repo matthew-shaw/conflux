@@ -94,7 +94,7 @@ def edit(id: UUID) -> ResponseReturnValue:
         team: Team = get_team(id)
     except SQLAlchemyError:
         abort(503)
-    form: TeamForm = TeamForm()
+    form: TeamForm = TeamForm(team=team)
 
     if request.method == "GET":
         form.name.data = team.name
