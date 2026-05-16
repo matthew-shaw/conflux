@@ -54,7 +54,9 @@ def list_roles() -> ResponseReturnValue:
         )
     except SQLAlchemyError:
         logger.exception(
-            f"Database error listing roles (sort={form.sort.data},status={form.status.data},page={page},per_page={form.per_page.data})"
+            "Database error listing roles "
+            f"(sort={form.sort.data},status={form.status.data},"
+            f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
 
@@ -79,8 +81,9 @@ def create() -> ResponseReturnValue:
                 name=form.name.data,
                 grade=form.grade.data,
             )
+            role_url = url_for("role_ui.view", id=role.id)
             flash(
-                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been created',
+                f'<a href="{role_url}" class="govuk-notification-banner__link">{role.name}</a> has been created',
                 "success",
             )
             logger.info(f"Created role id={role.id} name={role.name}")
@@ -131,8 +134,9 @@ def edit(id: UUID) -> ResponseReturnValue:
                 name=form.name.data,
                 grade=form.grade.data,
             )
+            role_url = url_for("role_ui.view", id=role.id)
             flash(
-                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
+                f'<a href="{role_url}" class="govuk-notification-banner__link">{role.name}</a> has been updated',
                 "success",
             )
             logger.info(f"Updated role id={role.id} name={form.name.data}")
@@ -165,8 +169,9 @@ def archive(id: UUID) -> ResponseReturnValue:
         try:
             archive_role(id)
             logger.info(f"Archived role {id}")
+            role_url = url_for("role_ui.view", id=role.id)
             flash(
-                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
+                f'<a href="{role_url}" class="govuk-notification-banner__link">{role.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("role_ui.list_roles"))
@@ -192,8 +197,9 @@ def restore(id: UUID) -> ResponseReturnValue:
         try:
             restore_role(id)
             logger.info(f"Restored role {id}")
+            role_url = url_for("role_ui.view", id=role.id)
             flash(
-                f'<a href="{url_for("role_ui.view", id=role.id)}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
+                f'<a href="{role_url}" class="govuk-notification-banner__link">{role.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("role_ui.list_roles"))

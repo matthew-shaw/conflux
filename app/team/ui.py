@@ -62,8 +62,9 @@ def create() -> ResponseReturnValue:
     if form.validate_on_submit():
         try:
             team = create_team(form.name.data)
+            team_url = url_for("team_ui.view", id=team.id)
             flash(
-                f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been created',
+                f'<a href="{team_url}" class="govuk-notification-banner__link">{team.name}</a> has been created',
                 "success",
             )
             logger.info(f"Created team id={team.id} name={team.name}")
@@ -105,8 +106,9 @@ def edit(id: UUID) -> ResponseReturnValue:
     elif form.validate_on_submit():
         try:
             update_team(id, name=form.name.data)
+            team_url = url_for("team_ui.view", id=team.id)
             flash(
-                f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
+                f'<a href="{team_url}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
                 "success",
             )
             logger.info(f"Updated team id={team.id} name={form.name.data}")
@@ -139,8 +141,9 @@ def archive(id: UUID) -> ResponseReturnValue:
         try:
             archive_team(id)
             logger.info(f"Archived team {id}")
+            team_url = url_for("team_ui.view", id=team.id)
             flash(
-                f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been archived',
+                f'<a href="{team_url}" class="govuk-notification-banner__link">{team.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("team_ui.list_teams"))
@@ -166,8 +169,9 @@ def restore(id: UUID) -> ResponseReturnValue:
         try:
             restore_team(id)
             logger.info(f"Restored team {id}")
+            team_url = url_for("team_ui.view", id=team.id)
             flash(
-                f'<a href="{url_for("team_ui.view", id=team.id)}" class="govuk-notification-banner__link">{team.name}</a> has been restored',
+                f'<a href="{team_url}" class="govuk-notification-banner__link">{team.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("team_ui.list_teams"))
