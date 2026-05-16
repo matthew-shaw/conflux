@@ -1,24 +1,20 @@
-from flask import Response, flash, redirect, render_template, request
+from flask import Response, abort, flash, redirect, render_template, request
 from flask.typing import ResponseReturnValue
 from flask_wtf.csrf import CSRFError  # type: ignore
-from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
-from app import db, limiter
+from app import limiter
 from app.main import bp
-from app.models import Person, Role, Service, Team
+from app.main.service import get_dashboard_counts
 
 
 @bp.route("/", methods=["GET"])
 def index() -> str:
-    counts = {
-        "roles": db.session.scalar(db.select(func.count()).select_from(Role).where(Role.archived_at.is_(None))),
-        "teams": db.session.scalar(db.select(func.count()).select_from(Team).where(Team.archived_at.is_(None))),
-        "people": db.session.scalar(db.select(func.count()).select_from(Person).where(Person.archived_at.is_(None))),
-        "services": db.session.scalar(
-            db.select(func.count()).select_from(Service).where(Service.archived_at.is_(None))
-        ),
-    }
+    try:
+        counts: dict[str, int] = get_dashboard_counts()
+    except SQLAlchemyError:
+        abort(503)
     return render_template("index.html", counts=counts)
 
 

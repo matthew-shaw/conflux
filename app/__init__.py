@@ -1,7 +1,6 @@
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Type
 
 from flask import Flask
 from flask_limiter import Limiter
@@ -63,7 +62,7 @@ limiter: Limiter = Limiter(get_remote_address, default_limits=["2 per second", "
 migrate: Migrate = Migrate()
 
 
-def create_app(config_class: Type[Config] = Config) -> Flask:
+def create_app(config_class: type[Config] = Config) -> Flask:
     """Create and configure the Flask application.
 
     Args:
