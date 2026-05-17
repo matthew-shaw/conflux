@@ -4,13 +4,13 @@
 #
 #    pip-compile requirements_dev.in
 #
-ast-serialize==0.3.0
+ast-serialize==0.5.0
     # via mypy
 attrs==26.1.0
     # via flake8-bugbear
 bandit==1.9.4
     # via -r requirements_dev.in
-black==26.3.1
+black==26.5.0
     # via -r requirements_dev.in
 boolean-py==5.0
     # via license-expression
@@ -24,7 +24,7 @@ certifi==2026.4.22
     # via requests
 charset-normalizer==3.4.7
     # via requests
-click==8.3.3
+click==8.4.0
     # via
     #   black
     #   pip-tools
@@ -35,7 +35,7 @@ cyclonedx-python-lib==11.7.0
     # via pip-audit
 defusedxml==0.7.1
     # via py-serializable
-faker==40.15.0
+faker==40.18.0
     # via -r requirements_dev.in
 filelock==3.29.0
     # via cachecontrol
@@ -129,7 +129,7 @@ pytokens==0.4.1
     # via black
 pyyaml==6.0.3
     # via bandit
-requests==2.34.0
+requests==2.34.2
     # via
     #   cachecontrol
     #   pip-audit

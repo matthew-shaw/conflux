@@ -8,7 +8,7 @@ alembic==1.18.4
     # via flask-migrate
 blinker==1.9.0
     # via flask
-click==8.3.3
+click==8.4.0
     # via flask
 deepmerge==2.0
     # via govuk-frontend-wtf
