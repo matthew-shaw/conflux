@@ -15,19 +15,15 @@
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
     <h1 class="govuk-heading-l">{{ title }}</h1>
-    <div class="govuk-button-group">
-      {{ govukButton({
-        'text': "Add team",
-        'href': url_for('team_ui.create')
-      }) }}
-
-      <a href="{{ url_for('team_ui.download') }}" class="govuk-link">Download all teams (CSV)</a>  
-    </div>
   </div>
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
-    <h2 class="govuk-heading-m">Sort and filter</h3>
+    {{ govukButton({
+      'text': "Add team",
+      'href': url_for('team_ui.create')
+    }) }}
+    <h2 class="govuk-heading-m">Sort and filter</h2>
     <form method="get" action="{{ url_for('team_ui.list_teams') }}" novalidate>
       {{ form.sort(params={
         'classes': "govuk-radios--small"
@@ -70,7 +66,15 @@
         'rows': rows
       }) }}
     {% endif %}
-    <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('team_api.list_teams') }}">Get data in JSON format</a></p>
+    <p class="govuk-body">Get data in:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>
+        <a class="govuk-link" href="{{ url_for('team_ui.download') }}">CSV format</a>
+      </li>
+      <li>
+        <a class="govuk-link" href="{{ url_for('team_api.list_teams', page=teams.page, per_page=teams.per_page, sort=form.sort.data, status=form.status.data) }}">JSON format</a>
+      </li>
+    </ul>
   </div>
 </div>
 {%- endblock -%}
