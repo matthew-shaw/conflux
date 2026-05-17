@@ -54,7 +54,9 @@ def list_services() -> ResponseReturnValue:
         )
     except SQLAlchemyError:
         logger.exception(
-            f"Database error listing services (sort={form.sort.data},status={form.status.data},page={page},per_page={form.per_page.data})"
+            "Database error listing services "
+            f"(sort={form.sort.data},status={form.status.data},"
+            f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
 
@@ -84,8 +86,9 @@ def create() -> ResponseReturnValue:
                 name=form.name.data,
                 team_id=UUID(form.team.data) if form.team.data else None,
             )
+            service_url = url_for("service_ui.view", id=service.id)
             flash(
-                f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been created',
+                f'<a href="{service_url}" class="govuk-notification-banner__link">{service.name}</a> has been created',
                 "success",
             )
             logger.info(f"Created service id={service.id} name={service.name}")
@@ -141,8 +144,9 @@ def edit(id: UUID) -> ResponseReturnValue:
                 name=form.name.data,
                 team_id=UUID(form.team.data) if form.team.data else None,
             )
+            service_url = url_for("service_ui.view", id=service.id)
             flash(
-                f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been updated',
+                f'<a href="{service_url}" class="govuk-notification-banner__link">{service.name}</a> has been updated',
                 "success",
             )
             logger.info(f"Updated service id={id}")
@@ -171,8 +175,9 @@ def archive(id: UUID) -> ResponseReturnValue:
         try:
             archive_service(id)
             logger.info(f"Archived service {id}")
+            service_url = url_for("service_ui.view", id=service.id)
             flash(
-                f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been archived',
+                f'<a href="{service_url}" class="govuk-notification-banner__link">{service.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("service_ui.list_services"))
@@ -198,8 +203,9 @@ def restore(id: UUID) -> ResponseReturnValue:
         try:
             restore_service(id)
             logger.info(f"Restored service {id}")
+            service_url = url_for("service_ui.view", id=service.id)
             flash(
-                f'<a href="{url_for("service_ui.view", id=service.id)}" class="govuk-notification-banner__link">{service.name}</a> has been restored',
+                f'<a href="{service_url}" class="govuk-notification-banner__link">{service.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("service_ui.list_services"))

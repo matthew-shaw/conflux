@@ -57,7 +57,9 @@ def list_people() -> ResponseReturnValue:
         )
     except SQLAlchemyError:
         logger.exception(
-            f"Database error listing people (sort={form.sort.data},status={form.status.data},page={page},per_page={form.per_page.data})"
+            "Database error listing people "
+            f"(sort={form.sort.data},status={form.status.data},"
+            f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
 
@@ -105,8 +107,9 @@ def create() -> ResponseReturnValue:
                 team_id=UUID(form.team.data) if form.team.data else None,
                 manager_id=UUID(form.manager.data) if form.manager.data else None,
             )
+            person_url = url_for("person_ui.view", id=person.id)
             flash(
-                f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been created',
+                f'<a href="{person_url}" class="govuk-notification-banner__link">{person.name}</a> has been created',
                 "success",
             )
             logger.info(f"Created person id={person.id} name={person.name}")
@@ -187,8 +190,9 @@ def edit(id: UUID) -> ResponseReturnValue:
                 team_id=UUID(form.team.data) if form.team.data else None,
                 manager_id=UUID(form.manager.data) if form.manager.data else None,
             )
+            person_url = url_for("person_ui.view", id=person.id)
             flash(
-                f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
+                f'<a href="{person_url}" class="govuk-notification-banner__link">{person.name}</a> has been updated',
                 "success",
             )
             logger.info(f"Updated person id={id}")
@@ -216,9 +220,10 @@ def archive(id: UUID) -> ResponseReturnValue:
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             archive_person(id)
+            person_url = url_for("person_ui.view", id=person.id)
             logger.info(f"Archived person {id}")
             flash(
-                f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been archived',
+                f'<a href="{person_url}" class="govuk-notification-banner__link">{person.name}</a> has been archived',
                 "success",
             )
             return redirect(url_for("person_ui.list_people"))
@@ -243,9 +248,10 @@ def restore(id: UUID) -> ResponseReturnValue:
     if form.validate_on_submit() and form.confirm.data is True:
         try:
             restore_person(id)
+            person_url = url_for("person_ui.view", id=person.id)
             logger.info(f"Restored person {id}")
             flash(
-                f'<a href="{url_for("person_ui.view", id=person.id)}" class="govuk-notification-banner__link">{person.name}</a> has been restored',
+                f'<a href="{person_url}" class="govuk-notification-banner__link">{person.name}</a> has been restored',
                 "success",
             )
             return redirect(url_for("person_ui.list_people"))
