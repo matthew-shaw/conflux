@@ -246,8 +246,8 @@ def download() -> ResponseReturnValue:
                     role.id,
                     role.name,
                     role.grade,
-                    role.updated_at.isoformat(),
-                    role.archived_at.isoformat() if role.archived_at else "",
+                    role.updated_at.isoformat().replace("+00:00", "Z"),
+                    (role.archived_at.isoformat().replace("+00:00", "Z") if role.archived_at else ""),
                 )
             )
             yield data.getvalue()

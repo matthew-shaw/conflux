@@ -69,7 +69,7 @@ for loc in locales:
                 "id": str(uuid.uuid4()),
                 "name": f"{first} {last}",
                 "archived_at": None,
-                "updated_at": updated_at.isoformat(),
+                "updated_at": updated_at.isoformat().replace("+00:00", "Z"),
                 "role_id": random.choice(role_ids),
                 "team_id": random.choice(team_ids),
                 "location": random.choice(locations),

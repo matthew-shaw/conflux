@@ -254,8 +254,8 @@ def download() -> ResponseReturnValue:
                     service.name,
                     service.team.id if service.team else "",
                     service.team.name if service.team else "",
-                    service.updated_at.isoformat(),
-                    service.archived_at.isoformat() if service.archived_at else "",
+                    service.updated_at.isoformat().replace("+00:00", "Z"),
+                    (service.archived_at.isoformat().replace("+00:00", "Z") if service.archived_at else ""),
                 )
             )
             yield data.getvalue()

@@ -310,8 +310,8 @@ def download() -> ResponseReturnValue:
                     person.location.title(),
                     person.manager.id if person.manager else "",
                     person.manager.name if person.manager else "",
-                    person.updated_at.isoformat(),
-                    person.archived_at.isoformat() if person.archived_at else "",
+                    person.updated_at.isoformat().replace("+00:00", "Z"),
+                    (person.archived_at.isoformat().replace("+00:00", "Z") if person.archived_at else ""),
                 )
             )
             yield data.getvalue()
