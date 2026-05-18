@@ -107,7 +107,7 @@
     {% endfor %}
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " people",
+        'caption': rows | length ~ " person" if rows | length == 1 else rows | length ~ " people",
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
