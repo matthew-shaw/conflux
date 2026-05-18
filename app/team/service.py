@@ -10,6 +10,7 @@ import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app import db
@@ -18,48 +19,42 @@ from app.models import Team
 logger = logging.getLogger(__name__)
 
 
-def get_teams(sort: str = "name", status: str = "active") -> list[Team]:
-    """Retrieve a list of teams with optional sorting and filtering.
+def get_teams(
+    sort: str = "name",
+    status: str = "active",
+    page: int = 1,
+    per_page: int = 25,
+) -> Pagination:
+    """Retrieve a paginated list of teams."""
 
-    Args:
-        sort: Sort order for results. Valid values are "name" or
-            "updated". Defaults to "name".
-        status: Filter by archive status. Valid values are "active" (non-archived),
-            "archived" (archived only), or "all" (no filter). Defaults to "active".
-
-    Returns:
-        A list of Team objects matching the specified criteria, sorted as requested.
-
-    Example:
-        >>> active_teams = get_teams()  # Get active teams sorted by name
-        >>> archived_teams = get_teams(sort="updated", status="archived")
-    """
     # Start the base SELECT statement
     query = db.select(Team)
 
-    # Apply sorting based on the sort parameter
+    # Apply sorting
     if sort == "name":
         query = query.order_by(Team.name)
     elif sort == "updated":
-        # Sort by most recently updated first
         query = query.order_by(Team.updated_at.desc())
 
-    # Apply filter based on status parameter
+    # Apply filter based on status
     if status == "active":
-        # Only return non-archived teams
         query = query.where(Team.archived_at.is_(None))
     elif status == "archived":
-        # Only return archived teams
         query = query.where(Team.archived_at.is_not(None))
-    # If status == "all", no filter is applied
+    # No filter if status == "all"
 
     try:
-        return list(db.session.execute(query).scalars().all())
+        return db.paginate(
+            query,
+            page=page,
+            per_page=per_page,
+            error_out=False,
+        )
+
     except SQLAlchemyError:
-        # defensive rollback and bubble up for handlers to translate to HTTP responses
         db.session.rollback()
         logger.debug(
-            f"Database error retrieving teams (sort={sort},status={status})",
+            f"Database error retrieving teams (sort={sort}, status={status}, page={page}, per_page={per_page})",
             exc_info=True,
         )
         raise
@@ -85,23 +80,12 @@ def get_team(id: UUID) -> Team:
         raise
 
 
-def create_team(name: str) -> Team:
-    """Create a new team in the database.
-
-    Args:
-        name: The name of the new team. Must be unique.
-
-    Returns:
-        The newly created Team object with all database-assigned fields populated.
-
-    Raises:
-        sqlalchemy.exc.IntegrityError: If a team with the same name already exists,
-            indicating a uniqueness constraint violation.
-
-    Example:
-        >>> team = create_team(name="Senior Manager")
-    """
-    team = Team(name=name)
+def create_team(
+    name: str,
+) -> Team:
+    team: Team = Team(
+        name=name,
+    )
     # Add the new team instance to the session
     db.session.add(team)
     logger.info(f"Creating team: {name}")
@@ -121,24 +105,13 @@ def create_team(name: str) -> Team:
         raise
 
 
-def update_team(id: UUID, name: str) -> None:
-    """Update an existing team's name.
-
-    Args:
-        id: The UUID of the team to update.
-        name: The new name for the team. Must remain unique.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no team with the given ID exists.
-        sqlalchemy.exc.IntegrityError: If the new name violates the uniqueness
-            constraint (i.e., another team already has that name).
-
-    Example:
-        >>> team = update_team(team_id, "Senior Manager", "G7")
-    """
+def update_team(
+    id: UUID,
+    name: str,
+) -> None:
     # Retrieve the team or raise 404 if not found
     team = get_team(id)
-    # Update the team's name
+    # Update the team's attributes with the new values
     team.name = name
     logger.info(f"Updating team {id} -> name={name}")
     try:
@@ -157,20 +130,6 @@ def update_team(id: UUID, name: str) -> None:
 
 
 def archive_team(id: UUID) -> None:
-    """Archive an existing team by setting its archived_at timestamp.
-
-    Archived teams are effectively soft-deleted and can be restored later.
-    The timestamp is set to the current UTC time.
-
-    Args:
-        id: The UUID of the team to archive.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no team with the given ID exists.
-
-    Example:
-        >>> team = archive_team(team_id)
-    """
     # Retrieve the team or raise 404 if not found
     team = get_team(id)
     # Set the archived_at timestamp to mark the team as archived
@@ -187,19 +146,6 @@ def archive_team(id: UUID) -> None:
 
 
 def restore_team(id: UUID) -> None:
-    """Restore a previously archived team.
-
-    Restoring a team clears its archived_at timestamp, making it active again.
-
-    Args:
-        id: The UUID of the team to restore.
-
-    Raises:
-        werkzeug.exceptions.NotFound: If no team with the given ID exists.
-
-    Example:
-        >>> team = restore_team(team_id)
-    """
     # Retrieve the team or raise 404 if not found
     team = get_team(id)
     # Clear the archived_at timestamp to mark the team as active
@@ -212,4 +158,13 @@ def restore_team(id: UUID) -> None:
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(f"Database error restoring team {id}", exc_info=True)
+        raise
+
+
+def download_teams() -> list[Team]:
+    try:
+        return list(db.session.execute(db.select(Team).order_by(Team.name)).scalars().all())
+    except SQLAlchemyError:
+        db.session.rollback()
+        logger.debug("Database error downloading teams", exc_info=True)
         raise

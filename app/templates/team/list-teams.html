@@ -1,6 +1,7 @@
 {%- extends "base.html" -%}
 
 {%- from 'govuk_frontend_jinja/components/button/macro.html' import govukButton -%}
+{%- from 'govuk_frontend_jinja/components/pagination/macro.html' import govukPagination -%}
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
@@ -31,6 +32,7 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
         'classes': "govuk-button--secondary"
@@ -55,7 +57,7 @@
 
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " teams",
+        'caption': "Showing " ~ teams.first ~ " to " ~ teams.last ~ " of " ~ teams.total ~ " teams",
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
@@ -64,6 +66,35 @@
           { 'text': "Updated" }
         ],
         'rows': rows
+      }) }}
+    {% endif %}
+
+    {% if teams.pages > 1 %}
+      {% set pages = [] %}
+      {% for page in teams.iter_pages(left_edge=1, left_current=1, right_current=1, right_edge=1) %}
+        {%  if page %}
+          {% set _ = pages.append(
+            {
+              'number': page,
+              'href': url_for('team_ui.list_teams', page=page, per_page=teams.per_page, sort=form.sort.data, status=form.status.data),
+              'current': page == teams.page
+            }
+          ) %}
+        {% else %}
+          {% set _ = pages.append({
+            'ellipsis': true
+          }) %}
+        {% endif %}
+      {% endfor %}
+
+      {{ govukPagination({
+        'previous': {
+          'href': url_for('team_ui.list_teams', page=teams.prev_num, per_page=teams.per_page, sort=form.sort.data, status=form.status.data),
+        } if teams.has_prev else None,
+        'next': {
+          'href': url_for('team_ui.list_teams', page=teams.next_num, per_page=teams.per_page, sort=form.sort.data, status=form.status.data),
+        } if teams.has_next else None,
+        'items': pages
       }) }}
     {% endif %}
     <p class="govuk-body">Get data in:</p>

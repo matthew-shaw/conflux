@@ -14,6 +14,7 @@ from flask import (
     url_for,
 )
 from flask.typing import ResponseReturnValue
+from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app.models import Team
@@ -27,6 +28,7 @@ from app.team.forms import (
 from app.team.service import (
     archive_team,
     create_team,
+    download_teams,
     get_team,
     get_teams,
     restore_team,
@@ -38,30 +40,42 @@ logger = logging.getLogger(__name__)
 
 @ui.route("/", methods=["GET"])
 def list_teams() -> ResponseReturnValue:
-    form: TeamSortFilterForm = TeamSortFilterForm()
-    form.sort.data = request.args.get("sort", "name", type=str)
-    form.status.data = request.args.get("status", "active", type=str)
+    form: TeamSortFilterForm = TeamSortFilterForm(request.args)
+
+    page: int = request.args.get("page", 1, type=int)
 
     try:
-        teams: list[Team] = get_teams(
+        teams: Pagination = get_teams(
             sort=form.sort.data,
             status=form.status.data,
+            page=page,
+            per_page=form.per_page.data,
         )
     except SQLAlchemyError:
         logger.exception(
-            f"Database error listing teams (sort={form.sort.data},status={form.status.data})",
+            "Database error listing teams "
+            f"(sort={form.sort.data},status={form.status.data},"
+            f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
 
-    return render_template("list-teams.html", title="Teams", teams=teams, form=form)
+    return render_template(
+        "list-teams.html",
+        title="Teams",
+        teams=teams,
+        form=form,
+    )
 
 
 @ui.route("/new", methods=["GET", "POST"])
 def create() -> ResponseReturnValue:
     form: TeamForm = TeamForm()
+
     if form.validate_on_submit():
         try:
-            team = create_team(form.name.data)
+            team = create_team(
+                name=form.name.data,
+            )
             team_url = url_for("team_ui.view", id=team.id)
             flash(
                 f'<a href="{team_url}" class="govuk-notification-banner__link">{team.name}</a> has been created',
@@ -98,6 +112,7 @@ def edit(id: UUID) -> ResponseReturnValue:
     except NoResultFound:
         abort(404)
     except SQLAlchemyError:
+        logger.exception(f"Database error fetching team {id} for edit")
         abort(503)
     form: TeamForm = TeamForm(team=team)
 
@@ -105,7 +120,10 @@ def edit(id: UUID) -> ResponseReturnValue:
         form.name.data = team.name
     elif form.validate_on_submit():
         try:
-            update_team(id, name=form.name.data)
+            update_team(
+                id=id,
+                name=form.name.data,
+            )
             team_url = url_for("team_ui.view", id=team.id)
             flash(
                 f'<a href="{team_url}" class="govuk-notification-banner__link">{team.name}</a> has been updated',
@@ -185,7 +203,7 @@ def restore(id: UUID) -> ResponseReturnValue:
 @ui.route("/download", methods=["GET"])
 def download() -> ResponseReturnValue:
     try:
-        teams: list[Team] = get_teams()
+        teams: list[Team] = download_teams()
     except SQLAlchemyError:
         logger.exception("Database error downloading teams")
         abort(503)
@@ -198,7 +216,14 @@ def download() -> ResponseReturnValue:
         yield "\ufeff"  # This signals that the file is UTF-8 encoded
 
         # write header
-        writer.writerow(("ID", "NAME", "UPDATED_AT", "ARCHIVED_AT"))
+        writer.writerow(
+            (
+                "ID",
+                "NAME",
+                "UPDATED_AT",
+                "ARCHIVED_AT",
+            )
+        )
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
@@ -209,8 +234,8 @@ def download() -> ResponseReturnValue:
                 (
                     team.id,
                     team.name,
-                    team.updated_at.isoformat(),
-                    team.archived_at.isoformat() if team.archived_at else "",
+                    team.updated_at.isoformat().replace("+00:00", "Z"),
+                    team.archived_at.isoformat().replace("+00:00", "Z") if team.archived_at else "",
                 )
             )
             yield data.getvalue()

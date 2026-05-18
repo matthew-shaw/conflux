@@ -14,9 +14,11 @@ logger = logging.getLogger(__name__)
 @api.route("/", methods=["GET"])
 def list_teams() -> Response:
     try:
-        teams: list[Team] = get_teams(
+        teams = get_teams(
             sort=request.args.get("sort", "name", type=str),
             status=request.args.get("status", "active", type=str),
+            page=request.args.get("page", 1, type=int),
+            per_page=request.args.get("per_page", 25, type=int),
         )
         return jsonify([team.to_dict() for team in teams])
     except SQLAlchemyError:
@@ -30,7 +32,12 @@ def list_teams() -> Response:
 def view(id: UUID) -> Response:
     try:
         team: Team = get_team(id)
-        return jsonify(team.to_dict(include_people=True, include_services=True))
+        return jsonify(
+            team.to_dict(
+                include_people=True,
+                include_services=True,
+            )
+        )
     except NoResultFound:
         logger.warning(f"Team not found {id}")
         resp = jsonify({"error": "Team not found"})

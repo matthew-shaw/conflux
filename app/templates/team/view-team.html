@@ -81,7 +81,7 @@
           'html': '<a href="' ~ url_for("person_ui.view", id=person.id) ~ '" class="govuk-link">' ~ person.name ~ '</a>'
         },
         {
-          'html': '<a href="' ~ url_for("role_ui.view", id=person.role.id) ~ '" class="govuk-link">' ~ person.role.name ~ '</a>'
+          'html': '<a href="' ~ url_for("team_ui.view", id=person.team.id) ~ '" class="govuk-link">' ~ person.team.name ~ '</a>' if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': person.location.title()
@@ -95,19 +95,12 @@
         'firstCellIsHeader': true,
         'head': [
           { 'text': "Name" },
-          { 'text': "Role" },
+          { 'text': "Team" },
           { 'text': "Location" },
         ],
         'rows': rows
       }) }}
     {% endif %}
-
-    <h2 class="govuk-heading-m">{{ team.services | length }} services</h2>
-    <ul class="govuk-list govuk-list--bullet govuk-list--spaced">
-    {% for service in team.services if service.archived_at is none %}
-      <li><a class="govuk-link" href="{{ url_for('service_ui.view', id=service.id) }}">{{ service.name}}</a></li>
-    {% endfor %}
-    </ul>
   </div>
 </div>
 <p class="govuk-body-s"><a class="govuk-link" href="{{ url_for('team_api.view', id=team.id) }}">Get data in JSON format</a></p>
