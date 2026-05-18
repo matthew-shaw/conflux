@@ -50,6 +50,9 @@
           'text': team.people | length
         },
         {
+          'text': team.services | length
+        },
+        {
           'text': format_govuk_datetime(team.updated_at, include_day=False, truncate_month=True)
         }
       ]) %}
@@ -63,6 +66,7 @@
         'head': [
           { 'text': "Name" },
           { 'text': "People" },
+          { 'text': "Services" },
           { 'text': "Updated" }
         ],
         'rows': rows
