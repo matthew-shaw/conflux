@@ -44,7 +44,11 @@
     {% for team in teams %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("team_ui.view", id=team.id) ~ '" class="govuk-link">' ~ team.name|e ~ '</a>'
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("team_ui.view", id=team.id),
+              team.name|e
+            )
         },
         {
           'text': team.people | length

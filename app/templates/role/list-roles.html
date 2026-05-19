@@ -44,7 +44,11 @@
     {% for role in roles %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("role_ui.view", id=role.id) ~ '" class="govuk-link">' ~ role.name|e ~ '</a>'
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("role_ui.view", id=role.id),
+              role.name|e
+            )
         },
         {
           'text': role.grade

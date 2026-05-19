@@ -44,10 +44,18 @@
     {% for service in services %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("service_ui.view", id=service.id) ~ '" class="govuk-link">' ~ service.name|e ~ '</a>'
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("service_ui.view", id=service.id),
+              service.name|e
+            )
         },
         {
-          'html': '<a href="' ~ url_for("team_ui.view", id=service.team.id) ~ '" class="govuk-link">' ~ service.team.name|e ~ '</a>' if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("team_ui.view", id=service.team.id),
+              service.team.name|e
+            ) if service.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': format_govuk_datetime(service.updated_at, include_day=False, truncate_month=True)

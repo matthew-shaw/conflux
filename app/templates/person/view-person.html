@@ -201,13 +201,25 @@
     {% for report in person.reports if report.archived_at is none %}
       {% set _ = rows.append([
         {
-          'html': '<a href="' ~ url_for("person_ui.view", id=report.id) ~ '" class="govuk-link">' ~ report.name|e ~ '</a>'
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("person_ui.view", id=report.id),
+              report.name|e
+            )
         },
         {
-          'html': '<a href="' ~ url_for("role_ui.view", id=report.role.id) ~ '" class="govuk-link">' ~ report.role.name|e ~ '</a>'
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("role_ui.view", id=report.role.id),
+              report.role.name|e
+            )
         },
         {
-          'html': '<a href="' ~ url_for("team_ui.view", id=report.team.id) ~ '" class="govuk-link">' ~ report.team.name|e ~ '</a>' if report.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("team_ui.view", id=report.team.id),
+              report.team.name|e
+            ) if report.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': report.location.title()
