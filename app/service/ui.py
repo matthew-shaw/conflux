@@ -35,6 +35,7 @@ from app.service.service import (
     update_service,
 )
 from app.team.service import get_active_teams
+from app.utils.pagination import page_out_of_range
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,8 @@ def list_services() -> ResponseReturnValue:
             page=page,
             per_page=form.per_page.data,
         )
+        if page_out_of_range(services, page):
+            abort(404)
     except SQLAlchemyError:
         logger.exception(
             "Database error listing services "

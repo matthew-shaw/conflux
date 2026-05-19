@@ -52,6 +52,10 @@ def list_roles() -> ResponseReturnValue:
             page=page,
             per_page=form.per_page.data,
         )
+        from app.utils.pagination import page_out_of_range
+
+        if page_out_of_range(roles, page):
+            abort(404)
     except SQLAlchemyError:
         logger.exception(
             "Database error listing roles "

@@ -34,6 +34,7 @@ from app.team.service import (
     restore_team,
     update_team,
 )
+from app.utils.pagination import page_out_of_range
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,8 @@ def list_teams() -> ResponseReturnValue:
             page=page,
             per_page=form.per_page.data,
         )
+        if page_out_of_range(teams, page):
+            abort(404)
     except SQLAlchemyError:
         logger.exception(
             "Database error listing teams "
@@ -235,7 +238,7 @@ def download() -> ResponseReturnValue:
                     team.id,
                     team.name,
                     team.updated_at.isoformat().replace("+00:00", "Z"),
-                    team.archived_at.isoformat().replace("+00:00", "Z") if team.archived_at else "",
+                    (team.archived_at.isoformat().replace("+00:00", "Z") if team.archived_at else ""),
                 )
             )
             yield data.getvalue()

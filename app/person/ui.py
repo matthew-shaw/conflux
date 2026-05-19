@@ -38,6 +38,7 @@ from app.person.service import (
 )
 from app.role.service import get_active_roles
 from app.team.service import get_active_teams
+from app.utils.pagination import page_out_of_range
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,8 @@ def list_people() -> ResponseReturnValue:
             page=page,
             per_page=form.per_page.data,
         )
+        if page_out_of_range(people, page):
+            abort(404)
     except SQLAlchemyError:
         logger.exception(
             "Database error listing people "

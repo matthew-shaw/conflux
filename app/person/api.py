@@ -6,6 +6,7 @@ from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 
 from app.person import api_bp as api
 from app.person.service import get_people, get_person
+from app.utils.pagination import page_out_of_range
 
 logger = logging.getLogger(__name__)
 
@@ -13,12 +14,21 @@ logger = logging.getLogger(__name__)
 @api.route("/", methods=["GET"])
 def list_people() -> Response:
     try:
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 25, type=int)
         people = get_people(
             sort=request.args.get("sort", "name", type=str),
             status=request.args.get("status", "active", type=str),
-            page=request.args.get("page", 1, type=int),
-            per_page=request.args.get("per_page", 25, type=int),
+            page=page,
+            per_page=per_page,
         )
+
+        if page_out_of_range(people, page):
+            logger.warning(f"Page out of range listing people page={page} per_page={per_page}")
+            resp = jsonify({"error": "Page not found"})
+            resp.status_code = 404
+            return resp
+
         return jsonify([person.to_dict() for person in people])
     except SQLAlchemyError:
         logger.exception("Database error listing people")

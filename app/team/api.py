@@ -7,6 +7,7 @@ from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 from app.models import Team
 from app.team import api_bp as api
 from app.team.service import get_team, get_teams
+from app.utils.pagination import page_out_of_range
 
 logger = logging.getLogger(__name__)
 
@@ -14,12 +15,21 @@ logger = logging.getLogger(__name__)
 @api.route("/", methods=["GET"])
 def list_teams() -> Response:
     try:
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 25, type=int)
         teams = get_teams(
             sort=request.args.get("sort", "name", type=str),
             status=request.args.get("status", "active", type=str),
-            page=request.args.get("page", 1, type=int),
-            per_page=request.args.get("per_page", 25, type=int),
+            page=page,
+            per_page=per_page,
         )
+
+        if page_out_of_range(teams, page):
+            logger.warning(f"Page out of range listing teams page={page} per_page={per_page}")
+            resp = jsonify({"error": "Page not found"})
+            resp.status_code = 404
+            return resp
+
         return jsonify([team.to_dict() for team in teams])
     except SQLAlchemyError:
         logger.exception("Database error listing teams")
