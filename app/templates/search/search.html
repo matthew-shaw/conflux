@@ -28,7 +28,7 @@
       {% for result in results %}
         {% set _ = rows.append([
           {
-            'html': '<a href="' ~ result.url ~ '" class="govuk-link">' ~ result.name ~ '</a>'
+            'html': '<a href="' ~ result.url ~ '" class="govuk-link">' ~ result.name|e ~ '</a>'
           },
           { 'text': result.type },
           { 'text': format_govuk_datetime(result.updated_at, include_day=False, truncate_month=True) }
