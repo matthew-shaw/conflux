@@ -87,9 +87,9 @@
         {
           'html': '<a href="%s" class="govuk-link">%s</a>' %
             (
-              url_for("team_ui.view", id=person.team.id),
-              person.team.name|e
-            ) if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+              url_for("role_ui.view", id=person.role.id),
+              person.role.name|e
+            )
         },
         {
           'text': person.location.title()
@@ -103,7 +103,7 @@
         'firstCellIsHeader': true,
         'head': [
           { 'text': "Name" },
-          { 'text': "Team" },
+          { 'text': "Role" },
           { 'text': "Location" },
         ],
         'rows': rows
