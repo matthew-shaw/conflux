@@ -24,6 +24,7 @@ class RoleForm(FlaskForm):
         filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
+        description="The role name must be unique."
     )
     grade = RadioField(
         "Grade",

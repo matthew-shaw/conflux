@@ -29,9 +29,10 @@ class PersonForm(FlaskForm):
         widget=GovTextInput(),
         validators=[
             InputRequired(message="Enter an email address"),
-            Length(max=256, message="Email address must be 256 characters or fewer"),
+            Length(max=254, message="Email address must be 254 characters or fewer"),
             Email(message="Enter an email address in the correct format, like name@example.com"),
         ],
+        description="The email address must be unique."
     )
     location = SelectField(
         "Location",
@@ -39,6 +40,7 @@ class PersonForm(FlaskForm):
         default="",
         coerce=str.lower,
         validators=[InputRequired(message="Select a location")],
+        description="The person's assigned office location."
     )
     role = SelectField(
         "Role",
@@ -51,12 +53,14 @@ class PersonForm(FlaskForm):
         widget=GovSelect(),
         default="",
         validators=[Optional()],
+        description="This field is optional.",
     )
     manager = SelectField(
         "Manager",
         widget=GovSelect(),
         default="",
         validators=[Optional()],
+        description="This field is optional.",
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 

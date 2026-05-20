@@ -19,19 +19,19 @@ from app.models import Service
 
 
 class ServiceForm(FlaskForm):
-    service: Service | None = None
-
     name = StringField(
         "Name",
         filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
+        description="The service name must be unique."
     )
     team = SelectField(
         "Team",
         widget=GovSelect(),
         default="",
         validators=[Optional()],
+        description="This field is optional.",
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
