@@ -1,22 +1,53 @@
 # Conflux
 
-Conflux is an organisational knowledge platform that helps teams understand ownership, responsibilities, and dependencies across people, teams, services, and components. It provides a clear, up-to-date view of how work is structured and how changes propagate through the organisation, enabling better decision-making and safer change.
+Conflux is an operational knowledge platform that helps organisations understand ownership, responsibility, and dependency across people, teams, services, and components.
 
-Conflux models the interconnected domains of digital organisations with five key concepts:
+As organisations grow, ownership and dependency information often becomes fragmented across spreadsheets, wiki pages, diagrams, ticketing systems, and tribal knowledge.
 
-- **People** - individuals with a specific role, assigned to a team
-- **Teams** - groups of people responsible for services
-- **Roles** - responsibilities individuals hold
-- **Services** - digital systems owned by teams
-- **Components** - shared or standalone technical building blocks
+Over time this leads to:
 
-## Features
+- unclear ownership
+- unsupported services
+- duplicated capability
+- risky change
+- coordination overhead
+- operational blind spots
 
-- **Ownership mapping** - _"Who owns this service?"_ Track accountability across teams and services.
-- **Team composition tracking** - _"Who’s in this team, and what do they do?"_ Understand team makeup and role distribution.
-- **Dependency analysis** - _"Which components are shared across services?"_ Reveal architectural reuse and potential points of failure.
-- **Role-based insights** - _"Who are the developers working on critical services?"_ Filter by responsibility and capability across the estate.
-- **Change impact assessment** - _"If we change this component, who needs to know?"_ Anticipate downstream effects before making architectural changes.
+Conflux provides a continuously maintained view of how technology capabilities are organised, who is accountable for them, and how technical dependencies connect the wider estate. Conflux helps teams make safer changes, reduce operational risk, and improve organisational visibility by bringing together organisational structure and technical architecture into a single coherent model.
+
+## Core concepts
+
+Conflux models technology organisations through five connected concepts.
+
+### People
+
+**An individual within the organisation.**
+
+Each person belongs to a team and performs a role. People contribute to services through the work carried out by their team.
+
+### Teams
+
+**A group of people with shared responsibility for delivering and supporting services.**
+
+Teams define the primary organisational boundary for ownership and accountability. A service may be owned by one team or remain unowned.
+
+### Roles
+
+**A defined set of responsibilities assigned to a person.**
+
+Roles describe the function a person performs within the organisation, such as software development, delivery management, architecture etc.
+
+### Services
+
+**A business-facing or user-facing capability delivered through one or more components.**
+
+A service represents the purpose those components collectively fulfil for users or the organisation. Services may depend on multiple components and may be owned by a single team or remain unowned.
+
+### Components
+
+**A deployable or consumable technical unit used to build services.**
+
+Components represent implementation-level building blocks such as APIs, libraries, applications, databases, pipelines, or infrastructure resources. A component may be used by one or more services.
 
 ## Requirements
 
