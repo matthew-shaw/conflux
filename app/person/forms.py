@@ -32,7 +32,7 @@ class PersonForm(FlaskForm):
             Length(max=254, message="Email address must be 254 characters or fewer"),
             Email(message="Enter an email address in the correct format, like name@example.com"),
         ],
-        description="The email address must be unique."
+        description="The email address must be unique.",
     )
     location = SelectField(
         "Location",
@@ -40,7 +40,7 @@ class PersonForm(FlaskForm):
         default="",
         coerce=str.lower,
         validators=[InputRequired(message="Select a location")],
-        description="The person's assigned office location."
+        description="The person's assigned office location.",
     )
     role = SelectField(
         "Role",

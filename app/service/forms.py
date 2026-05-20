@@ -24,7 +24,7 @@ class ServiceForm(FlaskForm):
         filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
-        description="The service name must be unique."
+        description="The service name must be unique.",
     )
     team = SelectField(
         "Team",
