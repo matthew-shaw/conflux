@@ -242,6 +242,7 @@ def download() -> ResponseReturnValue:
             (
                 "ID",
                 "NAME",
+                "DESCRIPTION",
                 "TEAM_ID",
                 "TEAM_NAME",
                 "UPDATED_AT",
@@ -258,6 +259,7 @@ def download() -> ResponseReturnValue:
                 (
                     service.id,
                     service.name,
+                    service.description,
                     service.team.id if service.team else "",
                     service.team.name if service.team else "",
                     service.updated_at.isoformat().replace("+00:00", "Z"),

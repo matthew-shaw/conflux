@@ -285,6 +285,7 @@ def download() -> ResponseReturnValue:
             (
                 "ID",
                 "NAME",
+                "EMAIL_ADDRESS",
                 "ROLE_ID",
                 "ROLE_NAME",
                 "TEAM_ID",
@@ -306,6 +307,7 @@ def download() -> ResponseReturnValue:
                 (
                     person.id,
                     person.name,
+                    person.email_address,
                     person.role.id if person.role else "",
                     person.role.name if person.role else "",
                     person.team.id if person.team else "",
