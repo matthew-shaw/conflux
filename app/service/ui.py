@@ -87,6 +87,7 @@ def create() -> ResponseReturnValue:
         try:
             service = create_service(
                 name=form.name.data,
+                description=form.description.data,
                 team_id=UUID(form.team.data) if form.team.data else None,
             )
             service_url = url_for("service_ui.view", id=service.id)
@@ -139,12 +140,14 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     if request.method == "GET":
         form.name.data = service.name
+        form.description.data = service.description
         form.team.data = str(service.team_id)
     elif form.validate_on_submit():
         try:
             update_service(
                 id=id,
                 name=form.name.data,
+                description=form.description.data,
                 team_id=UUID(form.team.data) if form.team.data else None,
             )
             service_url = url_for("service_ui.view", id=service.id)

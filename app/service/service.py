@@ -85,10 +85,12 @@ def get_service(id: UUID) -> Service:
 
 def create_service(
     name: str,
+    description: str,
     team_id: UUID | None,
 ) -> Service:
     service: Service = Service(
         name=name.title(),
+        description=description,
         team_id=team_id,
     )
     # Add the new service instance to the session
@@ -113,12 +115,14 @@ def create_service(
 def update_service(
     id: UUID,
     name: str,
+    description: str,
     team_id: UUID | None,
 ) -> None:
     # Retrieve the service or raise 404 if not found
     service = get_service(id)
     # Update the service's attributes with the new values
     service.name = name.title()
+    service.description = description
     service.team_id = team_id
     logger.info(f"Updating service {id} -> name={name}")
     try:

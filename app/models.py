@@ -237,6 +237,7 @@ class Service(BaseModel):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    description: Mapped[str] = mapped_column(nullable=True)
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -262,15 +263,18 @@ class Service(BaseModel):
         self,
         *,
         name: str,
+        description: str,
         team_id: uuid.UUID | None = None,
     ) -> None:
         self.name = name
+        self.description = description
         self.team_id = team_id
 
     def to_dict(self, include_team: bool = False, include_components: bool = False) -> dict[str, object]:
         data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
+            "description": self.description,
             "updated_at": (self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None),
         }
         if self.archived_at:

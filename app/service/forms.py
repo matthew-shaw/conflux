@@ -4,6 +4,7 @@ from govuk_frontend_wtf.wtforms_widgets import (
     GovRadioInput,
     GovSelect,
     GovSubmitInput,
+    GovTextArea,
     GovTextInput,
 )
 from wtforms.fields import (
@@ -12,6 +13,7 @@ from wtforms.fields import (
     SelectField,
     StringField,
     SubmitField,
+    TextAreaField,
 )
 from wtforms.validators import InputRequired, Optional, ValidationError
 
@@ -25,6 +27,13 @@ class ServiceForm(FlaskForm):
         widget=GovTextInput(),
         validators=[InputRequired(message="Enter a name")],
         description="The service name must be unique.",
+    )
+    description = TextAreaField(
+        "Description",
+        filters=[lambda x: x.strip() if x else x],
+        widget=GovTextArea(),
+        validators=[Optional()],
+        description="This field is optional.",
     )
     team = SelectField(
         "Team",
