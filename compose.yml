@@ -40,6 +40,9 @@ services:
         - action: sync+restart
           path: ./app
           target: /home/appuser/app
+        - action: sync+restart
+          path: ./config.py
+          target: /home/appuser/config.py
     cpus: 4.0
     mem_limit: 1024mb
 
