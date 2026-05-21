@@ -42,7 +42,7 @@ govuk-frontend-jinja==4.0.0
     #   govuk-frontend-wtf
 govuk-frontend-wtf==3.2.0
     # via -r requirements.in
-greenlet==3.5.0
+greenlet==3.5.1
     # via sqlalchemy
 gunicorn==26.0.0
     # via -r requirements.in
@@ -90,7 +90,7 @@ typing-extensions==4.15.0
     #   sqlalchemy
 werkzeug==3.1.8
     # via flask
-wrapt==2.1.2
+wrapt==2.2.0
     # via deprecated
 wtforms==3.2.2
     # via

@@ -10,7 +10,7 @@ attrs==26.1.0
     # via flake8-bugbear
 bandit==1.9.4
     # via -r requirements_dev.in
-black==26.5.0
+black==26.5.1
     # via -r requirements_dev.in
 boolean-py==5.0
     # via license-expression
@@ -20,7 +20,7 @@ cachecontrol[filecache]==0.14.4
     # via
     #   cachecontrol
     #   pip-audit
-certifi==2026.4.22
+certifi==2026.5.20
     # via requests
 charset-normalizer==3.4.7
     # via requests
@@ -139,7 +139,7 @@ rich==15.0.0
     #   pip-audit
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
-stevedore==5.7.0
+stevedore==5.8.0
     # via bandit
 tomli==2.4.1
     # via pip-audit
