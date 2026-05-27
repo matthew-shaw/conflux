@@ -14,6 +14,7 @@ from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app import db
+from app.exceptions import ArchivedEntityError
 from app.models import Role
 
 logger = logging.getLogger(__name__)
@@ -116,6 +117,9 @@ def update_role(
 ) -> None:
     # Retrieve the role or raise 404 if not found
     role = get_role(id)
+    # Prevent editing archived roles
+    if role.archived_at is not None:
+        raise ArchivedEntityError(f"Cannot update archived role {id}")
     # Update the role's attributes with the new values
     role.name = name
     role.grade = grade

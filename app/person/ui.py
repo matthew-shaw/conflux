@@ -18,6 +18,7 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
+from app.exceptions import ArchivedEntityError
 from app.models import Person, Role, Team
 from app.person import ui_bp as ui
 from app.person.forms import (
@@ -200,6 +201,9 @@ def edit(id: UUID) -> ResponseReturnValue:
             )
             logger.info(f"Updated person id={id}")
             return redirect(url_for("person_ui.list_people"))
+        except ArchivedEntityError:
+            logger.warning(f"Attempt to update archived person {id}")
+            flash("This person has been archived and cannot be edited.", "error")
         except IntegrityError:
             form.name.errors.append("A person with this name already exists.")
         except SQLAlchemyError:

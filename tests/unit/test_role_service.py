@@ -150,7 +150,7 @@ def test_create_role_rolls_back_on_integrity_error(monkeypatch):
 
 def test_update_role_commits_updated_name(monkeypatch):
     """GIVEN an existing role WHEN update_role is called THEN the name is updated and the transaction is committed."""
-    updated_role = SimpleNamespace(name="Old name")
+    updated_role = SimpleNamespace(name="Old name", archived_at=None)
     commit_called = False
 
     def nonlocal_set_true():
@@ -169,7 +169,7 @@ def test_update_role_commits_updated_name(monkeypatch):
 
 def test_update_role_rolls_back_on_integrity_error(monkeypatch):
     """GIVEN an IntegrityError during update_role WHEN the service saves changes THEN rollback is called."""
-    updated_role = SimpleNamespace(name="Old name")
+    updated_role = SimpleNamespace(name="Old name", archived_at=None)
     rollback_called = False
 
     def fake_commit():

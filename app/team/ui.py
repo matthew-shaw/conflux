@@ -17,6 +17,7 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
+from app.exceptions import ArchivedEntityError
 from app.models import Team
 from app.team import ui_bp as ui
 from app.team.forms import (
@@ -134,6 +135,9 @@ def edit(id: UUID) -> ResponseReturnValue:
             )
             logger.info(f"Updated team id={team.id} name={form.name.data}")
             return redirect(url_for("team_ui.list_teams"))
+        except ArchivedEntityError:
+            logger.warning(f"Attempt to update archived team {id}")
+            flash("This team has been archived and cannot be edited.", "error")
         except IntegrityError:
             form.name.errors.append("A team with this name already exists.")
             logger.warning(

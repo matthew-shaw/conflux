@@ -17,6 +17,7 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
+from app.exceptions import ArchivedEntityError
 from app.models import Service, Team
 from app.service import ui_bp as ui
 from app.service.forms import (
@@ -157,6 +158,9 @@ def edit(id: UUID) -> ResponseReturnValue:
             )
             logger.info(f"Updated service id={id}")
             return redirect(url_for("service_ui.list_services"))
+        except ArchivedEntityError:
+            logger.warning(f"Attempt to update archived service {id}")
+            flash("This service has been archived and cannot be edited.", "error")
         except IntegrityError:
             form.name.errors.append("A service with this name already exists.")
         except SQLAlchemyError:

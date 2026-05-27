@@ -15,6 +15,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from app import db
+from app.exceptions import ArchivedEntityError
 from app.models import Service
 
 logger = logging.getLogger(__name__)
@@ -120,6 +121,9 @@ def update_service(
 ) -> None:
     # Retrieve the service or raise 404 if not found
     service = get_service(id)
+    # Prevent editing archived services
+    if service.archived_at is not None:
+        raise ArchivedEntityError(f"Cannot update archived service {id}")
     # Update the service's attributes with the new values
     service.name = name.title()
     service.description = description

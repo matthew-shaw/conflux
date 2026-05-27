@@ -18,6 +18,7 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
+from app.exceptions import ArchivedEntityError
 from app.models import Role
 from app.role import ui_bp as ui
 from app.role.forms import (
@@ -145,6 +146,9 @@ def edit(id: UUID) -> ResponseReturnValue:
             )
             logger.info(f"Updated role id={role.id} name={form.name.data}")
             return redirect(url_for("role_ui.list_roles"))
+        except ArchivedEntityError:
+            logger.warning(f"Attempt to update archived role {id}")
+            flash("This role has been archived and cannot be edited.", "error")
         except IntegrityError:
             form.name.errors.append("A role with this name already exists.")
             logger.warning(

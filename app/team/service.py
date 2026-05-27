@@ -14,6 +14,7 @@ from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 
 from app import db
+from app.exceptions import ArchivedEntityError
 from app.models import Team
 
 logger = logging.getLogger(__name__)
@@ -111,6 +112,9 @@ def update_team(
 ) -> None:
     # Retrieve the team or raise 404 if not found
     team = get_team(id)
+    # Prevent editing archived teams
+    if team.archived_at is not None:
+        raise ArchivedEntityError(f"Cannot update archived team {id}")
     # Update the team's attributes with the new values
     team.name = name
     logger.info(f"Updating team {id} -> name={name}")

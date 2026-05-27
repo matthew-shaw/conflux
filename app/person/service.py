@@ -15,6 +15,7 @@ from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
 from app import db
+from app.exceptions import ArchivedEntityError
 from app.models import Person
 
 logger = logging.getLogger(__name__)
@@ -131,6 +132,9 @@ def update_person(
 ) -> None:
     # Retrieve the person or raise 404 if not found
     person = get_person(id)
+    # Prevent editing archived people
+    if person.archived_at is not None:
+        raise ArchivedEntityError(f"Cannot update archived person {id}")
     # Update the person's attributes with the new values
     person.name = name.title()
     person.email_address = email_address.lower()
