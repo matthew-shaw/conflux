@@ -87,7 +87,7 @@ pep8-naming==0.15.1
     # via -r requirements_dev.in
 pip-api==0.0.34
     # via pip-audit
-pip-audit==2.10.0
+pip-audit==2.10.1
     # via -r requirements_dev.in
 pip-requirements-parser==32.0.1
     # via pip-audit
