@@ -318,3 +318,35 @@ def test_ui_download_returns_csv(monkeypatch, test_client):
     assert response.headers["Content-Disposition"] == "attachment; filename=roles.csv"
     assert response.get_data()[:3] == b"\xef\xbb\xbf"
     assert b"ID,NAME,GRADE,UPDATED_AT,ARCHIVED_AT" in response.get_data()
+
+def test_api_view_includes_only_active_people(app, test_client):
+    """GIVEN a role with active and archived people
+    WHEN the role API detail endpoint is called with include_people=true
+    THEN the returned JSON includes only active people."""
+    from datetime import datetime, timezone
+    from app import db
+    from app.models import Person, Role
+
+    with app.app_context():
+        role = Role(name="API Role", grade="Senior")
+        db.session.add(role)
+        db.session.commit()
+
+        p_active = Person(name="Active Person", email_address="active@example.com", location="London", role_id=role.id)
+        p_archived = Person(name="Archived Person", email_address="archived@example.com", location="London", role_id=role.id)
+        p_archived.archived_at = datetime.now(timezone.utc)
+        db.session.add_all([p_active, p_archived])
+        db.session.commit()
+
+        assert len(role.people) == 2
+        assert len(role.active_people) == 1
+
+    # Request the API detail with people included
+    response = test_client.get(f"/api/v1/roles/{role.id}?include_people=true")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "people" in data
+    assert isinstance(data["people"], list)
+    # Only the active person should be included
+    assert any(p.get("name") == "Active Person" for p in data["people"])
+    assert not any(p.get("name") == "Archived Person" for p in data["people"])

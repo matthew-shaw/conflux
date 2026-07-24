@@ -60,6 +60,10 @@ class Role(BaseModel):
         order_by="Person.name",
     )
 
+    @property
+    def active_people(self) -> list["Person"]:
+        return [person for person in self.people if person.archived_at is None]
+
     def __init__(
         self,
         *,
@@ -79,7 +83,7 @@ class Role(BaseModel):
         if self.archived_at:
             data["archived_at"] = self.archived_at.isoformat().replace("+00:00", "Z")
         if include_people:
-            data["people"] = [person.to_dict() for person in self.people]
+            data["people"] = [person.to_dict() for person in self.active_people]
         return data
 
 
