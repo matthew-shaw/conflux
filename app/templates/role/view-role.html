@@ -92,7 +92,7 @@
     }) }}
 
     {% set rows = [] %}
-    {% for person in role.people if person.archived_at is none %}
+    {% for person in role.active_people %}
       {% set _ = rows.append([
         {
           'html': '<a href="%s" class="govuk-link">%s</a>' %

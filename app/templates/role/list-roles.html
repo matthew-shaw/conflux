@@ -54,7 +54,7 @@
           'text': role.grade
         },
         {
-          'text': role.people | length
+          'text': role.active_people | length
         },
         {
           'text': format_govuk_datetime(role.updated_at, include_day=False, truncate_month=True)
