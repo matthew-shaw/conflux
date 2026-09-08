@@ -165,13 +165,12 @@ def to_dict(self, include_relations: bool = False) -> dict:
   ```
 - Use `@pytest.mark.parametrize` to test multiple sets of inputs and expected outputs.
 
-### Test Categorisation (Unit, Integration, and Functional)
+### Test Categorisation (Unit and Functional)
 
-Use Unit, Integration, and Functional tests where appropriate. Do not write end-to-end or acceptance tests. Place tests in their respective directories:
+Use Unit and Functional tests where appropriate. Do not write end-to-end or acceptance tests. Place tests in their respective directories:
 
 - Unit Tests (`tests/unit/`): Test the functionality of an individual unit of code isolated from its dependencies. These act as the first line of defence, testing from the inside out (from the programmer's point of view). Use `monkeypatch` to mock external dependencies.
-- Integration Tests (`tests/integration/`): Test multiple components working together properly, focusing on functionality the user will utilise. These test from the outside in (from the end user's point of view). Use the client fixture (`app.test_client()`) here to issue HTTP requests.
-- Functional Tests (`tests/functional/`): Test complete application behaviour through public routes and workflows. Use the client fixture (`app.test_client()`) to issue HTTP requests and verify responses.
+- Functional Tests (`tests/functional/`): Test multiple components working together properly, focusing on functionality the user will utilise. These test from the outside in (from the end user's point of view). Use the client fixture (`app.test_client()`) here to issue HTTP requests.
 
 ### Fixtures and Setup (`tests/conftest.py`)
 
