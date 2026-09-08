@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 def get_people(
     sort: str = "name",
     status: str = "active",
+    employment_type: str = "all",
     page: int = 1,
     per_page: int = 25,
 ) -> Pagination:
@@ -37,6 +38,8 @@ def get_people(
         query = query.order_by(Person.name)
     elif sort == "location":
         query = query.order_by(Person.location)
+    elif sort == "employment_type":
+        query = query.order_by(Person.employment_type, Person.name)
     elif sort == "updated":
         query = query.order_by(Person.updated_at.desc())
 
@@ -46,6 +49,9 @@ def get_people(
     elif status == "archived":
         query = query.where(Person.archived_at.is_not(None))
     # No filter if status == "all"
+
+    if employment_type in Person.EMPLOYMENT_TYPES:
+        query = query.where(Person.employment_type == employment_type)
 
     try:
         return db.paginate(
@@ -58,7 +64,8 @@ def get_people(
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(
-            f"Database error retrieving people (sort={sort}, status={status}, page={page}, per_page={per_page})",
+            f"Database error retrieving people (sort={sort}, status={status}, employment_type={employment_type}, "
+            f"page={page}, per_page={per_page})",
             exc_info=True,
         )
         raise
@@ -90,6 +97,7 @@ def create_person(
     name: str,
     email_address: str,
     location: str,
+    employment_type: str,
     role_id: UUID,
     team_id: UUID | None,
     manager_id: UUID | None,
@@ -98,6 +106,7 @@ def create_person(
         name=name.title(),
         email_address=email_address.lower(),
         location=location,
+        employment_type=employment_type,
         role_id=role_id,
         team_id=team_id,
         manager_id=manager_id,
@@ -126,6 +135,7 @@ def update_person(
     name: str,
     email_address: str,
     location: str,
+    employment_type: str,
     role_id: UUID,
     team_id: UUID | None,
     manager_id: UUID | None,
@@ -139,6 +149,7 @@ def update_person(
     person.name = name.title()
     person.email_address = email_address.lower()
     person.location = location
+    person.employment_type = employment_type
     person.role_id = role_id
     person.team_id = team_id
     person.manager_id = manager_id

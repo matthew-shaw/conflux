@@ -137,7 +137,7 @@
             "description": "Field to sort people by.",
             "schema": {
               "type": "string",
-              "enum": ["name", "location", "updated"],
+              "enum": ["name", "location", "employment_type", "updated"],
               "default": "name"
             }
           },
@@ -149,6 +149,23 @@
               "type": "string",
               "enum": ["active", "archived", "all"],
               "default": "active"
+            }
+          },
+          {
+            "name": "employment_type",
+            "in": "query",
+            "description": "Filter people by employment type.",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": ["all"]
+                },
+                {
+                  "$ref": "#/components/schemas/EmploymentType"
+                }
+              ],
+              "default": "all"
             }
           },
           {
@@ -361,10 +378,16 @@
         ],
         "example": "Plymouth"
       },
+      "EmploymentType": {
+        "type": "string",
+        "description": "Employment type of a person.",
+        "enum": ["permanent", "contractor"],
+        "example": "permanent"
+      },
       "PersonNested": {
         "type": "object",
         "description": "A lightweight representation of a person.",
-        "required": ["id", "name", "email_address", "location", "updated_at"],
+        "required": ["id", "name", "email_address", "location", "employment_type", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -386,6 +409,10 @@
           "location": {
             "description": "Office location of the person.",
             "$ref": "#/components/schemas/Location"
+          },
+          "employment_type": {
+            "description": "Employment type of the person.",
+            "$ref": "#/components/schemas/EmploymentType"
           },
           "updated_at": {
             "type": "string",
@@ -467,7 +494,7 @@
       "Person": {
         "type": "object",
         "description": "Detailed representation of a person.",
-        "required": ["id", "name", "email_address", "location", "updated_at"],
+        "required": ["id", "name", "email_address", "location", "employment_type", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -489,6 +516,10 @@
           "location": {
             "description": "Office location of the person.",
             "$ref": "#/components/schemas/Location"
+          },
+          "employment_type": {
+            "description": "Employment type of the person.",
+            "$ref": "#/components/schemas/EmploymentType"
           },
           "updated_at": {
             "type": "string",

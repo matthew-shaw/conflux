@@ -325,6 +325,7 @@ def test_api_view_includes_only_active_people(app, test_client):
     WHEN the role API detail endpoint is called
     THEN the returned JSON includes only active people."""
     from datetime import datetime, timezone
+
     from app import db
     from app.models import Person, Role
 
@@ -333,9 +334,19 @@ def test_api_view_includes_only_active_people(app, test_client):
         db.session.add(role)
         db.session.commit()
 
-        p_active = Person(name="Active Person", email_address="active@example.com", location="London", role_id=role.id)
+        p_active = Person(
+            name="Active Person",
+            email_address="active@example.com",
+            location="London",
+            employment_type="permanent",
+            role_id=role.id,
+        )
         p_archived = Person(
-            name="Archived Person", email_address="archived@example.com", location="London", role_id=role.id
+            name="Archived Person",
+            email_address="archived@example.com",
+            location="London",
+            employment_type="permanent",
+            role_id=role.id,
         )
         p_archived.archived_at = datetime.now(timezone.utc)
         db.session.add_all([p_active, p_archived])

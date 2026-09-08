@@ -167,6 +167,23 @@
         },
         {
           'key': {
+            'text': "Employment type"
+          },
+          'value': {
+            'text': person.employment_type|title
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person_ui.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "employment type"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "Status"
           },
           'value': {

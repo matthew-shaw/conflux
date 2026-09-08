@@ -110,6 +110,9 @@
         },
         {
           'text': person.location.title()
+        },
+        {
+          'text': person.employment_type.title()
         }
       ]) %}
     {% endfor %}
@@ -122,6 +125,7 @@
           { 'text': "Name" },
           { 'text': "Team" },
           { 'text': "Location" },
+          { 'text': "Employment type" },
         ],
         'rows': rows
       }) }}
