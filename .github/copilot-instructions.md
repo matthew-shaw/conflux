@@ -29,7 +29,7 @@ If introducing intentional behavioural changes, update tests, API documentation,
 
 ## Before Completing Work
 
-Before submitting changes, you must execute the following commands in this exact sequence to ensure code quality and formatting. Do not use standard Python execution commands; use the provided containerised CLI where applicable.
+Before submitting changes, you must execute the following commands in this exact sequence to ensure code quality and formatting. Do not use standard Python execution commands; use the provided containerised CLI or a virtual environment (e.g. in `venv/` or `.venv/`) where applicable.
 
 1. **Sort Imports:** `isort .`
 2. **Format Code (Baseline):** `black .` (Forces standard 90-character breaks for shorter lines)
@@ -37,6 +37,8 @@ Before submitting changes, you must execute the following commands in this exact
 4. **Lint:** `flake8 .` (Must pass with `flake8-bugbear` and `pep8-naming` rules)
 5. **Type Check:** `mypy .`
 6. **Run Tests:** `python -m pytest --cov=app --cov-report=term-missing --cov-branch`
+
+Only let the above tools change files that you have changed yourself, and they must be configured with additional parameters to ignore files in the virtual environment folder if one is present.
 
 If a test fails after your changes, do not modify the test to force it to pass. You must fix the underlying implementation, unless the prompt explicitly dictates a change to the expected behaviour.
 
