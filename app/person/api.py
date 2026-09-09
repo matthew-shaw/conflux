@@ -19,6 +19,7 @@ def list_people() -> Response:
         people = get_people(
             sort=request.args.get("sort", "name", type=str),
             status=request.args.get("status", "active", type=str),
+            employment_type=request.args.get("employment_type", "all", type=str),
             page=page,
             per_page=per_page,
         )

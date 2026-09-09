@@ -1,16 +1,9 @@
-from types import SimpleNamespace
-
-from sqlalchemy.exc import IntegrityError
-
-from app.team import api as team_api
-from app.team import ui as team_ui
-
-
 def test_api_view_includes_only_active_people(app, test_client):
     """GIVEN a team with active and archived people
     WHEN the team API detail endpoint is called
     THEN the returned JSON includes only active people."""
     from datetime import datetime, timezone
+
     from app import db
     from app.models import Person, Role, Team
 
@@ -24,6 +17,7 @@ def test_api_view_includes_only_active_people(app, test_client):
             name="Active Person",
             email_address="active@example.com",
             location="London",
+            employment_type="permanent",
             role_id=role.id,
             team_id=team.id,
         )
@@ -31,6 +25,7 @@ def test_api_view_includes_only_active_people(app, test_client):
             name="Archived Person",
             email_address="archived@example.com",
             location="London",
+            employment_type="permanent",
             role_id=role.id,
             team_id=team.id,
         )

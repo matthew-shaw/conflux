@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
 
 from app.models import Person, Role, Team
 
@@ -13,6 +13,7 @@ def test_role_active_people_returns_only_unarchived_people():
         name="Alice",
         email_address="alice@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
     )
     active_person.archived_at = None
@@ -21,6 +22,7 @@ def test_role_active_people_returns_only_unarchived_people():
         name="Bob",
         email_address="bob@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
     )
     archived_person.archived_at = datetime.now(timezone.utc)
@@ -50,6 +52,7 @@ def test_role_to_dict_includes_only_active_people():
         name="Alice",
         email_address="alice@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
     )
     active_person.archived_at = None
@@ -58,6 +61,7 @@ def test_role_to_dict_includes_only_active_people():
         name="Bob",
         email_address="bob@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
     )
     archived_person.archived_at = datetime.now(timezone.utc)
@@ -81,6 +85,7 @@ def test_team_active_people_returns_only_unarchived_people():
         name="Alice",
         email_address="alice@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
         team_id=team_id,
     )
@@ -90,6 +95,7 @@ def test_team_active_people_returns_only_unarchived_people():
         name="Bob",
         email_address="bob@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
         team_id=team_id,
     )
@@ -121,6 +127,7 @@ def test_team_to_dict_includes_only_active_people():
         name="Alice",
         email_address="alice@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
         team_id=team_id,
     )
@@ -130,6 +137,7 @@ def test_team_to_dict_includes_only_active_people():
         name="Bob",
         email_address="bob@example.com",
         location="London",
+        employment_type="permanent",
         role_id=role_id,
         team_id=team_id,
     )
@@ -142,3 +150,19 @@ def test_team_to_dict_includes_only_active_people():
 
     assert len(data["people"]) == 1
     assert data["people"][0]["name"] == "Alice"
+
+
+def test_person_to_dict_includes_employment_type_and_raw_name():
+    """GIVEN a contractor person WHEN serialized THEN the raw name and employment type are preserved."""
+    person = Person(
+        name="Alice",
+        email_address="alice@example.com",
+        location="London",
+        employment_type="contractor",
+        role_id=uuid.uuid4(),
+    )
+
+    data = person.to_dict()
+
+    assert data["name"] == "Alice"
+    assert data["employment_type"] == "contractor"

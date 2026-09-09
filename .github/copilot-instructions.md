@@ -55,7 +55,7 @@ If a test fails after your changes, do not modify the test to force it to pass. 
   - `api.py` & `ui.py` (Controllers): Handle request parsing, form validation, and response formatting ONLY. **Strict Rule: These files MUST NEVER import the database session or execute SQLAlchemy queries.**
   - `service.py` (Service Layer): Contains ALL business logic, orchestration, and database interactions. This is the ONLY layer permitted to execute SQLAlchemy queries. Controllers must delegate to these service functions.
   - `forms.py`: WTForms definitions and validation.
-- `tests/` is strictly split into `unit/` and `integration/`.
+- `tests/` is strictly split into `unit/`, `functional` and `integration/`.
 - `web/` contains Node.js/Webpack frontend assets (including GOV.UK Frontend) and Nginx configuration. Do not leak these concerns into the Flask backend.
 - **No HTTP Leakage**. The service layer must NEVER return HTTP status codes, `jsonify` payloads, or Werkzeug response objects. It must return native Python objects (dicts, lists, models) or raise custom domain exceptions. The view layer is strictly responsible for catching these exceptions and translating them into HTTP 400/404/500 responses.
 - **Caching:** Valkey is the dedicated in-memory cache and session store. Do not introduce Redis, Memcached, or in-memory Python dictionaries for global state caching.
@@ -165,12 +165,12 @@ def to_dict(self, include_relations: bool = False) -> dict:
   ```
 - Use `@pytest.mark.parametrize` to test multiple sets of inputs and expected outputs.
 
-### Test Categorisation (Unit vs Integration)
+### Test Categorisation (Unit and Functional)
 
-Strictly stick to Unit and Integration tests. Do not write functional, end-to-end, or acceptance tests. Place tests in their respective directories:
+Use Unit and Functional tests where appropriate. Do not write end-to-end or acceptance tests. Place tests in their respective directories:
 
 - Unit Tests (`tests/unit/`): Test the functionality of an individual unit of code isolated from its dependencies. These act as the first line of defence, testing from the inside out (from the programmer's point of view). Use `monkeypatch` to mock external dependencies.
-- Integration Tests (`tests/integration/`): Test multiple components working together properly, focusing on functionality the user will utilise. These test from the outside in (from the end user's point of view). Use the client fixture (`app.test_client()`) here to issue HTTP requests.
+- Functional Tests (`tests/functional/`): Test multiple components working together properly, focusing on functionality the user will utilise. These test from the outside in (from the end user's point of view). Use the client fixture (`app.test_client()`) here to issue HTTP requests.
 
 ### Fixtures and Setup (`tests/conftest.py`)
 

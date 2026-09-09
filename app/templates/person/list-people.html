@@ -32,6 +32,9 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.employment_type(params={
+        'classes': "govuk-radios--small"
+      }) }}
       {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
@@ -68,6 +71,9 @@
           'text': person.location.title()
         },
         {
+          'text': person.employment_type.title()
+        },
+        {
           'text': format_govuk_datetime(person.updated_at, include_day=False, truncate_month=True)
         }
       ]) %}
@@ -83,6 +89,7 @@
           { 'text': "Role" },
           { 'text': "Team" },
           { 'text': "Location" },
+          { 'text': "Employment type" },
           { 'text': "Updated" }
         ],
         'rows': rows
@@ -96,7 +103,7 @@
           {% set _ = pages.append(
             {
               'number': page,
-              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data),
               'current': page == people.page
             }
           ) %}
@@ -109,10 +116,10 @@
 
       {{ govukPagination({
         'previous': {
-          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data),
         } if people.has_prev else None,
         'next': {
-          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data),
+          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data),
         } if people.has_next else None,
         'items': pages
       }) }}
@@ -123,7 +130,7 @@
         <a class="govuk-link" href="{{ url_for('person_ui.download') }}">CSV format</a>
       </li>
       <li>
-        <a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data) }}">JSON format</a>
+        <a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data) }}">JSON format</a>
       </li>
     </ul>
   </div>

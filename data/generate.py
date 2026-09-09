@@ -43,6 +43,8 @@ team_ids = [
     "1f94ed1f-0a2b-4d79-8b50-b26bc504a0c9",
 ]
 
+employment_types = ["permanent", "contractor"]
+
 locales = ["en_GB", "fr_FR", "es_ES", "de_DE", "it_IT"]
 names_per_gender = 10
 
@@ -73,6 +75,7 @@ for loc in locales:
                 "role_id": random.choice(role_ids),
                 "team_id": random.choice(team_ids),
                 "location": random.choice(locations),
+                "employment_type": random.choice(employment_types),
                 "manager_id": None,  # placeholder
             }
             rows.append(row)
@@ -95,6 +98,7 @@ with open(OUTPUT_FILE, mode="w", newline="", encoding="utf-8") as f:
             "role_id",
             "team_id",
             "location",
+            "employment_type",
             "manager_id",
         ],
     )
