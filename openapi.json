@@ -54,6 +54,14 @@
             }
           },
           {
+            "name": "profession",
+            "in": "query",
+            "description": "Filter roles by exact profession. Omit this parameter to include all professions, including unassigned roles.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "page",
             "in": "query",
             "description": "Page number for paginated results.",
@@ -166,6 +174,14 @@
                 }
               ],
               "default": "all"
+            }
+          },
+          {
+            "name": "profession",
+            "in": "query",
+            "description": "Filter people by their assigned role's profession.",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -440,6 +456,11 @@
             "description": "Grade associated with the role.",
             "$ref": "#/components/schemas/Grade"
           },
+          "profession": {
+            "type": "string",
+            "nullable": true,
+            "description": "Profession associated with the role, if assigned."
+          },
           "updated_at": {
             "type": "string",
             "format": "date-time",
@@ -571,6 +592,11 @@
           "grade": {
             "description": "Grade associated with the role.",
             "$ref": "#/components/schemas/Grade"
+          },
+          "profession": {
+            "type": "string",
+            "nullable": true,
+            "description": "Profession associated with the role, if assigned."
           },
           "updated_at": {
             "type": "string",

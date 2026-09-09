@@ -21,6 +21,7 @@ def list_roles() -> Response:
             status=request.args.get("status", "active", type=str),
             page=page,
             per_page=per_page,
+            profession=request.args.get("profession", "", type=str),
         )
 
         if page_out_of_range(roles, page):

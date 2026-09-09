@@ -1,3 +1,4 @@
+from flask import current_app
 from flask_wtf import FlaskForm
 from govuk_frontend_wtf.wtforms_widgets import (
     GovCheckboxInput,
@@ -13,7 +14,7 @@ from wtforms.fields import (
     StringField,
     SubmitField,
 )
-from wtforms.validators import InputRequired, ValidationError
+from wtforms.validators import InputRequired, Optional, ValidationError
 
 from app.models import Role
 
@@ -32,6 +33,14 @@ class RoleForm(FlaskForm):
         widget=GovRadioInput(),
         validators=[InputRequired(message="Select a grade")],
     )
+    profession = SelectField(
+        "Profession",
+        choices=[("", "None")],
+        widget=GovSelect(),
+        default="",
+        validators=[Optional()],
+        description="This field is optional.",
+    )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
     def __init__(self, *args, role=None, **kwargs):
@@ -43,6 +52,13 @@ class RoleForm(FlaskForm):
 
         if existing_role and (self.role is None or existing_role.id != self.role.id):
             raise ValidationError("A role with this name already exists.")
+
+    def validate_profession(self, field):
+        configured_professions = current_app.config.get("PROFESSIONS", [])
+        current_profession = self.role.profession if self.role else None
+
+        if field.data and field.data not in configured_professions and field.data != current_profession:
+            raise ValidationError("Select a valid profession")
 
 
 class RoleSortFilterForm(FlaskForm):
@@ -61,6 +77,13 @@ class RoleSortFilterForm(FlaskForm):
         widget=GovRadioInput(),
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
+    )
+    profession = SelectField(
+        "Profession",
+        widget=GovSelect(),
+        choices=[("", "Any")],
+        default="",
+        validators=[Optional()],
     )
     per_page = SelectField(
         "Items per page",

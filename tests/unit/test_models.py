@@ -33,6 +33,53 @@ def test_role_active_people_returns_only_unarchived_people():
     assert role.active_people == [active_person]
 
 
+def test_role_constructor_accepts_optional_profession():
+    """
+    GIVEN role details and a profession
+    WHEN a role is constructed
+    THEN the profession is stored on the role.
+    """
+    role = Role(name="Software Engineer", grade="Grade 7", profession="Engineering")
+
+    assert role.profession == "Engineering"
+
+
+def test_role_constructor_defaults_profession_to_none():
+    """
+    GIVEN role details without a profession
+    WHEN a role is constructed
+    THEN its profession is unassigned.
+    """
+    role = Role(name="Product Manager", grade="Grade 6")
+
+    assert role.profession is None
+
+
+def test_role_profession_column_is_nullable_and_indexed():
+    """
+    GIVEN the Role model metadata
+    WHEN the profession column is inspected
+    THEN it is nullable and indexed for optional role storage.
+    """
+    profession_column = Role.__table__.c.profession
+
+    assert profession_column.nullable is True
+    assert profession_column.index is True
+
+
+def test_role_to_dict_serialises_profession():
+    """
+    GIVEN roles with and without professions
+    WHEN each role is serialised
+    THEN profession is represented as its value or null.
+    """
+    assigned = Role(name="Data Analyst", grade="Grade 5", profession="Data")
+    unassigned = Role(name="Architect", grade="Grade 6")
+
+    assert assigned.to_dict()["profession"] == "Data"
+    assert unassigned.to_dict()["profession"] is None
+
+
 def test_role_active_people_returns_empty_when_no_people():
     """GIVEN a role with no associated people
     WHEN active_people property is accessed

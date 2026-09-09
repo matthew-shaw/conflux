@@ -35,6 +35,7 @@
       {{ form.employment_type(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.profession() }}
       {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
@@ -103,7 +104,7 @@
           {% set _ = pages.append(
             {
               'number': page,
-              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data),
+              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data, profession=form.profession.data),
               'current': page == people.page
             }
           ) %}
@@ -116,10 +117,10 @@
 
       {{ govukPagination({
         'previous': {
-          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data),
+          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data, profession=form.profession.data),
         } if people.has_prev else None,
         'next': {
-          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data),
+          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data, profession=form.profession.data),
         } if people.has_next else None,
         'items': pages
       }) }}
@@ -130,7 +131,7 @@
         <a class="govuk-link" href="{{ url_for('person_ui.download') }}">CSV format</a>
       </li>
       <li>
-        <a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data) }}">JSON format</a>
+        <a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment_type=form.employment_type.data, profession=form.profession.data) }}">JSON format</a>
       </li>
     </ul>
   </div>

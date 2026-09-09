@@ -12,6 +12,7 @@ from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
+from sqlalchemy.orm import selectinload
 
 from app import db
 from app.exceptions import ArchivedEntityError
@@ -25,11 +26,15 @@ def get_roles(
     status: str = "active",
     page: int = 1,
     per_page: int = 25,
+    profession: str | None = None,
+    include_people: bool = False,
 ) -> Pagination:
-    """Retrieve a paginated list of roles."""
+    """Retrieve a paginated list of roles, optionally eager-loading people for the UI."""
 
     # Start the base SELECT statement
     query = db.select(Role)
+    if include_people:
+        query = query.options(selectinload(Role.people))
 
     # Apply sorting
     if sort == "name":
@@ -46,6 +51,9 @@ def get_roles(
         query = query.where(Role.archived_at.is_not(None))
     # No filter if status == "all"
 
+    if profession:
+        query = query.where(Role.profession == profession)
+
     try:
         return db.paginate(
             query,
@@ -57,7 +65,8 @@ def get_roles(
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(
-            f"Database error retrieving roles (sort={sort}, status={status}, page={page}, per_page={per_page})",
+            f"Database error retrieving roles (sort={sort}, status={status}, profession={profession}, "
+            f"page={page}, per_page={per_page})",
             exc_info=True,
         )
         raise
@@ -86,10 +95,12 @@ def get_role(id: UUID) -> Role:
 def create_role(
     name: str,
     grade: str,
+    profession: str | None = None,
 ) -> Role:
     role: Role = Role(
         name=name,
         grade=grade,
+        profession=profession.strip() if profession and profession.strip() else None,
     )
     # Add the new role instance to the session
     db.session.add(role)
@@ -114,6 +125,7 @@ def update_role(
     id: UUID,
     name: str,
     grade: str,
+    profession: str | None = None,
 ) -> None:
     # Retrieve the role or raise 404 if not found
     role = get_role(id)
@@ -123,6 +135,7 @@ def update_role(
     # Update the role's attributes with the new values
     role.name = name
     role.grade = grade
+    role.profession = profession.strip() if profession and profession.strip() else None
     logger.info(f"Updating role {id} -> name={name}")
     try:
         # Commit the update transaction

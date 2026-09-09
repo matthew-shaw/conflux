@@ -20,7 +20,9 @@ def app() -> Generator[Flask, None, None]:
     yield app
 
     with app.app_context():
+        db.session.remove()
         db.drop_all()
+        db.engine.dispose()
 
 
 @pytest.fixture

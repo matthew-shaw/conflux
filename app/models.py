@@ -44,6 +44,7 @@ class Role(BaseModel):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
     grade: Mapped[str] = mapped_column(nullable=False, index=True)
+    profession: Mapped[str | None] = mapped_column(nullable=True, index=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
@@ -69,15 +70,18 @@ class Role(BaseModel):
         *,
         name: str,
         grade: str,
+        profession: str | None = None,
     ) -> None:
         self.name = name
         self.grade = grade
+        self.profession = profession
 
     def to_dict(self, include_people: bool = False) -> dict[str, object]:
         data: dict[str, object] = {
             "id": str(self.id),
             "name": self.name,
             "grade": self.grade,
+            "profession": self.profession,
             "updated_at": (self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None),
         }
         if self.archived_at:
