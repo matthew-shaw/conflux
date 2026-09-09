@@ -136,6 +136,84 @@ def test_people_api_filters_by_employment_type(app, test_client):
     assert data[0]["employment_type"] == "contractor"
 
 
+def test_people_profession_filter_supports_role_changes_and_combined_controls(app, test_client):
+    """
+    GIVEN people assigned to matching, unassigned, and archived roles
+    WHEN the People page and API use an encoded profession with existing filters
+    THEN role changes affect results and all links retain the profession filter.
+    """
+    app.config["PROFESSIONS"] = ["Engineering / R&D", "Product"]
+    app.config["RATELIMIT_ENABLED"] = False
+    with app.app_context():
+        engineering = Role(name="Engineer", grade="Grade 7", profession="Engineering / R&D")
+        product = Role(name="Product Manager", grade="Grade 6", profession="Product")
+        unassigned = Role(name="Analyst", grade="Grade 5")
+        db.session.add_all([engineering, product, unassigned])
+        db.session.flush()
+        people = [
+            Person(
+                name="Alice Engineer",
+                email_address="alice-engineer@example.com",
+                location="London",
+                employment_type="contractor",
+                role_id=engineering.id,
+            ),
+            Person(
+                name="Bob Engineer",
+                email_address="bob-engineer@example.com",
+                location="London",
+                employment_type="permanent",
+                role_id=engineering.id,
+            ),
+            Person(
+                name="Cara Product",
+                email_address="cara-product@example.com",
+                location="London",
+                employment_type="contractor",
+                role_id=product.id,
+            ),
+            Person(
+                name="Dan Unassigned",
+                email_address="dan-unassigned@example.com",
+                location="London",
+                employment_type="contractor",
+                role_id=unassigned.id,
+            ),
+        ]
+        archived = Person(
+            name="Erin Archived",
+            email_address="erin-archived@example.com",
+            location="London",
+            employment_type="contractor",
+            role_id=engineering.id,
+        )
+        archived.archived_at = datetime.now(timezone.utc)
+        db.session.add_all([*people, archived])
+        db.session.commit()
+        engineering.profession = "Product"
+        db.session.commit()
+
+    query = "profession=Product&status=active&employment_type=contractor&per_page=1"
+    response = test_client.get(f"/people/?{query}")
+
+    assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert "Alice Engineer" in body
+    assert "Cara Product" not in body
+    assert "profession=Product" in body
+    assert "employment_type=contractor" in body
+
+    response = test_client.get(f"/api/v1/people/?{query}")
+
+    assert response.status_code == 200
+    assert [person["name"] for person in response.get_json()] == ["Alice Engineer"]
+
+    response = test_client.get("/api/v1/people/?profession=Missing&status=all")
+
+    assert response.status_code == 200
+    assert response.get_json() == []
+
+
 def test_person_detail_and_search_use_raw_contractor_name(app, test_client):
     """GIVEN a contractor person
     WHEN detail and search are requested
@@ -205,7 +283,7 @@ def test_people_csv_includes_employment_type_and_raw_names(monkeypatch, test_cli
         name="Contractor Person",
         employment_type="contractor",
         email_address="contractor@example.com",
-        role=None,
+        role=SimpleNamespace(id="role-1", name="Engineer", profession="Engineering"),
         team=None,
         location="london",
         manager=None,
@@ -218,5 +296,5 @@ def test_people_csv_includes_employment_type_and_raw_names(monkeypatch, test_cli
 
     assert response.status_code == 200
     csv_data = response.get_data(as_text=True)
-    assert "ID,NAME,EMPLOYMENT_TYPE,EMAIL_ADDRESS" in csv_data
-    assert "1,Contractor Person,contractor,contractor@example.com" in csv_data
+    assert "ID,NAME,EMPLOYMENT_TYPE,EMAIL_ADDRESS,ROLE_ID,ROLE_NAME,PROFESSION" in csv_data
+    assert "1,Contractor Person,contractor,contractor@example.com,role-1,Engineer,Engineering" in csv_data

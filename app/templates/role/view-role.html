@@ -61,6 +61,23 @@
         },
         {
           'key': {
+            'text': "Profession"
+          },
+          'value': {
+            'text': role.profession or "None"
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('role_ui.edit', id=role.id),
+                'text': "Change",
+                'visuallyHiddenText': "profession"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
             'text': "Status"
           },
           'value': {

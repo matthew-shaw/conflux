@@ -62,6 +62,7 @@ Create a `.env` file in the root of the repo and enter your specific config base
 ```dotenv
 GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6,SCS1,SCS2
 LOCATIONS=Birkenhead,Coventry,Croydon,Durham,Fylde,Gloucester,Hull,Leicester,Nottingham,Peterborough,Plymouth,Swansea,Telford,Weymouth
+PROFESSIONS=Development,Product,Delivery
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=db
 POSTGRES_PASSWORD=smartestmanalive
@@ -71,6 +72,12 @@ VALKEY_HOST=cache
 VALKEY_PORT=6379
 SECRET_KEY=<see_below>
 ```
+
+`PROFESSIONS` is an optional comma-separated list of profession names. Values are trimmed and blank entries are ignored; leave it unset or empty when professions are not used.
+
+The Roles page and `GET /api/v1/roles` support an optional `profession` filter. An empty value (the default) includes all roles, including roles without an assigned profession; a non-empty value matches the configured profession exactly. The filter can be combined with the existing status, sort, page, and per-page parameters.
+
+The People page and `GET /api/v1/people` support the same optional `profession` filter, matching people through their assigned role. An empty value (the default) includes people in roles without a profession. It can be combined with status, employment type, sort, page, and per-page parameters.
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
 

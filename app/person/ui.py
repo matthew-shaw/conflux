@@ -44,9 +44,16 @@ from app.utils.pagination import page_out_of_range
 logger = logging.getLogger(__name__)
 
 
+def _set_profession_filter_choices(form: PersonSortFilterForm) -> None:
+    """Populate profession choices from the application configuration."""
+    configured_professions = current_app.config.get("PROFESSIONS", [])
+    form.profession.choices = [("", "Any")] + [(profession, profession) for profession in configured_professions]
+
+
 @ui.route("/", methods=["GET"])
 def list_people() -> ResponseReturnValue:
     form: PersonSortFilterForm = PersonSortFilterForm(request.args)
+    _set_profession_filter_choices(form)
 
     page: int = request.args.get("page", 1, type=int)
 
@@ -57,6 +64,7 @@ def list_people() -> ResponseReturnValue:
             employment_type=form.employment_type.data,
             page=page,
             per_page=form.per_page.data,
+            profession=form.profession.data,
         )
         if page_out_of_range(people, page):
             abort(404)
@@ -64,6 +72,7 @@ def list_people() -> ResponseReturnValue:
         logger.exception(
             "Database error listing people "
             f"(sort={form.sort.data},status={form.status.data},employment_type={form.employment_type.data},"
+            f"profession={form.profession.data},"
             f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
@@ -297,6 +306,7 @@ def download() -> ResponseReturnValue:
                 "EMAIL_ADDRESS",
                 "ROLE_ID",
                 "ROLE_NAME",
+                "PROFESSION",
                 "TEAM_ID",
                 "TEAM_NAME",
                 "LOCATION",
@@ -320,6 +330,7 @@ def download() -> ResponseReturnValue:
                     person.email_address,
                     person.role.id if person.role else "",
                     person.role.name if person.role else "",
+                    person.role.profession if person.role else "",
                     person.team.id if person.team else "",
                     person.team.name if person.team else "",
                     person.location.title(),
