@@ -1,4 +1,4 @@
-# Conflux - Copilot Instructions
+# Conflux - Agent Instructions
 
 ## Purpose
 
@@ -22,8 +22,8 @@ When repository artifacts disagree, prefer the following order of precedence:
 1. Existing runtime behaviour and tests
 2. Database models (`app/models.py`) and migrations (`migrations/versions/`)
 3. OpenAPI schema (`openapi.json`)
-4. `.github/copilot-instructions.md`
-5. `README.md` and supporting documentation
+4. `README.md` and supporting documentation
+5. `AGENTS.md`
 
 If introducing intentional behavioural changes, update tests, API documentation, and the README. Do not leave behaviour, tests, and API documentation inconsistent.
 
@@ -32,7 +32,7 @@ If introducing intentional behavioural changes, update tests, API documentation,
 Before submitting changes, you must execute the following commands in this exact sequence to ensure code quality and formatting. Do not use standard Python execution commands; use the provided containerised CLI where applicable.
 
 1. **Sort Imports:** `isort .`
-2. **Format Code (Baseline):** `black .` (Forces standard 90-character breaks for shorter lines)
+2. **Format Code (Baseline):** `black .` (Forces standard 88-character breaks for shorter lines)
 3. **Format Code (Extended & Target):** `black . -t py314 -l 120` (Allows necessary longer lines up to 120 chars and targets Python 3.14 style)
 4. **Lint:** `flake8 .` (Must pass with `flake8-bugbear` and `pep8-naming` rules)
 5. **Type Check:** `mypy .`
