@@ -387,7 +387,14 @@
       "PersonNested": {
         "type": "object",
         "description": "A lightweight representation of a person.",
-        "required": ["id", "name", "email_address", "location", "employment_type", "updated_at"],
+        "required": [
+          "id",
+          "name",
+          "email_address",
+          "location",
+          "employment_type",
+          "updated_at"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -494,7 +501,14 @@
       "Person": {
         "type": "object",
         "description": "Detailed representation of a person.",
-        "required": ["id", "name", "email_address", "location", "employment_type", "updated_at"],
+        "required": [
+          "id",
+          "name",
+          "email_address",
+          "location",
+          "employment_type",
+          "updated_at"
+        ],
         "properties": {
           "id": {
             "type": "string",
