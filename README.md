@@ -52,8 +52,30 @@ Components represent implementation-level building blocks such as APIs, librarie
 ## Requirements
 
 - Docker
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) for local Python development and tests
 
 ## Getting started
+
+### Set up the local Python environment
+
+The checked-in `.python-version` pins the project's Python version. Install it and synchronise the locked dependencies with:
+
+```shell
+uv python install
+uv sync --locked
+```
+
+Change the pinned interpreter with `uv python pin <version>` and keep `requires-python` in `pyproject.toml` and the Python base image in `Dockerfile` aligned.
+
+On Linux, install a C compiler and PostgreSQL development headers (including `pg_config`) before syncing; `psycopg2` is built from source.
+
+Use `uv run` for Python commands so they run in the project environment. For example:
+
+```shell
+uv run pytest --cov=app --cov-report=term-missing --cov-branch
+```
+
+After changing dependencies in `pyproject.toml`, run `uv lock` and commit both `pyproject.toml` and `uv.lock`.
 
 ### Set local environment variables
 
@@ -72,10 +94,10 @@ VALKEY_PORT=6379
 SECRET_KEY=<see_below>
 ```
 
-You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
+You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this command to generate a new key:
 
 ```shell
-python -c 'import secrets; print(secrets.token_hex())'
+uv run python -c 'import secrets; print(secrets.token_hex())'
 ```
 
 ### Run containers
@@ -91,7 +113,7 @@ You should now have the app running on <https://localhost/>. Accept the browsers
 To run the tests:
 
 ```shell
-python -m pytest --cov=app --cov-report=term-missing --cov-branch
+uv run pytest --cov=app --cov-report=term-missing --cov-branch
 ```
 
 ## Build process

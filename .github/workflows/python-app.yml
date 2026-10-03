@@ -18,30 +18,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - name: Set up Python 3.14
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.14"
+          enable-cache: true
+      - name: Install Python
+        run: uv python install
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements_dev.txt
-          pip install -r requirements.txt
+        run: uv sync --locked --all-groups
       - name: Check dependencies for known security vulnerabilities
-        run: pip-audit -r requirements.txt
+        run: uv audit --preview-features audit-command --locked --no-default-groups
       - name: Check code for potential security vulnerabilities
-        run: bandit -r . -x /tests,/data
+        run: uv run bandit -r . -x /tests,/data
       - name: Static type checking
-        run: mypy . --install-types --non-interactive
+        run: uv run mypy .
       - name: Check code formatting
         run: |
-          black . -t py314 -l 120 --check
-          isort . -c
+          uv run black . -t py314 -l 120 --check
+          uv run isort . -c
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings.
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+          uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
       - name: Test with pytest
-        run: python -m pytest --cov=app --cov-report=term-missing --cov-branch
+        run: uv run pytest --cov=app --cov-report=term-missing --cov-branch

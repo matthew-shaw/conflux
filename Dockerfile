@@ -9,21 +9,22 @@ COPY web/src src
 RUN npm install && \
     npm run build
 
-# Stage 2: Build Python wheels
+# Stage 2: Build the Python environment
 FROM python:3.14-slim AS builder
 
-# Install build dependencies only here
+# Install uv and build dependencies only here
+COPY --from=ghcr.io/astral-sh/uv:0.12.22 /uv /uvx /bin/
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libc6-dev \
     libpq-dev \
  && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /home/appuser
 
-COPY requirements.txt ./
-# Build wheels instead of direct install
-RUN pip wheel --no-cache-dir --no-deps -r requirements.txt -w /wheels
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv sync --locked --no-dev
 
 
 # Stage 3: Final runtime image
@@ -39,13 +40,13 @@ RUN adduser --system --group appuser
 
 ENV FLASK_APP=conflux.py \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PATH="/home/appuser/.venv/bin:$PATH"
 
 WORKDIR /home/appuser
 
-# Install Python packages from wheels
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/*
+# Install Python packages from the uv-managed environment
+COPY --from=builder --chown=appuser:0 /home/appuser/.venv .venv
 
 # Copy application code
 COPY --chown=appuser:0 conflux.py config.py ./ 

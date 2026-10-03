@@ -5,7 +5,6 @@
 .github
 .mypy_cache
 .nvmrc
-.python-version
 .vscode
 **/__pycache__
 **/.gitignore
@@ -17,9 +16,6 @@ CONTRIBUTING.md
 env
 LICENSE
 README.md
-requirements_dev.in
-requirements_dev.txt
-requirements.in
-setup.cfg
 tests
 venv
+.venv

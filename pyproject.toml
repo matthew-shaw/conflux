@@ -1,0 +1,47 @@
+[project]
+name = "conflux"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "email-validator",
+    "flask",
+    "flask-limiter[redis]",
+    "flask-migrate",
+    "flask-sqlalchemy",
+    "govuk-frontend-jinja",
+    "govuk-frontend-wtf",
+    "gunicorn",
+    "psycopg2",
+]
+
+[dependency-groups]
+dev = [
+    "bandit",
+    "black",
+    "faker",
+    "flake8-bugbear",
+    "flake8-pyproject",
+    "isort==8.0.1",
+    "mypy",
+    "pep8-naming",
+    "pytest-cov",
+    "python-dotenv",
+]
+
+[tool.uv]
+package = false
+required-version = ">=0.12.22"
+
+[tool.flake8]
+exclude = ["web", ".venv"]
+ignore = ["E203", "W503"]
+max-complexity = 10
+max-line-length = 120
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 120
+
+[tool.mypy]
+ignore_missing_imports = true
