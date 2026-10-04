@@ -37,7 +37,6 @@ compose.yml
 openapi.json
 requests.http
 .nvmrc
-setup.cfg
 
 # Data used by local Docker services
 data/
