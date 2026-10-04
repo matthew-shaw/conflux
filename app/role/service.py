@@ -7,7 +7,7 @@ these functions.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
@@ -143,7 +143,7 @@ def archive_role(id: UUID) -> None:
     # Retrieve the role or raise 404 if not found
     role = get_role(id)
     # Set the archived_at timestamp to mark the role as archived
-    role.archived_at = datetime.now(timezone.utc)
+    role.archived_at = datetime.now(UTC)
     logger.info(f"Archiving role {id}")
     try:
         # Commit the archive action

@@ -8,4 +8,4 @@ ui_bp: Blueprint = Blueprint(
 )
 api_bp: Blueprint = Blueprint("role_api", __name__, url_prefix="/api/v1/roles")
 
-from app.role import api, ui  # noqa: E402,F401
+from app.role import api, ui  # noqa: F401

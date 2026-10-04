@@ -1,7 +1,7 @@
 import csv
 import logging
+from collections.abc import Iterator
 from io import StringIO
-from typing import Iterator
 from uuid import UUID
 
 from flask import Response as FlaskResponse

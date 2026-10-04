@@ -1,7 +1,7 @@
 import os
 
 
-class Config(object):
+class Config:
     CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL")
     CONTACT_PHONE = "02079460000"
     DEBUG = os.environ.get("DEBUG", False)

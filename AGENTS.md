@@ -120,7 +120,7 @@ def to_dict(self, include_relations: bool = False) -> dict:
         "id": str(self.id),
         "name": self.name,
         # Ensure UTC datetime objects are strictly formatted with Z instead of +00:00
-        "updated_at": self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None
+        "updated_at": self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None,
     }
 
     # Expanded relations match the Detailed OpenAPI schemas

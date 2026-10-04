@@ -60,6 +60,8 @@ Components represent implementation-level building blocks such as APIs, librarie
 Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
+CONTACT_EMAIL=admin@example.com
+DOMAIN=example.com
 GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6,SCS1,SCS2
 LOCATIONS=Birkenhead,Coventry,Croydon,Durham,Fylde,Gloucester,Hull,Leicester,Nottingham,Peterborough,Plymouth,Swansea,Telford,Weymouth
 POSTGRES_DB=mimisbrunnr
@@ -67,9 +69,9 @@ POSTGRES_HOST=db
 POSTGRES_PASSWORD=smartestmanalive
 POSTGRES_PORT=5432
 POSTGRES_USER=mimir
+SECRET_KEY=<see_below>
 VALKEY_HOST=cache
 VALKEY_PORT=6379
-SECRET_KEY=<see_below>
 ```
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app import db
 from app.models import Person, Role
@@ -34,7 +34,7 @@ def test_get_people_filters_employment_independently_from_status(app):
             employment_type="contractor",
             role_id=role.id,
         )
-        archived_contractor.archived_at = datetime.now(timezone.utc)
+        archived_contractor.archived_at = datetime.now(UTC)
         db.session.add_all([permanent, contractor, archived_contractor])
         db.session.commit()
 

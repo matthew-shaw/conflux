@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 from flask import Flask
@@ -9,7 +9,7 @@ from config import TestConfig
 
 
 @pytest.fixture
-def app() -> Generator[Flask, None, None]:
+def app() -> Generator[Flask]:
     app: Flask = create_app(TestConfig)
     app.config["WTF_CSRF_ENABLED"] = False
     app.config["TESTING"] = True

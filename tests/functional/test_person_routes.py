@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from types import SimpleNamespace
 
 from app import db
@@ -209,7 +209,7 @@ def test_people_csv_includes_employment_type_and_raw_names(monkeypatch, test_cli
         team=None,
         location="london",
         manager=None,
-        updated_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(UTC),
         archived_at=None,
     )
     monkeypatch.setattr(person_ui, "download_people", lambda: [contractor])

@@ -1,8 +1,11 @@
+from datetime import UTC
+
+
 def test_api_view_includes_only_active_people(app, test_client):
     """GIVEN a team with active and archived people
     WHEN the team API detail endpoint is called
     THEN the returned JSON includes only active people."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from app import db
     from app.models import Person, Role, Team
@@ -29,7 +32,7 @@ def test_api_view_includes_only_active_people(app, test_client):
             role_id=role.id,
             team_id=team.id,
         )
-        p_archived.archived_at = datetime.now(timezone.utc)
+        p_archived.archived_at = datetime.now(UTC)
         db.session.add_all([p_active, p_archived])
         db.session.commit()
 
