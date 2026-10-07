@@ -14,7 +14,7 @@ RUN npm install && \
 FROM python:3.14-slim AS app-builder
 
 # Pin uv to the version used by the project.
-COPY --from=ghcr.io/astral-sh/uv:0.12.22 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.12.23 /uv /uvx /bin/
 
 # Use the Python already provided by the base image.
 ENV UV_PYTHON_DOWNLOADS=0 \
