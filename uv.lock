@@ -119,7 +119,7 @@ dependencies = [
     { name = "govuk-frontend-jinja" },
     { name = "govuk-frontend-wtf" },
     { name = "gunicorn" },
-    { name = "psycopg2" },
+    { name = "psycopg" },
 ]
 
 [package.dev-dependencies]
@@ -141,7 +141,7 @@ requires-dist = [
     { name = "govuk-frontend-jinja" },
     { name = "govuk-frontend-wtf" },
     { name = "gunicorn" },
-    { name = "psycopg2" },
+    { name = "psycopg" },
 ]
 
 [package.metadata.requires-dev]
@@ -590,12 +590,15 @@ wheels = [
 ]
 
 [[package]]
-name = "psycopg2"
-version = "2.9.13"
+name = "psycopg"
+version = "3.3.6"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/91/81/6ea19b8b28feb9405c8c87a307776614d6e404bdb98467d1ce10a39d2c1d/psycopg2-2.9.13.tar.gz", hash = "sha256:d36784fc2dae69523ba4b79c7d1d1b4d6e83e87836874f111262f4db940b16a6", size = 378068, upload-time = "2026-09-09T23:56:21.749Z" }
+dependencies = [
+    { name = "tzdata", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/76/26/3ea4ca5eaea1c0debcdf7ee7c1613fbe721dc27a03c461c0817ffd8a0601/psycopg-3.3.6.tar.gz", hash = "sha256:c081f2250df751a943036e42db6df4571c66cd0aabe8291a7a506512b12007d2", size = 168171, upload-time = "2026-09-18T13:22:55.152Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b9/f9/f6e9d47ea04e09282c618f5eeb67634f39ea4b04acedd0a6d8da4d986d50/psycopg2-2.9.13-cp314-cp314-win_amd64.whl", hash = "sha256:a6f54fd8e0024f35240866b5dfff9ead2a0dbd33b8096eec438bc6093412842d", size = 2866943, upload-time = "2026-09-09T23:54:01.268Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/de/748bd7609c71cae5d737f0ba9192f19329f70180ecda8fff3cac02c5abe3/psycopg-3.3.6-py3-none-any.whl", hash = "sha256:a1db9f7148b06a28606767efaca51fa6f9398c5c0a3810519be69d7000bdb631", size = 215490, upload-time = "2026-09-18T13:15:29.374Z" },
 ]
 
 [[package]]

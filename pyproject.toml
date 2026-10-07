@@ -16,7 +16,7 @@ dependencies = [
     "govuk-frontend-jinja",
     "govuk-frontend-wtf",
     "gunicorn",
-    "psycopg2",
+    "psycopg",
 ]
 
 [tool.uv]

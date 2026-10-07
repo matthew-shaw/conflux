@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       CONTACT_EMAIL: ${CONTACT_EMAIL}
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
       DOMAIN: ${DOMAIN}
       GRADES: ${GRADES}
       LOCATIONS: ${LOCATIONS}
@@ -16,13 +16,7 @@ services:
     networks:
       - network
     healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')",
-        ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -35,8 +29,11 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./requirements.txt
-          target: /home/appuser/requirements.txt
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
+        - action: rebuild
+          path: ./.python-version
         - action: sync+restart
           path: ./app
           target: /home/appuser/app
@@ -65,8 +62,7 @@ services:
       - pg_data:/var/lib/postgresql
       - ./data:/data
     healthcheck:
-      test:
-        ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -82,7 +78,7 @@ services:
     networks:
       - network
     healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
+      test: [ "CMD", "valkey-cli", "ping" ]
       interval: 30s
       timeout: 3s
       retries: 5
@@ -100,7 +96,7 @@ services:
     networks:
       - network
     healthcheck:
-      test: ["CMD", "curl", "-kfs", "https://localhost/health"]
+      test: [ "CMD", "curl", "-kfs", "https://localhost/health" ]
       interval: 30s
       timeout: 5s
       retries: 3

@@ -18,7 +18,8 @@ COPY --from=ghcr.io/astral-sh/uv:0.12.22 /uv /uvx /bin/
 
 # Use the Python already provided by the base image.
 ENV UV_PYTHON_DOWNLOADS=0 \
-    UV_LINK_MODE=copy
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/home/appuser/.venv
 
 # Build dependencies required for packages such as psycopg2.
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -68,7 +69,7 @@ WORKDIR /home/appuser
 # Build tools, headers, uv, and the uv cache do not enter the runtime image.
 COPY --from=app-builder \
     --chown=appuser:0 \
-    /app/.venv \
+    /home/appuser/.venv \
     /home/appuser/.venv
 
 # Copy application code
