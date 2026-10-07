@@ -1,6 +1,6 @@
 [project]
 name = "conflux"
-version = "0.10.0"
+version = "0.11.0"
 description = "Conflux is an operational knowledge platform that helps organisations understand ownership, responsibility, and dependency across people, teams, services, and components."
 readme = "README.md"
 authors = [
@@ -16,7 +16,7 @@ dependencies = [
     "govuk-frontend-jinja",
     "govuk-frontend-wtf",
     "gunicorn",
-    "psycopg",
+    "psycopg[binary]",
 ]
 
 [tool.uv]
