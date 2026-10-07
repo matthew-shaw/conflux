@@ -39,14 +39,17 @@
 // @use "govuk-frontend/dist/govuk/components/error-message";
 @use "govuk-frontend/dist/govuk/components/error-summary";
 // @use "govuk-frontend/dist/govuk/components/exit-this-page";
+// @use "govuk-frontend/dist/govuk/components/feedback";
 @use "govuk-frontend/dist/govuk/components/fieldset";
 // @use "govuk-frontend/dist/govuk/components/file-upload";
 @use "govuk-frontend/dist/govuk/components/footer";
-@use "govuk-frontend/dist/govuk/components/header";
+@use "govuk-frontend/dist/govuk/components/generic-header";
+// @use "govuk-frontend/dist/govuk/components/header";
 // @use "govuk-frontend/dist/govuk/components/hint";
 @use "govuk-frontend/dist/govuk/components/input";
 // @use "govuk-frontend/dist/govuk/components/inset-text";
 // @use "govuk-frontend/dist/govuk/components/label";
+// @use "govuk-frontend/dist/govuk/components/language-navigation";
 @use "govuk-frontend/dist/govuk/components/notification-banner";
 @use "govuk-frontend/dist/govuk/components/pagination";
 @use "govuk-frontend/dist/govuk/components/panel";
