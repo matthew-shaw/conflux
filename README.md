@@ -106,6 +106,19 @@ docker compose up --watch
 
 You should now have the app running on <https://localhost/>. Accept the browsers security warning due to the self-signed HTTPS certificate to continue.
 
+### Generate and load local demo data
+
+With the containers running and `GRADES` and `LOCATIONS` set in `.env`, generate fictional data and import it into the local Compose database:
+
+```shell
+uv run --locked python data/generate.py
+./data/load.sh
+```
+
+The generator creates linked teams, roles, people, services, components and service-component relationships as CSV files in `data/`. The import replaces existing Conflux data in the Compose database, so it asks for confirmation before proceeding. If an import fails, the transaction is rolled back.
+
+Role grades use the higher grade where the Government Digital and Data Profession Capability Framework lists a range. For levels without a published indicative grade, the generator carries forward the highest grade stated for that role family; trainee business analyst is assigned EO. Ensure `GRADES` includes all generated grades: EO, HEO, SEO, G7 and G6.
+
 ## Checks before pushing
 
 Run the checks for the parts of the project you changed. To check all locally buildable parts before pushing to `latest`, run the following commands from the repository root. They correspond to the Python, frontend, and Docker build workflows.
