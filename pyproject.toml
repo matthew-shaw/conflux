@@ -56,6 +56,7 @@ max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
+"data/generate.py" = ["S311"]
 
 [tool.mypy]
 python_version = "3.14"
