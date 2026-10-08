@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Flask
 from flask_limiter import Limiter
@@ -132,4 +132,4 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     return app
 
 
-from app import models  # noqa: F401
+from app import models  # noqa: E402, F401

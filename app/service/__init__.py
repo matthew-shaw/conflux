@@ -8,4 +8,4 @@ ui_bp: Blueprint = Blueprint(
 )
 api_bp: Blueprint = Blueprint("service_api", __name__, url_prefix="/api/v1/services")
 
-from app.service import api, ui  # noqa: F401
+from app.service import api, ui  # noqa: E402, F401
