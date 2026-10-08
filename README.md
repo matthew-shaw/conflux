@@ -52,8 +52,26 @@ Components represent implementation-level building blocks such as APIs, librarie
 ## Requirements
 
 - Docker
+- For local Python development: [uv](https://docs.astral.sh/uv/) and Python. uv can install and manage the required Python version.
+- For local frontend development: Node.js 24.
 
 ## Getting started
+
+### Set up the development environment
+
+The project pins its Python dependencies in `uv.lock` and its required uv version in `pyproject.toml`. From the repository root, sync the locked development environment:
+
+```shell
+uv sync --locked --dev
+```
+
+Use `uv run --locked` for Python tools and commands so they run in the project environment. For example, generate a secret key with:
+
+```shell
+uv run --locked python -c 'import secrets; print(secrets.token_hex())'
+```
+
+To update dependencies, change `pyproject.toml` and run `uv lock`; commit the resulting `uv.lock` changes with the manifest. Do not edit `uv.lock` by hand.
 
 ### Set local environment variables
 
@@ -77,7 +95,7 @@ VALKEY_PORT=6379
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
 
 ```shell
-python -c 'import secrets; print(secrets.token_hex())'
+uv run --locked python -c 'import secrets; print(secrets.token_hex())'
 ```
 
 ### Run containers
@@ -88,13 +106,53 @@ docker compose up --watch
 
 You should now have the app running on <https://localhost/>. Accept the browsers security warning due to the self-signed HTTPS certificate to continue.
 
-## Testing
+## Checks before pushing
 
-To run the tests:
+Run the checks for the parts of the project you changed. To check all locally buildable parts before pushing to `latest`, run the following commands from the repository root. They correspond to the Python, frontend, and Docker build workflows.
+
+### Python
 
 ```shell
-python -m pytest --cov=app --cov-report=term-missing --cov-branch
+uv audit --locked
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked mypy .
+uv run --locked pytest --cov=app --cov-report=term-missing --cov-branch
 ```
+
+Ruff handles linting, import sorting, and formatting; its configured lint rules also include Bandit security checks.
+
+To apply formatting and safe automatic lint fixes before checking:
+
+```shell
+uv run --locked ruff check --fix .
+uv run --locked ruff format .
+```
+
+### Frontend
+
+The frontend workflow uses Node.js 24 and runs these commands from `web/`:
+
+```shell
+cd web
+npm install
+npm run build
+cd ..
+```
+
+The Docker build also runs the frontend `prebuild` checks for formatting and linting.
+
+### Docker image
+
+Build the same Dockerfile used by the image workflow. This builds the production image locally; it does not publish or sign it.
+
+```shell
+docker build --tag conflux:local .
+```
+
+GitHub also runs CodeQL analysis on pushes and pull requests targeting `latest`. Dependency review runs on pull requests targeting `latest`. These checks run in GitHub rather than in the local commands above; review their results alongside the Python, frontend, and Docker workflows before merging. A push to `latest` also builds, publishes, and signs the Docker image.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidance and [AGENTS.md](AGENTS.md) for the equivalent instructions for coding agents.
 
 ## Build process
 

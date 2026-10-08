@@ -29,14 +29,38 @@ If introducing intentional behavioural changes, update tests, API documentation,
 
 ## Before Completing Work
 
-Before submitting changes, you must execute the following commands in this exact sequence to ensure code quality and formatting. Do not use standard Python execution commands; use the provided containerised CLI where applicable.
+Use uv 0.12.23 and Python 3.14, as pinned by `pyproject.toml` and `.python-version`. Do not install project dependencies with pip or use pip-tools. Sync the locked development environment and run Python commands through `uv run --locked`:
 
-1. **Sort Imports:** `isort .`
-2. **Format Code (Baseline):** `black .` (Forces standard 88-character breaks for shorter lines)
-3. **Format Code (Extended & Target):** `black . -t py314 -l 120` (Allows necessary longer lines up to 120 chars and targets Python 3.14 style)
-4. **Lint:** `flake8 .` (Must pass with `flake8-bugbear` and `pep8-naming` rules)
-5. **Type Check:** `mypy .`
-6. **Run Tests:** `python -m pytest --cov=app --cov-report=term-missing --cov-branch`
+```shell
+uv sync --locked --dev
+```
+
+For Python changes, run the same dependency audit, lint, formatting, type-check, and test commands as the Python Actions workflow. Ruff replaces separate isort, Black, and Flake8 runs; its configured rules include flake8-bugbear, pep8-naming, and Bandit checks.
+
+1. **Dependency audit:** `uv audit --locked`
+2. **Lint:** `uv run --locked ruff check .`
+3. **Formatting check:** `uv run --locked ruff format --check .`
+4. **Type check:** `uv run --locked mypy .`
+5. **Run tests:** `uv run --locked pytest --cov=app --cov-report=term-missing --cov-branch`
+
+If changes need formatting or safe automatic lint fixes, run `uv run --locked ruff check --fix .` and `uv run --locked ruff format .` before the checks above. Change dependency declarations in `pyproject.toml`, regenerate `uv.lock` with `uv lock`, and commit both files; never edit the lock file manually.
+
+For frontend changes, use Node.js 24 and run the same build command as the frontend Actions workflow:
+
+```shell
+cd web
+npm install
+npm run build
+cd ..
+```
+
+Before declaring the project ready to push, build the production Docker image from the repository root. This also exercises the frontend production build and its `prebuild` formatting and lint checks:
+
+```shell
+docker build --tag conflux:local .
+```
+
+GitHub runs CodeQL on pushes and pull requests targeting `latest`, and dependency review on pull requests targeting `latest`; there is no equivalent local command in this project. Check these GitHub results as well as the Python, frontend, and Docker workflows. A push to `latest` also publishes and signs the image; do not attempt to publish it as a local validation step.
 
 If a test fails after your changes, do not modify the test to force it to pass. You must fix the underlying implementation, unless the prompt explicitly dictates a change to the expected behaviour.
 
