@@ -156,21 +156,13 @@ def edit(id: UUID) -> ResponseReturnValue:
     # Add options
     try:
         roles: list[Role] = get_active_roles()
-    except SQLAlchemyError:
-        logger.exception("Database error retrieving roles for edit person form")
-        abort(503)
-    form.role.choices = [(role.id, role.name) for role in roles]
-    try:
         teams: list[Team] = get_active_teams()
-    except SQLAlchemyError:
-        logger.exception("Database error retrieving teams for edit person form")
-        abort(503)
-    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
-    try:
         people: list[Person] = get_active_people()
     except SQLAlchemyError:
-        logger.exception("Database error retrieving managers for edit person form")
+        logger.exception("Database error retrieving options for edit person form")
         abort(503)
+    form.role.choices = [(role.id, role.name) for role in roles]
+    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
     form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
 
     form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
