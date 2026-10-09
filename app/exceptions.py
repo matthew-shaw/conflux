@@ -10,5 +10,3 @@ class ArchivedEntityError(Exception):
 
     Archived entities (with archived_at set) are read-only and cannot be edited.
     """
-
-    pass

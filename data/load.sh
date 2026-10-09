@@ -1,23 +1,13 @@
 #!/bin/sh
+set -eu
 
-docker compose exec db psql \
-  -U mimir \
-  -d mimisbrunnr \
-  -c "\
-TRUNCATE TABLE teams, roles, people, services CASCADE;
+printf '%s\n' "WARNING: This replaces all Conflux demo data in the local Compose database."
+printf '%s' "Continue? [y/N] "
+read -r answer
+case "$answer" in
+  y|Y|yes|YES) ;;
+  *) printf '%s\n' "Import cancelled."; exit 1 ;;
+esac
 
-COPY teams (ID, NAME, UPDATED_AT, ARCHIVED_AT) \
-FROM '/data/teams.csv' \
-WITH (FORMAT csv, HEADER true);
-
-COPY roles (ID, NAME, GRADE, UPDATED_AT, ARCHIVED_AT) \
-FROM '/data/roles.csv' \
-WITH (FORMAT csv, HEADER true);
-
-COPY people (ID, NAME, ROLE_ID, TEAM_ID, LOCATION, MANAGER_ID, UPDATED_AT, ARCHIVED_AT) \
-FROM '/data/people.csv' \
-WITH (FORMAT csv, HEADER true);
-
-COPY services (ID, NAME, TEAM_ID, UPDATED_AT, ARCHIVED_AT) \
-FROM '/data/services.csv' \
-WITH (FORMAT csv, HEADER true);"
+docker compose exec -T db sh -c \
+  'exec psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" --set ON_ERROR_STOP=1 --single-transaction --file /data/load.sql'

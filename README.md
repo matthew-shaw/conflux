@@ -52,14 +52,34 @@ Components represent implementation-level building blocks such as APIs, librarie
 ## Requirements
 
 - Docker
+- For local Python development: [uv](https://docs.astral.sh/uv/) and Python. uv can install and manage the required Python version.
+- For local frontend development: Node.js 24.
 
 ## Getting started
+
+### Set up the development environment
+
+The project pins its Python dependencies in `uv.lock` and its required uv version in `pyproject.toml`. From the repository root, sync the locked development environment:
+
+```shell
+uv sync --locked --dev
+```
+
+Use `uv run --locked` for Python tools and commands so they run in the project environment. For example, generate a secret key with:
+
+```shell
+uv run --locked python -c 'import secrets; print(secrets.token_hex())'
+```
+
+To update dependencies, change `pyproject.toml` and run `uv lock`; commit the resulting `uv.lock` changes with the manifest. Do not edit `uv.lock` by hand.
 
 ### Set local environment variables
 
 Create a `.env` file in the root of the repo and enter your specific config based on this example:
 
 ```dotenv
+CONTACT_EMAIL=admin@example.com
+DOMAIN=example.com
 GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6,SCS1,SCS2
 LOCATIONS=Birkenhead,Coventry,Croydon,Durham,Fylde,Gloucester,Hull,Leicester,Nottingham,Peterborough,Plymouth,Swansea,Telford,Weymouth
 POSTGRES_DB=mimisbrunnr
@@ -67,15 +87,15 @@ POSTGRES_HOST=db
 POSTGRES_PASSWORD=smartestmanalive
 POSTGRES_PORT=5432
 POSTGRES_USER=mimir
+SECRET_KEY=<see_below>
 VALKEY_HOST=cache
 VALKEY_PORT=6379
-SECRET_KEY=<see_below>
 ```
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
 
 ```shell
-python -c 'import secrets; print(secrets.token_hex())'
+uv run --locked python -c 'import secrets; print(secrets.token_hex())'
 ```
 
 ### Run containers
@@ -86,13 +106,66 @@ docker compose up --watch
 
 You should now have the app running on <https://localhost/>. Accept the browsers security warning due to the self-signed HTTPS certificate to continue.
 
-## Testing
+### Generate and load local demo data
 
-To run the tests:
+With the containers running and `GRADES` and `LOCATIONS` set in `.env`, generate fictional data and import it into the local Compose database:
 
 ```shell
-python -m pytest --cov=app --cov-report=term-missing --cov-branch
+uv run --locked python data/generate.py
+./data/load.sh
 ```
+
+The generator creates linked teams, roles, people, services, components and service-component relationships as CSV files in `data/`. The import replaces existing Conflux data in the Compose database, so it asks for confirmation before proceeding. If an import fails, the transaction is rolled back.
+
+Role grades use the higher grade where the Government Digital and Data Profession Capability Framework lists a range. For levels without a published indicative grade, the generator carries forward the highest grade stated for that role family; trainee business analyst is assigned EO. Ensure `GRADES` includes all generated grades: EO, HEO, SEO, G7 and G6.
+
+## Checks before pushing
+
+Run the checks for the parts of the project you changed. To check all locally buildable parts before pushing to `latest`, run the following commands from the repository root. They correspond to the Python, frontend, and Docker build workflows.
+
+### Python
+
+```shell
+uv audit --locked
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+uv run --locked mypy .
+uv run --locked pytest --cov=app --cov-report=term-missing --cov-branch
+```
+
+Ruff handles linting, import sorting, and formatting; its configured lint rules also include Bandit security checks.
+
+To apply formatting and safe automatic lint fixes before checking:
+
+```shell
+uv run --locked ruff check --fix .
+uv run --locked ruff format .
+```
+
+### Frontend
+
+The frontend workflow uses Node.js 24 and runs these commands from `web/`:
+
+```shell
+cd web
+npm install
+npm run build
+cd ..
+```
+
+The Docker build also runs the frontend `prebuild` checks for formatting and linting.
+
+### Docker image
+
+Build the same Dockerfile used by the image workflow. This builds the production image locally; it does not publish or sign it.
+
+```shell
+docker build --tag conflux:local .
+```
+
+GitHub also runs CodeQL analysis on pushes and pull requests targeting `latest`. Dependency review runs on pull requests targeting `latest`. These checks run in GitHub rather than in the local commands above; review their results alongside the Python, frontend, and Docker workflows before merging. A push to `latest` also builds, publishes, and signs the Docker image.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidance and [AGENTS.md](AGENTS.md) for the equivalent instructions for coding agents.
 
 ## Build process
 

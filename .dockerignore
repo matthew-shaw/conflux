@@ -1,25 +1,42 @@
+# Python caches and local environments
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
 .coverage
+htmlcov/
+
+# Flask / local runtime state
+instance/
+
+# Environment and secrets
 .env
 .flaskenv
-.git
-.github
-.mypy_cache
-.nvmrc
-.python-version
-.vscode
-**/__pycache__
-**/.gitignore
-**/dist
+
+# Node dependencies and build output
+**/node_modules/
+**/dist/
+
+# Local development / editor files
+.vscode/
+.git/
+.github/
+
+# Repository files not required to build the application image
+AGENTS.md
 CHANGELOG.md
 CODE_OF_CONDUCT.md
-compose.yml
 CONTRIBUTING.md
-env
 LICENSE
 README.md
-requirements_dev.in
-requirements_dev.txt
-requirements.in
-setup.cfg
-tests
-venv
+compose.yml
+openapi.json
+requests.http
+.nvmrc
+
+# Data used by local Docker services
+data/

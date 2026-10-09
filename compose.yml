@@ -35,8 +35,11 @@ services:
     develop:
       watch:
         - action: rebuild
-          path: ./requirements.txt
-          target: /home/appuser/requirements.txt
+          path: ./pyproject.toml
+        - action: rebuild
+          path: ./uv.lock
+        - action: rebuild
+          path: ./.python-version
         - action: sync+restart
           path: ./app
           target: /home/appuser/app

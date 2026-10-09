@@ -7,7 +7,7 @@ these functions.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
@@ -173,7 +173,7 @@ def archive_person(id: UUID) -> None:
     # Retrieve the person or raise 404 if not found
     person = get_person(id)
     # Set the archived_at timestamp to mark the person as archived
-    person.archived_at = datetime.now(timezone.utc)
+    person.archived_at = datetime.now(UTC)
     logger.info(f"Archiving person {id}")
     try:
         # Commit the archive action

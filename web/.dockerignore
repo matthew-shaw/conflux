@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Test / coverage output
+coverage/
+
+# Logs
+*.log
+
+# Version control
+.git/
+
+# IDE / editor files
+.vscode/
+.idea/
+
+# macOS / OS files
+.DS_Store
+
+# Local development files
+.env
+.env.*
+
+# Documentation and repository metadata
+*.md
+.gitignore

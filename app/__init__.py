@@ -1,6 +1,6 @@
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Flask
 from flask_limiter import Limiter
@@ -17,10 +17,9 @@ from config import Config
 
 
 class JSONFormatter(logging.Formatter):
-
     def format(self, record: logging.LogRecord) -> str:  # type: ignore[override]
         # Base log structure
-        timestamp = datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+        timestamp = datetime.fromtimestamp(record.created, tz=UTC).isoformat().replace("+00:00", "Z")
 
         log = {
             "timestamp": timestamp,
@@ -40,7 +39,7 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log, default=str)
 
 
-def configure_structured_logging(app: "Flask") -> None:
+def configure_structured_logging(app: Flask) -> None:
     """Configure root logger to emit JSON structured logs to stdout."""
     level_name = app.config.get("LOG_LEVEL", "INFO")
     level = getattr(logging, level_name.upper(), logging.INFO)
@@ -133,4 +132,4 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     return app
 
 
-from app import models  # noqa: E402,F401
+from app import models  # noqa: E402, F401

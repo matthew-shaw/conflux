@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, ClassVar
 
 from sqlalchemy import DateTime, ForeignKey, Table
@@ -46,13 +46,13 @@ class Role(BaseModel):
     grade: Mapped[str] = mapped_column(nullable=False, index=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
 
-    people: Mapped[list["Person"]] = relationship(
+    people: Mapped[list[Person]] = relationship(
         "Person",
         back_populates="role",
         cascade="save-update",
@@ -61,7 +61,7 @@ class Role(BaseModel):
     )
 
     @property
-    def active_people(self) -> list["Person"]:
+    def active_people(self) -> list[Person]:
         return [person for person in self.people if person.archived_at is None]
 
     def __init__(
@@ -99,19 +99,19 @@ class Team(BaseModel):
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
 
-    people: Mapped[list["Person"]] = relationship(
+    people: Mapped[list[Person]] = relationship(
         "Person",
         back_populates="team",
         cascade="save-update",
         passive_deletes=True,
         order_by="Person.name",
     )
-    services: Mapped[list["Service"]] = relationship(
+    services: Mapped[list[Service]] = relationship(
         "Service",
         back_populates="team",
         cascade="save-update",
@@ -120,7 +120,7 @@ class Team(BaseModel):
     )
 
     @property
-    def active_people(self) -> list["Person"]:
+    def active_people(self) -> list[Person]:
         return [person for person in self.people if person.archived_at is None]
 
     def __init__(
@@ -163,8 +163,8 @@ class Person(BaseModel):
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -187,7 +187,7 @@ class Person(BaseModel):
         foreign_keys=[manager_id],
         passive_deletes=True,
     )
-    reports: Mapped[list["Person"]] = relationship(
+    reports: Mapped[list[Person]] = relationship(
         "Person",
         back_populates="manager",
         cascade="save-update",
@@ -255,8 +255,8 @@ class Service(BaseModel):
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -265,7 +265,7 @@ class Service(BaseModel):
     )
 
     team: Mapped[Team | None] = relationship("Team", back_populates="services", passive_deletes=True)
-    components: Mapped[list["Component"]] = relationship(
+    components: Mapped[list[Component]] = relationship(
         "Component",
         secondary=service_components,
         back_populates="services",
@@ -312,12 +312,12 @@ class Component(BaseModel):
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
 
-    services: Mapped[list["Service"]] = relationship(
+    services: Mapped[list[Service]] = relationship(
         "Service",
         secondary=service_components,
         back_populates="components",

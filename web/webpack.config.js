@@ -19,7 +19,12 @@ module.exports = {
         test: /\.scss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          "css-loader",
+          {
+            loader: "css-loader",
+            options: {
+              url: false,
+            },
+          },
           {
             loader: "postcss-loader",
             options: {
@@ -83,8 +88,8 @@ module.exports = {
           to: "assets/manifest.json",
         },
         {
-          from: "./node_modules/govuk-frontend/dist/govuk/assets",
-          to: "assets",
+          from: "src/assets/images/hexagon-nodes-solid-full.svg",
+          to: "assets/images/favicon.svg",
         },
       ],
     }),

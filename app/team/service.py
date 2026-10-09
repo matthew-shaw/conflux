@@ -7,7 +7,7 @@ these functions.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
@@ -137,7 +137,7 @@ def archive_team(id: UUID) -> None:
     # Retrieve the team or raise 404 if not found
     team = get_team(id)
     # Set the archived_at timestamp to mark the team as archived
-    team.archived_at = datetime.now(timezone.utc)
+    team.archived_at = datetime.now(UTC)
     logger.info(f"Archiving team {id}")
     try:
         # Commit the archive action

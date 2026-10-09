@@ -7,7 +7,7 @@ these functions.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
@@ -148,7 +148,7 @@ def archive_service(id: UUID) -> None:
     # Retrieve the service or raise 404 if not found
     service = get_service(id)
     # Set the archived_at timestamp to mark the service as archived
-    service.archived_at = datetime.now(timezone.utc)
+    service.archived_at = datetime.now(UTC)
     logger.info(f"Archiving service {id}")
     try:
         # Commit the archive action

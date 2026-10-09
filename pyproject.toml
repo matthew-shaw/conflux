@@ -1,0 +1,63 @@
+[project]
+name = "conflux"
+version = "0.11.0"
+description = "Conflux is an operational knowledge platform that helps organisations understand ownership, responsibility, and dependency across people, teams, services, and components."
+readme = "README.md"
+authors = [
+    { name = "Matt Shaw", email = "matthew-shaw@users.noreply.github.com" }
+]
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "email-validator",
+    "flask",
+    "flask-limiter[redis]",
+    "flask-migrate",
+    "flask-sqlalchemy",
+    "govuk-frontend-jinja",
+    "govuk-frontend-wtf",
+    "gunicorn",
+    "psycopg[binary]",
+]
+
+[tool.uv]
+package = false
+required-version = "==0.12.23"
+
+[dependency-groups]
+dev = [
+    "faker",
+    "mypy",
+    "pytest-cov",
+    "python-dotenv",
+    "ruff",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+exclude = ["web"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle
+    "F",      # Pyflakes
+    "W",      # pycodestyle warnings
+    "B",      # flake8-bugbear
+    "N",      # pep8-naming
+    "C90",    # mccabe complexity
+    "I",      # isort
+    "UP",     # pyupgrade
+    "S",      # flake8-bandit
+    "RUF",    # Ruff-specific rules
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+"data/generate.py" = ["S311"]
+
+[tool.mypy]
+python_version = "3.14"
+ignore_missing_imports = true

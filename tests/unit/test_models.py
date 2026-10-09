@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.models import Person, Role, Team
 
@@ -25,7 +25,7 @@ def test_role_active_people_returns_only_unarchived_people():
         employment_type="permanent",
         role_id=role_id,
     )
-    archived_person.archived_at = datetime.now(timezone.utc)
+    archived_person.archived_at = datetime.now(UTC)
 
     role = Role(name="Software Engineer", grade="Grade 7")
     role.people = [active_person, archived_person]
@@ -64,7 +64,7 @@ def test_role_to_dict_includes_only_active_people():
         employment_type="permanent",
         role_id=role_id,
     )
-    archived_person.archived_at = datetime.now(timezone.utc)
+    archived_person.archived_at = datetime.now(UTC)
 
     role = Role(name="Data Analyst", grade="Grade 5")
     role.people = [active_person, archived_person]
@@ -99,7 +99,7 @@ def test_team_active_people_returns_only_unarchived_people():
         role_id=role_id,
         team_id=team_id,
     )
-    archived_person.archived_at = datetime.now(timezone.utc)
+    archived_person.archived_at = datetime.now(UTC)
 
     team = Team(name="Platform Team")
     team.people = [active_person, archived_person]
@@ -141,7 +141,7 @@ def test_team_to_dict_includes_only_active_people():
         role_id=role_id,
         team_id=team_id,
     )
-    archived_person.archived_at = datetime.now(timezone.utc)
+    archived_person.archived_at = datetime.now(UTC)
 
     team = Team(name="Data Team")
     team.people = [active_person, archived_person]

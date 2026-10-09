@@ -1,3 +1,4 @@
+from datetime import UTC
 from types import SimpleNamespace
 
 from sqlalchemy.exc import IntegrityError
@@ -324,7 +325,7 @@ def test_api_view_includes_only_active_people(app, test_client):
     """GIVEN a role with active and archived people
     WHEN the role API detail endpoint is called
     THEN the returned JSON includes only active people."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     from app import db
     from app.models import Person, Role
@@ -348,7 +349,7 @@ def test_api_view_includes_only_active_people(app, test_client):
             employment_type="permanent",
             role_id=role.id,
         )
-        p_archived.archived_at = datetime.now(timezone.utc)
+        p_archived.archived_at = datetime.now(UTC)
         db.session.add_all([p_active, p_archived])
         db.session.commit()
 
