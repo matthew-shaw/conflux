@@ -16,7 +16,7 @@ from sqlalchemy.orm import selectinload
 
 from app import db
 from app.exceptions import ArchivedEntityError
-from app.models import Person
+from app.models import Person, Role
 
 logger = logging.getLogger(__name__)
 
@@ -27,31 +27,33 @@ def get_people(
     employment_type: str = "all",
     page: int = 1,
     per_page: int = 25,
+    profession: str | None = None,
 ) -> Pagination:
     """Retrieve a paginated list of people."""
 
     # Start the base SELECT statement
-    query = db.select(Person)
+    query = db.select(Person).options(selectinload(Person.role))
 
-    # Apply sorting
-    if sort == "name":
-        query = query.order_by(Person.name)
-    elif sort == "location":
-        query = query.order_by(Person.location)
-    elif sort == "employment_type":
-        query = query.order_by(Person.employment_type, Person.name)
-    elif sort == "updated":
-        query = query.order_by(Person.updated_at.desc())
+    sort_orders = {
+        "name": (Person.name,),
+        "location": (Person.location,),
+        "employment_type": (Person.employment_type, Person.name),
+        "updated": (Person.updated_at.desc(),),
+    }
+    query = query.order_by(*sort_orders.get(sort, ()))
 
-    # Apply filter based on status
-    if status == "active":
-        query = query.where(Person.archived_at.is_(None))
-    elif status == "archived":
-        query = query.where(Person.archived_at.is_not(None))
-    # No filter if status == "all"
+    status_filters = {
+        "active": Person.archived_at.is_(None),
+        "archived": Person.archived_at.is_not(None),
+    }
+    if (status_filter := status_filters.get(status)) is not None:
+        query = query.where(status_filter)
 
     if employment_type in Person.EMPLOYMENT_TYPES:
         query = query.where(Person.employment_type == employment_type)
+
+    if profession:
+        query = query.where(Person.role.has(Role.profession == profession))
 
     try:
         return db.paginate(
@@ -65,6 +67,7 @@ def get_people(
         db.session.rollback()
         logger.debug(
             f"Database error retrieving people (sort={sort}, status={status}, employment_type={employment_type}, "
+            f"profession={profession}, "
             f"page={page}, per_page={per_page})",
             exc_info=True,
         )

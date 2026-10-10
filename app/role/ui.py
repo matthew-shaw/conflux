@@ -40,9 +40,28 @@ from app.role.service import (
 logger = logging.getLogger(__name__)
 
 
+def _set_profession_choices(form: RoleForm, role: Role | None = None) -> None:
+    """Populate profession choices from the application configuration.
+    Adds the current profession if it is not in the configured professions (any more)
+    to avoid losing the value on edit."""
+    choices: list[tuple[str, str]] = [("", "None")]
+    configured_professions = current_app.config.get("PROFESSIONS", [])
+    choices.extend((profession, profession) for profession in configured_professions)
+    if role and role.profession and role.profession not in configured_professions:
+        choices.append((role.profession, role.profession))
+    form.profession.choices = choices
+
+
+def _set_profession_filter_choices(form: RoleSortFilterForm) -> None:
+    """Populate profession choices from the application configuration."""
+    configured_professions = current_app.config.get("PROFESSIONS", [])
+    form.profession.choices = [("", "Any")] + [(profession, profession) for profession in configured_professions]
+
+
 @ui.route("/", methods=["GET"])
 def list_roles() -> ResponseReturnValue:
     form: RoleSortFilterForm = RoleSortFilterForm(request.args)
+    _set_profession_filter_choices(form)
 
     page: int = request.args.get("page", 1, type=int)
 
@@ -52,6 +71,8 @@ def list_roles() -> ResponseReturnValue:
             status=form.status.data,
             page=page,
             per_page=form.per_page.data,
+            profession=form.profession.data,
+            include_people=True,
         )
         from app.utils.pagination import page_out_of_range
 
@@ -60,7 +81,7 @@ def list_roles() -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(
             "Database error listing roles "
-            f"(sort={form.sort.data},status={form.status.data},"
+            f"(sort={form.sort.data},status={form.status.data},profession={form.profession.data},"
             f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
@@ -79,12 +100,14 @@ def create() -> ResponseReturnValue:
 
     # Add options
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
+    _set_profession_choices(form)
 
     if form.validate_on_submit():
         try:
             role = create_role(
                 name=form.name.data,
                 grade=form.grade.data,
+                profession=form.profession.data,
             )
             role_url = url_for("role_ui.view", id=role.id)
             flash(
@@ -128,16 +151,19 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     # Add options
     form.grade.choices = [(grade, grade) for grade in current_app.config["GRADES"]]
+    _set_profession_choices(form, role)
 
     if request.method == "GET":
         form.name.data = role.name
         form.grade.data = role.grade
+        form.profession.data = role.profession or ""
     elif form.validate_on_submit():
         try:
             update_role(
                 id=id,
                 name=form.name.data,
                 grade=form.grade.data,
+                profession=form.profession.data,
             )
             role_url = url_for("role_ui.view", id=role.id)
             flash(
@@ -239,6 +265,7 @@ def download() -> ResponseReturnValue:
                 "ID",
                 "NAME",
                 "GRADE",
+                "PROFESSION",
                 "UPDATED_AT",
                 "ARCHIVED_AT",
             )
@@ -254,6 +281,7 @@ def download() -> ResponseReturnValue:
                     role.id,
                     role.name,
                     role.grade,
+                    role.profession,
                     role.updated_at.isoformat().replace("+00:00", "Z"),
                     (role.archived_at.isoformat().replace("+00:00", "Z") if role.archived_at else ""),
                 )

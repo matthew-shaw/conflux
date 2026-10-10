@@ -12,6 +12,9 @@ class Config:
     DOMAIN = os.environ.get("DOMAIN")
     GRADES = os.environ.get("GRADES", "").split(",")
     LOCATIONS: ClassVar[list[str]] = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
+    PROFESSIONS: ClassVar[list[str]] = [
+        profession.strip() for profession in os.environ.get("PROFESSIONS", "").split(",") if profession.strip()
+    ]
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_STORAGE_URI = os.environ.get("VALKEY_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")
