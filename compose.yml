@@ -9,6 +9,7 @@ services:
       DOMAIN: ${DOMAIN}
       GRADES: ${GRADES}
       LOCATIONS: ${LOCATIONS}
+      PROFESSIONS: ${PROFESSIONS:-}
       SECRET_KEY: ${SECRET_KEY}
       VALKEY_URL: redis://${VALKEY_HOST}:${VALKEY_PORT}
     expose:

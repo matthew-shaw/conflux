@@ -87,3 +87,98 @@ def test_get_people_sorts_employment_type_with_name_tiebreaker(app):
             "Zed Contractor",
             "Beta Permanent",
         ]
+
+
+def test_get_people_filters_by_role_profession_without_duplicates(app):
+    """
+    GIVEN several people sharing a role and roles with different professions
+    WHEN a profession filter is applied
+    THEN only people assigned through matching roles are returned once.
+    """
+    with app.app_context():
+        engineering = Role(name="Engineer", grade="Grade 7", profession="Engineering")
+        product = Role(name="Product Manager", grade="Grade 6", profession="Product")
+        unassigned = Role(name="Analyst", grade="Grade 5")
+        db.session.add_all([engineering, product, unassigned])
+        db.session.flush()
+        db.session.add_all(
+            [
+                Person(
+                    name="Alice Engineer",
+                    email_address="alice@example.com",
+                    location="London",
+                    employment_type="permanent",
+                    role_id=engineering.id,
+                ),
+                Person(
+                    name="Bob Engineer",
+                    email_address="bob@example.com",
+                    location="London",
+                    employment_type="contractor",
+                    role_id=engineering.id,
+                ),
+                Person(
+                    name="Cara Product",
+                    email_address="cara@example.com",
+                    location="London",
+                    employment_type="permanent",
+                    role_id=product.id,
+                ),
+                Person(
+                    name="Dan Analyst",
+                    email_address="dan@example.com",
+                    location="London",
+                    employment_type="permanent",
+                    role_id=unassigned.id,
+                ),
+            ]
+        )
+        db.session.commit()
+
+        result = get_people(status="all", profession="Engineering", per_page=10)
+
+        assert [person.name for person in result.items] == [
+            "Alice Engineer",
+            "Bob Engineer",
+        ]
+        assert result.total == 2
+        assert result.items[0].role.profession == "Engineering"
+
+
+def test_get_people_profession_filter_combines_status_and_employment_type(app):
+    """
+    GIVEN active and archived people assigned to a profession
+    WHEN profession, status, and employment type filters are combined
+    THEN only the matching person is included.
+    """
+    with app.app_context():
+        role = Role(name="Engineer", grade="Grade 7", profession="Engineering")
+        db.session.add(role)
+        db.session.flush()
+        active = Person(
+            name="Active Contractor",
+            email_address="active@example.com",
+            location="London",
+            employment_type="contractor",
+            role_id=role.id,
+        )
+        archived = Person(
+            name="Archived Contractor",
+            email_address="archived@example.com",
+            location="London",
+            employment_type="contractor",
+            role_id=role.id,
+        )
+        archived.archived_at = datetime.now(timezone.utc)
+        db.session.add_all([active, archived])
+        db.session.commit()
+
+        result = get_people(
+            status="active",
+            employment_type="contractor",
+            profession="Engineering",
+            per_page=10,
+        )
+
+        assert [person.name for person in result.items] == ["Active Contractor"]
+        assert result.total == 1

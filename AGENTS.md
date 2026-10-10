@@ -62,6 +62,8 @@ docker build --tag conflux:local .
 
 GitHub runs CodeQL on pushes and pull requests targeting `latest`, and dependency review on pull requests targeting `latest`; there is no equivalent local command in this project. Check these GitHub results as well as the Python, frontend, and Docker workflows. A push to `latest` also publishes and signs the image; do not attempt to publish it as a local validation step.
 
+Only let the above tools change files that you have changed yourself, and they must be configured with additional parameters to ignore files in the virtual environment folder if one is present.
+
 If a test fails after your changes, do not modify the test to force it to pass. You must fix the underlying implementation, unless the prompt explicitly dictates a change to the expected behaviour.
 
 ## Configuration & Security
