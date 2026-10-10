@@ -46,7 +46,7 @@
     "npm-check-updates": "^22.2.9",
     "postcss-loader": "^8.2.1",
     "postcss-preset-env": "^11.6.1",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "sass": "^1.105.1",
     "sass-loader": "^16.0.8",
     "webpack": "^5.111.1",
