@@ -187,7 +187,7 @@ def test_people_profession_filter_supports_role_changes_and_combined_controls(ap
             employment_type="contractor",
             role_id=engineering.id,
         )
-        archived.archived_at = datetime.now(timezone.utc)
+        archived.archived_at = datetime.now(UTC)
         db.session.add_all([*people, archived])
         db.session.commit()
         engineering.profession = "Product"

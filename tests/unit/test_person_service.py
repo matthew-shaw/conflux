@@ -169,7 +169,7 @@ def test_get_people_profession_filter_combines_status_and_employment_type(app):
             employment_type="contractor",
             role_id=role.id,
         )
-        archived.archived_at = datetime.now(timezone.utc)
+        archived.archived_at = datetime.now(UTC)
         db.session.add_all([active, archived])
         db.session.commit()
 

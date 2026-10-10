@@ -11,8 +11,8 @@ class Config:
     DEPARTMENT_URL = "https://github.com/matthew-shaw"
     DOMAIN = os.environ.get("DOMAIN")
     GRADES = os.environ.get("GRADES", "").split(",")
-    LOCATIONS = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
-    PROFESSIONS = [
+    LOCATIONS: ClassVar[list[str]] = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
+    PROFESSIONS: ClassVar[list[str]] = [
         profession.strip() for profession in os.environ.get("PROFESSIONS", "").split(",") if profession.strip()
     ]
     RATELIMIT_HEADERS_ENABLED = True

@@ -67,7 +67,8 @@ def test_get_roles_builds_query(monkeypatch, include_people):
 
     assert roles.items == ["role1", "role2"]
     expected_options = [("options", "people_eager")] if include_people else []
-    assert fake_query.calls == expected_options + [
+    assert fake_query.calls == [
+        *expected_options,
         ("order_by", "updated_desc"),
         ("where", "archived"),
     ]
