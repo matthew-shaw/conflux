@@ -29,33 +29,33 @@ TEAM_NAMES = (
     "Integration Services",
     "Service Operations",
 )
-ROLE_GRADES = (
-    ("Apprentice Developer", "EO"),
-    ("Junior Developer", "HEO"),
-    ("Developer", "SEO"),
-    ("Senior Developer", "G7"),
-    ("Lead Developer", "G7"),
-    ("Principal Developer", "G7"),
-    ("Associate Delivery Manager", "HEO"),
-    ("Delivery Manager", "G7"),
-    ("Senior Delivery Manager", "G7"),
-    ("Head of Delivery Management", "G7"),
-    ("Associate Test Engineer", "EO"),
-    ("Test Engineer", "SEO"),
-    ("Senior Test Engineer", "G7"),
-    ("Lead Test Engineer", "G6"),
-    ("Trainee Business Analyst", "EO"),
-    ("Junior Business Analyst", "HEO"),
-    ("Business Analyst", "SEO"),
-    ("Senior Business Analyst", "G7"),
-    ("Lead Business Analyst", "G7"),
-    ("Head of Business Analysis", "G7"),
-    ("Associate User Researcher", "EO"),
-    ("Junior User Researcher", "HEO"),
-    ("User Researcher", "SEO"),
-    ("Senior User Researcher", "G7"),
-    ("Lead User Researcher", "G7"),
-    ("Head of User Research", "G7"),
+ROLES = (
+    ("Apprentice Developer", "EO", "Software Development"),
+    ("Junior Developer", "HEO", "Software Development"),
+    ("Developer", "SEO", "Software Development"),
+    ("Senior Developer", "G7", "Software Development"),
+    ("Lead Developer", "G7", "Software Development"),
+    ("Principal Developer", "G7", "Software Development"),
+    ("Associate Delivery Manager", "HEO", "Product and Delivery"),
+    ("Delivery Manager", "G7", "Product and Delivery"),
+    ("Senior Delivery Manager", "G7", "Product and Delivery"),
+    ("Head of Delivery Management", "G7", "Product and Delivery"),
+    ("Associate Test Engineer", "EO", "Quality assurance testing"),
+    ("Test Engineer", "SEO", "Quality assurance testing"),
+    ("Senior Test Engineer", "G7", "Quality assurance testing"),
+    ("Lead Test Engineer", "G6", "Quality assurance testing"),
+    ("Trainee Business Analyst", "EO", "Product and Delivery"),
+    ("Junior Business Analyst", "HEO", "Product and Delivery"),
+    ("Business Analyst", "SEO", "Product and Delivery"),
+    ("Senior Business Analyst", "G7", "Product and Delivery"),
+    ("Lead Business Analyst", "G7", "Product and Delivery"),
+    ("Head of Business Analysis", "G7", "Product and Delivery"),
+    ("Associate User Researcher", "EO", "User-centred design"),
+    ("Junior User Researcher", "HEO", "User-centred design"),
+    ("User Researcher", "SEO", "User-centred design"),
+    ("Senior User Researcher", "G7", "User-centred design"),
+    ("Lead User Researcher", "G7", "User-centred design"),
+    ("Head of User Research", "G7", "User-centred design"),
 )
 SERVICES = (
     ("Account Management", "Manages customer accounts and profile information."),
@@ -128,7 +128,13 @@ def generate_demo_data() -> dict[str, int]:
     """Generate linked teams, roles, people, services and components."""
     configured_grades = set(configured_values("GRADES"))
     locations = configured_values("LOCATIONS")
-    required_grades = {grade for _, grade in ROLE_GRADES}
+    professions = configured_values("PROFESSIONS")
+    available_professions = {profession for _, _, profession in ROLES}
+    unknown_professions = sorted(set(professions) - available_professions)
+    if unknown_professions:
+        raise SystemExit(f"Remove unsupported professions from PROFESSIONS in .env: {', '.join(unknown_professions)}")
+    selected_roles = [role for role in ROLES if role[2] in professions]
+    required_grades = {grade for _, grade, _ in selected_roles}
     missing_grades = sorted(required_grades - configured_grades)
     if missing_grades:
         raise SystemExit(f"Add these framework grades to GRADES in .env: {', '.join(missing_grades)}")
@@ -144,12 +150,13 @@ def generate_demo_data() -> dict[str, int]:
         for name in TEAM_NAMES
     ]
     roles = []
-    for title, grade in ROLE_GRADES:
+    for title, grade, profession in selected_roles:
         roles.append(
             {
                 "id": str(uuid.uuid4()),
                 "name": title,
                 "grade": grade,
+                "profession": profession,
                 "updated_at": timestamp(),
                 "archived_at": "",
             }
@@ -206,7 +213,7 @@ def generate_demo_data() -> dict[str, int]:
         )
 
     write_csv("teams.csv", ("id", "name", "archived_at", "updated_at"), teams)
-    write_csv("roles.csv", ("id", "name", "grade", "updated_at", "archived_at"), roles)
+    write_csv("roles.csv", ("id", "name", "grade", "profession", "updated_at", "archived_at"), roles)
     write_csv(
         "people.csv",
         (
