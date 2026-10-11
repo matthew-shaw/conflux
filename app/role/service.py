@@ -95,12 +95,16 @@ def get_role(id: UUID) -> Role:
 def create_role(
     name: str,
     grade: str,
-    profession: str | None = None,
+    profession: str,
 ) -> Role:
+    profession = profession.strip()
+    if not profession:
+        raise ValueError("Profession is required")
+
     role: Role = Role(
         name=name,
         grade=grade,
-        profession=profession.strip() if profession and profession.strip() else None,
+        profession=profession,
     )
     # Add the new role instance to the session
     db.session.add(role)
@@ -125,8 +129,12 @@ def update_role(
     id: UUID,
     name: str,
     grade: str,
-    profession: str | None = None,
+    profession: str,
 ) -> None:
+    profession = profession.strip()
+    if not profession:
+        raise ValueError("Profession is required")
+
     # Retrieve the role or raise 404 if not found
     role = get_role(id)
     # Prevent editing archived roles
@@ -135,7 +143,7 @@ def update_role(
     # Update the role's attributes with the new values
     role.name = name
     role.grade = grade
-    role.profession = profession.strip() if profession and profession.strip() else None
+    role.profession = profession
     logger.info(f"Updating role {id} -> name={name}")
     try:
         # Commit the update transaction

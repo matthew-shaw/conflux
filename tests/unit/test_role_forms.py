@@ -6,17 +6,17 @@ from app.role import ui as role_ui
 from app.role.forms import RoleForm
 
 
-def test_role_form_has_optional_profession_field(app):
+def test_role_form_requires_profession(app):
     """
     GIVEN a role form
     WHEN its profession field is inspected
-    THEN it accepts an unassigned role with a None option.
+    THEN it requires a configured profession rather than offering an unassigned option.
     """
     with app.test_request_context("/"):
         form = RoleForm()
 
-        assert form.profession.validators
-        assert form.profession.choices == [("", "None")]
+        assert form.profession.validators[0].message == "Select a profession"
+        assert form.profession.choices == [("", "Select a profession")]
 
 
 def test_edit_choices_retain_removed_profession(app):
@@ -33,7 +33,7 @@ def test_edit_choices_retain_removed_profession(app):
         role_ui._set_profession_choices(form, role)
 
     assert form.profession.choices == [
-        ("", "None"),
+        ("", "Select a profession"),
         ("Engineering", "Engineering"),
         ("Legal", "Legal"),
     ]
@@ -50,10 +50,26 @@ def test_create_rejects_unconfigured_professions(app, profession):
 
     with app.test_request_context("/", method="POST", data={"profession": profession}):
         form = RoleForm()
-        form.profession.choices = [("", "None"), ("Engineering", "Engineering")]
+        form.profession.choices = [("", "Select a profession"), ("Engineering", "Engineering")]
 
         assert not form.profession.validate(form)
         assert form.profession.data == profession
+
+
+def test_role_form_rejects_blank_profession(app):
+    """
+    GIVEN a role form with configured professions
+    WHEN no profession is selected
+    THEN profession validation fails with a required-field error.
+    """
+    app.config["PROFESSIONS"] = ["Engineering"]
+
+    with app.test_request_context("/", method="POST", data={"profession": ""}):
+        form = RoleForm()
+        role_ui._set_profession_choices(form)
+
+        assert not form.profession.validate(form)
+        assert form.profession.errors == ["Select a profession"]
 
 
 def test_edit_allows_current_removed_profession(app):
@@ -67,7 +83,7 @@ def test_edit_allows_current_removed_profession(app):
     with app.test_request_context("/", method="POST", data={"profession": "Legal"}):
         form = RoleForm(role=SimpleNamespace(profession="Legal"))
         form.profession.choices = [
-            ("", "None"),
+            ("", "Select a profession"),
             ("Engineering", "Engineering"),
             ("Legal", "Legal"),
         ]

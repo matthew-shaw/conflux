@@ -93,7 +93,9 @@ VALKEY_HOST=cache
 VALKEY_PORT=6379
 ```
 
-`PROFESSIONS` is an optional comma-separated list of profession names. Values are trimmed and blank entries are ignored; leave it unset or empty when professions are not used.
+`PROFESSIONS` is an optional comma-separated list of profession names for staged rollout. Values are trimmed and blank entries are ignored. Once roles are being created, a profession must be selected from the configured list; existing roles whose profession has since been removed retain their current value when edited.
+
+`GRADES`, `LOCATIONS`, and `PROFESSIONS` are parsed consistently: each accepts comma-separated values, trims surrounding whitespace, and ignores blank entries.
 
 The Roles page and `GET /api/v1/roles` support an optional `profession` filter. An empty value (the default) includes all roles, including roles without an assigned profession; a non-empty value matches the configured profession exactly. The filter can be combined with the existing status, sort, page, and per-page parameters.
 

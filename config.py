@@ -3,6 +3,11 @@ import secrets
 from typing import ClassVar
 
 
+def _parse_comma_separated_setting(name: str) -> list[str]:
+    """Return non-blank, trimmed values from a comma-separated environment setting."""
+    return [value.strip() for value in os.environ.get(name, "").split(",") if value.strip()]
+
+
 class Config:
     CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL")
     CONTACT_PHONE = "02079460000"
@@ -10,11 +15,9 @@ class Config:
     DEPARTMENT_NAME = "Matt Shaw"
     DEPARTMENT_URL = "https://github.com/matthew-shaw"
     DOMAIN = os.environ.get("DOMAIN")
-    GRADES = os.environ.get("GRADES", "").split(",")
-    LOCATIONS: ClassVar[list[str]] = [loc.strip() for loc in os.environ.get("LOCATIONS", "").split(",")]
-    PROFESSIONS: ClassVar[list[str]] = [
-        profession.strip() for profession in os.environ.get("PROFESSIONS", "").split(",") if profession.strip()
-    ]
+    GRADES: ClassVar[list[str]] = _parse_comma_separated_setting("GRADES")
+    LOCATIONS: ClassVar[list[str]] = _parse_comma_separated_setting("LOCATIONS")
+    PROFESSIONS: ClassVar[list[str]] = _parse_comma_separated_setting("PROFESSIONS")
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_STORAGE_URI = os.environ.get("VALKEY_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")

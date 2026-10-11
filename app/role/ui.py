@@ -44,7 +44,7 @@ def _set_profession_choices(form: RoleForm, role: Role | None = None) -> None:
     """Populate profession choices from the application configuration.
     Adds the current profession if it is not in the configured professions (any more)
     to avoid losing the value on edit."""
-    choices: list[tuple[str, str]] = [("", "None")]
+    choices: list[tuple[str, str]] = [("", "Select a profession")]
     configured_professions = current_app.config.get("PROFESSIONS", [])
     choices.extend((profession, profession) for profession in configured_professions)
     if role and role.profession and role.profession not in configured_professions:

@@ -35,11 +35,10 @@ class RoleForm(FlaskForm):
     )
     profession = SelectField(
         "Profession",
-        choices=[("", "None")],
+        choices=[("", "Select a profession")],
         widget=GovSelect(),
         default="",
-        validators=[Optional()],
-        description="This field is optional.",
+        validators=[InputRequired(message="Select a profession")],
     )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 

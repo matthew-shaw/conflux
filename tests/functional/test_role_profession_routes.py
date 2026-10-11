@@ -1,3 +1,5 @@
+import pytest
+
 from app import db
 from app.models import Role
 
@@ -5,8 +7,8 @@ from app.models import Role
 def test_role_profession_create_edit_and_display(app, test_client):
     """
     GIVEN configured profession choices
-    WHEN a role is created, viewed, edited and cleared
-    THEN each role page displays the selected value or None.
+    WHEN a role is created, viewed and edited with no profession selected
+    THEN the profession is displayed and cannot be cleared.
     """
     app.config["GRADES"] = ["Grade 7"]
     app.config["PROFESSIONS"] = ["Engineering"]
@@ -35,16 +37,16 @@ def test_role_profession_create_edit_and_display(app, test_client):
         f"/roles/{role_id}/edit",
         data={"name": "Software Engineer", "grade": "Grade 7", "profession": ""},
     )
-    assert response.status_code == 302
+    assert response.status_code == 200
 
     with app.app_context():
         role = db.session.get(Role, role_id)
         assert role is not None
-        assert role.profession is None
+        assert role.profession == "Engineering"
 
     response = test_client.get(f"/roles/{role_id}")
     assert response.status_code == 200
-    assert b"None" in response.data
+    assert b"Engineering" in response.data
 
 
 def test_role_profession_edit_preserves_removed_choice(app, test_client):
@@ -68,7 +70,8 @@ def test_role_profession_edit_preserves_removed_choice(app, test_client):
     assert b"Legal" in response.data
 
 
-def test_role_profession_create_rejects_unconfigured_value(app, test_client):
+@pytest.mark.parametrize("profession", ["", "Legal"])
+def test_role_profession_create_rejects_missing_or_unconfigured_value(app, test_client, profession):
     """
     GIVEN a configured list of professions
     WHEN a forged profession is submitted while creating a role
@@ -80,10 +83,11 @@ def test_role_profession_create_rejects_unconfigured_value(app, test_client):
 
     response = test_client.post(
         "/roles/new",
-        data={"name": "Software Engineer", "grade": "Grade 7", "profession": "Legal"},
+        data={"name": "Software Engineer", "grade": "Grade 7", "profession": profession},
     )
 
     assert response.status_code == 200
+    assert b"Select a profession" in response.data
     with app.app_context():
         assert db.session.scalar(db.select(Role).where(Role.name == "Software Engineer")) is None
 

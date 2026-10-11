@@ -156,34 +156,23 @@ def test_create_role_commits_and_returns_role(monkeypatch):
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "Role", FakeRole)
 
-    role = role_service.create_role("Manager", "Grade 5")
+    role = role_service.create_role("Manager", "Grade 5", "Engineering")
 
     assert isinstance(role, FakeRole)
     assert role.name == "Manager"
     assert role.grade == "Grade 5"
-    assert role.profession is None
+    assert role.profession == "Engineering"
     assert created == [role]
 
 
-def test_create_role_normalises_blank_profession(monkeypatch):
+def test_create_role_rejects_blank_profession(monkeypatch):
     """
     GIVEN blank profession input
     WHEN a role is created
-    THEN no profession is persisted."""
-
-    class FakeRole:
-        def __init__(self, name: str, grade: str, profession: str | None = None) -> None:
-            self.name = name
-            self.grade = grade
-            self.profession = profession
-
-    fake_session = SimpleNamespace(add=lambda _: None, commit=lambda: None, rollback=lambda: None)
-    monkeypatch.setattr(role_service, "db", SimpleNamespace(session=fake_session))
-    monkeypatch.setattr(role_service, "Role", FakeRole)
-
-    role = role_service.create_role("Manager", "Grade 5", "   ")
-
-    assert role.profession is None
+    THEN creation fails before persisting a role.
+    """
+    with pytest.raises(ValueError, match="Profession is required"):
+        role_service.create_role("Manager", "Grade 5", "   ")
 
 
 def test_create_role_rolls_back_on_integrity_error(monkeypatch):
@@ -210,7 +199,7 @@ def test_create_role_rolls_back_on_integrity_error(monkeypatch):
     monkeypatch.setattr(role_service, "Role", FakeRole)
 
     with pytest.raises(IntegrityError):
-        role_service.create_role("Manager", "Grade 5")
+        role_service.create_role("Manager", "Grade 5", "Engineering")
 
     assert rollback_called is True
 
@@ -232,17 +221,18 @@ def test_update_role_commits_updated_name(monkeypatch):
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "get_role", lambda id: updated_role)
 
-    role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1")
+    role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1", "Engineering")
 
     assert updated_role.name == "New name"
     assert commit_called is True
 
 
-def test_update_role_changes_and_clears_profession(monkeypatch):
+def test_update_role_changes_profession_and_rejects_clearing(monkeypatch):
     """
     GIVEN an existing role
-    WHEN its profession is updated or cleared
-    THEN the value is persisted."""
+    WHEN its profession is changed or cleared
+    THEN a new value is persisted and clearing is rejected.
+    """
     updated_role = SimpleNamespace(name="Old name", grade="Grade 1", profession="Engineering", archived_at=None)
     monkeypatch.setattr(
         role_service,
@@ -254,8 +244,8 @@ def test_update_role_changes_and_clears_profession(monkeypatch):
     role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1", "Data")
     assert updated_role.profession == "Data"
 
-    role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1", "")
-    assert updated_role.profession is None
+    with pytest.raises(ValueError, match="Profession is required"):
+        role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1", "")
 
 
 def test_update_role_rejects_archived_role(monkeypatch):
@@ -306,7 +296,12 @@ def test_update_role_rolls_back_on_integrity_error(monkeypatch):
     monkeypatch.setattr(role_service, "get_role", lambda id: updated_role)
 
     with pytest.raises(IntegrityError):
-        role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1")
+        role_service.update_role(
+            UUID("00000000-0000-0000-0000-000000000000"),
+            "New name",
+            "Grade 1",
+            "Engineering",
+        )
 
     assert rollback_called is True
     assert updated_role.name == "New name"
