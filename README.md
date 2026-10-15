@@ -93,7 +93,7 @@ VALKEY_HOST=cache
 VALKEY_PORT=6379
 ```
 
-`PROFESSIONS` is an optional comma-separated list of profession names for staged rollout. Values are trimmed and blank entries are ignored. Once roles are being created, a profession must be selected from the configured list; existing roles whose profession has since been removed retain their current value when edited.
+`PROFESSIONS` is a comma-separated list of profession names for staged rollout. Values are trimmed and blank entries are ignored. Once roles are being created, a profession must be selected from the configured list; existing roles whose profession has since been removed retain their current value when edited.
 
 `GRADES`, `LOCATIONS`, and `PROFESSIONS` are parsed consistently: each accepts comma-separated values, trims surrounding whitespace, and ignores blank entries.
 
