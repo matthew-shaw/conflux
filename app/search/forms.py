@@ -8,5 +8,5 @@ class SearchForm(FlaskForm):
         "Search",
         filters=[lambda x: x.strip() if x else x],
         widget=GovTextInput(),
-        description="Search by role, grade, person, location, team, or service",
+        description="Search by role, grade, profession, person, location, employment, team, or service",
     )
