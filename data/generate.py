@@ -99,7 +99,7 @@ COMPONENT_NAMES = (
 )
 LOCALES = ("en_GB", "fr_FR", "es_ES", "de_DE", "it_IT")
 PEOPLE_COUNT = 200
-EMPLOYMENT_TYPES = ("permanent", "contractor")
+EMPLOYMENTS = ("employee", "contractor")
 
 
 def configured_values(name: str) -> list[str]:
@@ -175,7 +175,7 @@ def generate_demo_data() -> dict[str, int]:
                 "name": name,
                 "email_address": f"{email_name}.{person_id[:8]}@example.com",
                 "location": random.choice(locations),
-                "employment_type": random.choice(EMPLOYMENT_TYPES),
+                "employment": random.choice(EMPLOYMENTS),
                 "archived_at": "",
                 "updated_at": timestamp(),
                 "role_id": random.choice(roles)["id"],
@@ -221,7 +221,7 @@ def generate_demo_data() -> dict[str, int]:
             "name",
             "email_address",
             "location",
-            "employment_type",
+            "employment",
             "archived_at",
             "updated_at",
             "role_id",
