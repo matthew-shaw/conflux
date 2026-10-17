@@ -91,10 +91,11 @@ def test_get_roles_returns_all_when_status_all(monkeypatch):
     assert fake_query.calls == [("order_by", "name_col")]
 
 
-def test_get_roles_sorts_by_profession(monkeypatch):
-    """GIVEN roles with assigned or missing professions
-    WHEN roles are sorted by profession
-    THEN the query orders by profession only."""
+@pytest.mark.parametrize("sort_field", ["grade", "profession"])
+def test_get_roles_adds_name_tiebreaker_to_non_name_sorts(monkeypatch, sort_field):
+    """GIVEN roles with equal primary sort values
+    WHEN roles are sorted by grade or profession
+    THEN the query orders by role name as a tie-breaker."""
     fake_query = DummyQuery()
     fake_db = SimpleNamespace(
         select=lambda model: fake_query,
@@ -104,9 +105,10 @@ def test_get_roles_sorts_by_profession(monkeypatch):
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "Role", role)
 
-    role_service.get_roles(sort="profession", status="all")
+    role_service.get_roles(sort=sort_field, status="all")
 
-    assert fake_query.calls == [("order_by", role.profession)]
+    primary_sort = role.grade if sort_field == "grade" else role.profession
+    assert fake_query.calls == [("order_by", primary_sort, role.name)]
 
 
 def test_get_roles_filters_by_profession(monkeypatch):

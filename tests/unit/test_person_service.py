@@ -89,6 +89,45 @@ def test_get_people_sorts_employment_with_name_tiebreaker(app):
         ]
 
 
+def test_get_people_sorts_location_with_name_tiebreaker(app):
+    """GIVEN people with the same location
+    WHEN sorted by location
+    THEN people are ordered by name within each location."""
+    with app.app_context():
+        role = Role(name="Engineer", grade="Grade 7")
+        db.session.add(role)
+        db.session.flush()
+        people = [
+            Person(
+                name="Zed London",
+                email_address="zed@example.com",
+                location="London",
+                employment="employee",
+                role_id=role.id,
+            ),
+            Person(
+                name="Alice London",
+                email_address="alice@example.com",
+                location="London",
+                employment="contractor",
+                role_id=role.id,
+            ),
+            Person(
+                name="Bob Bristol",
+                email_address="bob@example.com",
+                location="Bristol",
+                employment="employee",
+                role_id=role.id,
+            ),
+        ]
+        db.session.add_all(people)
+        db.session.commit()
+
+        result = get_people(status="all", sort="location", per_page=10)
+
+        assert [person.name for person in result.items] == ["Bob Bristol", "Alice London", "Zed London"]
+
+
 def test_get_people_filters_by_role_profession_without_duplicates(app):
     """
     GIVEN several people sharing a role and roles with different professions

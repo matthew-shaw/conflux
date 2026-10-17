@@ -36,7 +36,7 @@ def get_people(
 
     sort_orders = {
         "name": (Person.name,),
-        "location": (Person.location,),
+        "location": (Person.location, Person.name),
         "employment": (Person.employment, Person.name),
         "updated": (Person.updated_at.desc(),),
     }
