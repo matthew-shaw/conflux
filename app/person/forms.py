@@ -42,10 +42,10 @@ class PersonForm(FlaskForm):
         validators=[InputRequired(message="Select a location")],
         description="The person's assigned office location.",
     )
-    employment_type = SelectField(
+    employment = SelectField(
         "Employment type",
         widget=GovSelect(),
-        choices=[("permanent", "Permanent"), ("contractor", "Contractor")],
+        choices=[("employee", "Employee"), ("contractor", "Contractor")],
         validators=[InputRequired(message="Select an employment type")],
     )
     role = SelectField(
@@ -78,7 +78,7 @@ class PersonSortFilterForm(FlaskForm):
         choices=[
             ("name", "Name"),
             ("location", "Location"),
-            ("employment_type", "Employment type"),
+            ("employment", "Employment type"),
             ("updated", "Updated"),
         ],
         default="name",
@@ -89,12 +89,12 @@ class PersonSortFilterForm(FlaskForm):
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
     )
-    employment_type = RadioField(
+    employment = RadioField(
         "Employment type",
         widget=GovRadioInput(),
         choices=[
             ("all", "All"),
-            ("permanent", "Permanent"),
+            ("employee", "Employee"),
             ("contractor", "Contractor"),
         ],
         default="all",

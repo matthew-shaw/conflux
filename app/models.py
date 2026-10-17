@@ -156,14 +156,14 @@ class Person(BaseModel):
 
     __tablename__ = "people"
 
-    EMPLOYMENT_TYPES: ClassVar[tuple[str, str]] = ("permanent", "contractor")
+    EMPLOYMENTS: ClassVar[tuple[str, str]] = ("employee", "contractor")
 
     # Attributes
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(nullable=False, index=True)
     email_address: Mapped[str] = mapped_column(nullable=True, unique=True, index=True)
     location: Mapped[str] = mapped_column(nullable=False, index=True)
-    employment_type: Mapped[str] = mapped_column(nullable=False, index=True)
+    employment: Mapped[str] = mapped_column(nullable=False, index=True)
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -205,7 +205,7 @@ class Person(BaseModel):
         name: str,
         email_address: str,
         location: str,
-        employment_type: str,
+        employment: str,
         role_id: uuid.UUID,
         team_id: uuid.UUID | None = None,
         manager_id: uuid.UUID | None = None,
@@ -213,7 +213,7 @@ class Person(BaseModel):
         self.name = name
         self.email_address = email_address
         self.location = location
-        self.employment_type = employment_type
+        self.employment = employment
         self.role_id = role_id
         self.team_id = team_id
         self.manager_id = manager_id
@@ -230,7 +230,7 @@ class Person(BaseModel):
             "name": self.name,
             "email_address": self.email_address,
             "location": self.location,
-            "employment_type": self.employment_type,
+            "employment": self.employment,
             "updated_at": (self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None),
         }
         if self.archived_at:

@@ -145,7 +145,7 @@
             "description": "Field to sort people by.",
             "schema": {
               "type": "string",
-              "enum": ["name", "location", "employment_type", "updated"],
+              "enum": ["name", "location", "employment", "updated"],
               "default": "name"
             }
           },
@@ -160,7 +160,7 @@
             }
           },
           {
-            "name": "employment_type",
+            "name": "employment",
             "in": "query",
             "description": "Filter people by employment type.",
             "schema": {
@@ -397,8 +397,8 @@
       "EmploymentType": {
         "type": "string",
         "description": "Employment type of a person.",
-        "enum": ["permanent", "contractor"],
-        "example": "permanent"
+        "enum": ["employee", "contractor"],
+        "example": "employee"
       },
       "PersonNested": {
         "type": "object",
@@ -408,7 +408,7 @@
           "name",
           "email_address",
           "location",
-          "employment_type",
+          "employment",
           "updated_at"
         ],
         "properties": {
@@ -433,7 +433,7 @@
             "description": "Office location of the person.",
             "$ref": "#/components/schemas/Location"
           },
-          "employment_type": {
+          "employment": {
             "description": "Employment type of the person.",
             "$ref": "#/components/schemas/EmploymentType"
           },
@@ -527,7 +527,7 @@
           "name",
           "email_address",
           "location",
-          "employment_type",
+          "employment",
           "updated_at"
         ],
         "properties": {
@@ -552,7 +552,7 @@
             "description": "Office location of the person.",
             "$ref": "#/components/schemas/Location"
           },
-          "employment_type": {
+          "employment": {
             "description": "Employment type of the person.",
             "$ref": "#/components/schemas/EmploymentType"
           },

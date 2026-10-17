@@ -61,7 +61,7 @@ def list_people() -> ResponseReturnValue:
         people: Pagination = get_people(
             sort=form.sort.data,
             status=form.status.data,
-            employment_type=form.employment_type.data,
+            employment=form.employment.data,
             page=page,
             per_page=form.per_page.data,
             profession=form.profession.data,
@@ -71,7 +71,7 @@ def list_people() -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(
             "Database error listing people "
-            f"(sort={form.sort.data},status={form.status.data},employment_type={form.employment_type.data},"
+            f"(sort={form.sort.data},status={form.status.data},employment={form.employment.data},"
             f"profession={form.profession.data},"
             f"page={page},per_page={form.per_page.data})"
         )
@@ -117,7 +117,7 @@ def create() -> ResponseReturnValue:
                 name=form.name.data,
                 email_address=form.email_address.data,
                 location=form.location.data,
-                employment_type=form.employment_type.data,
+                employment=form.employment.data,
                 role_id=UUID(form.role.data),
                 team_id=UUID(form.team.data) if form.team.data else None,
                 manager_id=UUID(form.manager.data) if form.manager.data else None,
@@ -183,7 +183,7 @@ def edit(id: UUID) -> ResponseReturnValue:
         else:
             form.email_address.data = person.name.lower().replace(" ", ".") + "@" + current_app.config["DOMAIN"]
         form.location.data = person.location.lower()
-        form.employment_type.data = person.employment_type
+        form.employment.data = person.employment
         form.role.data = str(person.role_id)
         form.team.data = str(person.team_id)
         form.manager.data = str(person.manager_id)
@@ -194,7 +194,7 @@ def edit(id: UUID) -> ResponseReturnValue:
                 name=form.name.data,
                 email_address=form.email_address.data,
                 location=form.location.data,
-                employment_type=form.employment_type.data,
+                employment=form.employment.data,
                 role_id=UUID(form.role.data),
                 team_id=UUID(form.team.data) if form.team.data else None,
                 manager_id=UUID(form.manager.data) if form.manager.data else None,
@@ -294,18 +294,17 @@ def download() -> ResponseReturnValue:
             (
                 "ID",
                 "NAME",
-                "EMPLOYMENT_TYPE",
                 "EMAIL_ADDRESS",
-                "ROLE_ID",
-                "ROLE_NAME",
-                "PROFESSION",
-                "TEAM_ID",
-                "TEAM_NAME",
                 "LOCATION",
-                "MANAGER_ID",
-                "MANAGER_NAME",
+                "EMPLOYMENT",
                 "UPDATED_AT",
                 "ARCHIVED_AT",
+                "ROLE_ID",
+                "ROLE_NAME",
+                "TEAM_ID",
+                "TEAM_NAME",
+                "MANAGER_ID",
+                "MANAGER_NAME",
             )
         )
         yield data.getvalue()
@@ -317,19 +316,18 @@ def download() -> ResponseReturnValue:
             writer.writerow(
                 (
                     person.id,
-                    person.name,
-                    person.employment_type,
-                    person.email_address,
-                    person.role.id if person.role else "",
-                    person.role.name if person.role else "",
-                    person.role.profession if person.role else "",
-                    person.team.id if person.team else "",
-                    person.team.name if person.team else "",
+                    person.name.title(),
+                    person.email_address.lower(),
                     person.location.title(),
-                    person.manager.id if person.manager else "",
-                    person.manager.name if person.manager else "",
+                    person.employment.title(),
                     person.updated_at.isoformat().replace("+00:00", "Z"),
                     (person.archived_at.isoformat().replace("+00:00", "Z") if person.archived_at else ""),
+                    person.role_id,
+                    person.role.name.title() if person.role else "",
+                    person.team_id if person.team_id else "",
+                    person.team.name.title() if person.team else "",
+                    person.manager_id if person.manager_id else "",
+                    person.manager.name.title() if person.manager else "",
                 )
             )
             yield data.getvalue()
