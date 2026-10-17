@@ -279,9 +279,9 @@ def download() -> ResponseReturnValue:
             writer.writerow(
                 (
                     role.id,
-                    role.name,
-                    role.grade,
-                    role.profession,
+                    role.name.title(),
+                    role.grade.title(),
+                    role.profession.title() if role.profession else "",
                     role.updated_at.isoformat().replace("+00:00", "Z"),
                     (role.archived_at.isoformat().replace("+00:00", "Z") if role.archived_at else ""),
                 )

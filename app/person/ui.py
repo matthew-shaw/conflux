@@ -294,18 +294,17 @@ def download() -> ResponseReturnValue:
             (
                 "ID",
                 "NAME",
-                "EMPLOYMENT",
                 "EMAIL_ADDRESS",
-                "ROLE_ID",
-                "ROLE_NAME",
-                "PROFESSION",
-                "TEAM_ID",
-                "TEAM_NAME",
                 "LOCATION",
-                "MANAGER_ID",
-                "MANAGER_NAME",
+                "EMPLOYMENT",
                 "UPDATED_AT",
                 "ARCHIVED_AT",
+                "ROLE_ID",
+                "ROLE_NAME",
+                "TEAM_ID",
+                "TEAM_NAME",
+                "MANAGER_ID",
+                "MANAGER_NAME",
             )
         )
         yield data.getvalue()
@@ -317,19 +316,18 @@ def download() -> ResponseReturnValue:
             writer.writerow(
                 (
                     person.id,
-                    person.name,
-                    person.employment,
-                    person.email_address,
-                    person.role.id if person.role else "",
-                    person.role.name if person.role else "",
-                    person.role.profession if person.role else "",
-                    person.team.id if person.team else "",
-                    person.team.name if person.team else "",
+                    person.name.title(),
+                    person.email_address.lower(),
                     person.location.title(),
-                    person.manager.id if person.manager else "",
-                    person.manager.name if person.manager else "",
+                    person.employment.title(),
                     person.updated_at.isoformat().replace("+00:00", "Z"),
                     (person.archived_at.isoformat().replace("+00:00", "Z") if person.archived_at else ""),
+                    person.role_id,
+                    person.role.name.title() if person.role else "",
+                    person.team_id if person.team_id else "",
+                    person.team.name.title() if person.team else "",
+                    person.manager_id if person.manager_id else "",
+                    person.manager.name.title() if person.manager else "",
                 )
             )
             yield data.getvalue()

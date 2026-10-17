@@ -283,10 +283,13 @@ def test_people_csv_includes_employment_and_raw_names(monkeypatch, test_client):
         name="Contractor Person",
         employment="contractor",
         email_address="contractor@example.com",
-        role=SimpleNamespace(id="role-1", name="Engineer", profession="Engineering"),
+        role_id="role-1",
+        team_id=None,
+        manager_id=None,
+        role=SimpleNamespace(name="software engineer"),
         team=None,
-        location="london",
         manager=None,
+        location="london",
         updated_at=datetime.now(UTC),
         archived_at=None,
     )
@@ -296,5 +299,9 @@ def test_people_csv_includes_employment_and_raw_names(monkeypatch, test_client):
 
     assert response.status_code == 200
     csv_data = response.get_data(as_text=True)
-    assert "ID,NAME,EMPLOYMENT,EMAIL_ADDRESS,ROLE_ID,ROLE_NAME,PROFESSION" in csv_data
-    assert "1,Contractor Person,contractor,contractor@example.com,role-1,Engineer,Engineering" in csv_data
+    assert (
+        "ID,NAME,EMAIL_ADDRESS,LOCATION,EMPLOYMENT,UPDATED_AT,ARCHIVED_AT,"
+        "ROLE_ID,ROLE_NAME,TEAM_ID,TEAM_NAME,MANAGER_ID,MANAGER_NAME"
+    ) in csv_data
+    assert "1,Contractor Person,contractor@example.com,London,Contractor," in csv_data
+    assert ",role-1,Software Engineer,,,," in csv_data

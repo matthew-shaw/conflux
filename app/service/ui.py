@@ -247,10 +247,10 @@ def download() -> ResponseReturnValue:
                 "ID",
                 "NAME",
                 "DESCRIPTION",
+                "ARCHIVED_AT",
+                "UPDATED_AT",
                 "TEAM_ID",
                 "TEAM_NAME",
-                "UPDATED_AT",
-                "ARCHIVED_AT",
             )
         )
         yield data.getvalue()
@@ -262,12 +262,12 @@ def download() -> ResponseReturnValue:
             writer.writerow(
                 (
                     service.id,
-                    service.name,
+                    service.name.title(),
                     service.description,
-                    service.team.id if service.team else "",
-                    service.team.name if service.team else "",
-                    service.updated_at.isoformat().replace("+00:00", "Z"),
                     (service.archived_at.isoformat().replace("+00:00", "Z") if service.archived_at else ""),
+                    service.updated_at.isoformat().replace("+00:00", "Z"),
+                    service.team_id if service.team_id else "",
+                    service.team.name.title() if service.team else "",
                 )
             )
             yield data.getvalue()
