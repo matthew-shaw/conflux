@@ -4,6 +4,30 @@ from app import db
 from app.models import Role
 
 
+def test_role_list_sorts_by_profession(app, test_client):
+    """
+    GIVEN roles whose name order differs from their profession order
+    WHEN the Roles page is sorted by profession
+    THEN roles appear in profession order.
+    """
+    app.config["PROFESSIONS"] = ["Alpha Profession", "Zulu Profession"]
+    app.config["RATELIMIT_ENABLED"] = False
+    with app.app_context():
+        db.session.add_all(
+            [
+                Role(name="Alpha Role", grade="Grade 1", profession="Zulu Profession"),
+                Role(name="Zulu Role", grade="Grade 1", profession="Alpha Profession"),
+            ]
+        )
+        db.session.commit()
+
+    response = test_client.get("/roles/?sort=profession&status=all")
+
+    assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert body.index("Zulu Role") < body.index("Alpha Role")
+
+
 def test_role_profession_create_edit_and_display(app, test_client):
     """
     GIVEN configured profession choices

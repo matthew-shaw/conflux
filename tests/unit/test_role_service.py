@@ -12,8 +12,8 @@ class DummyQuery:
     def __init__(self) -> None:
         self.calls: list[tuple[str, object]] = []
 
-    def order_by(self, value):
-        self.calls.append(("order_by", value))
+    def order_by(self, *values):
+        self.calls.append(("order_by", *values))
         return self
 
     def options(self, value):
@@ -89,6 +89,24 @@ def test_get_roles_returns_all_when_status_all(monkeypatch):
 
     assert roles.items == ["role1"]
     assert fake_query.calls == [("order_by", "name_col")]
+
+
+def test_get_roles_sorts_by_profession(monkeypatch):
+    """GIVEN roles with assigned or missing professions
+    WHEN roles are sorted by profession
+    THEN the query orders by profession only."""
+    fake_query = DummyQuery()
+    fake_db = SimpleNamespace(
+        select=lambda model: fake_query,
+        paginate=lambda *args, **kwargs: DummyPagination([]),
+    )
+    role = make_role_stub()
+    monkeypatch.setattr(role_service, "db", fake_db)
+    monkeypatch.setattr(role_service, "Role", role)
+
+    role_service.get_roles(sort="profession", status="all")
+
+    assert fake_query.calls == [("order_by", role.profession)]
 
 
 def test_get_roles_filters_by_profession(monkeypatch):

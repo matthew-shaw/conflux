@@ -132,6 +132,7 @@ def test_ui_list_roles_uses_service_layer(monkeypatch, test_client):
     assert rendered["template"] == "list-roles.html"
     assert rendered["context"]["roles"].items == ["role1"]
     assert rendered["context"]["form"] is fake_form
+    assert requested["sort"] == "grade"
     assert requested["profession"] == "Engineering"
     assert requested["include_people"] is True
 

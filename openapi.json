@@ -39,7 +39,7 @@
             "description": "Field to sort roles by.",
             "schema": {
               "type": "string",
-              "enum": ["name", "grade", "updated"],
+              "enum": ["name", "grade", "profession", "updated"],
               "default": "name"
             }
           },

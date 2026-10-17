@@ -40,7 +40,9 @@ def get_roles(
     if sort == "name":
         query = query.order_by(Role.name)
     elif sort == "grade":
-        query = query.order_by(Role.grade)
+        query = query.order_by(Role.grade, Role.name)
+    elif sort == "profession":
+        query = query.order_by(Role.profession, Role.name)
     elif sort == "updated":
         query = query.order_by(Role.updated_at.desc())
 
