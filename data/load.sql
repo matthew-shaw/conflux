@@ -11,7 +11,7 @@ COPY teams (id, name, archived_at, updated_at)
 FROM '/data/teams.csv'
 WITH (FORMAT csv, HEADER true);
 
-COPY roles (id, name, grade, updated_at, archived_at)
+COPY roles (id, name, grade, profession, updated_at, archived_at)
 FROM '/data/roles.csv'
 WITH (FORMAT csv, HEADER true);
 

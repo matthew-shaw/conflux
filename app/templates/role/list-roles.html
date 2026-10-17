@@ -32,6 +32,7 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.profession() }}
       {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
@@ -54,6 +55,9 @@
           'text': role.grade
         },
         {
+          'text': role.profession or "None"
+        },
+        {
           'text': role.active_people | length
         },
         {
@@ -70,6 +74,7 @@
         'head': [
           { 'text': "Name" },
           { 'text': "Grade" },
+          { 'text': "Profession" },
           { 'text': "People" },
           { 'text': "Updated" }
         ],
@@ -84,7 +89,7 @@
           {% set _ = pages.append(
             {
               'number': page,
-              'href': url_for('role_ui.list_roles', page=page, per_page=roles.per_page, sort=form.sort.data, status=form.status.data),
+              'href': url_for('role_ui.list_roles', page=page, per_page=roles.per_page, sort=form.sort.data, status=form.status.data, profession=form.profession.data),
               'current': page == roles.page
             }
           ) %}
@@ -97,10 +102,10 @@
 
       {{ govukPagination({
         'previous': {
-          'href': url_for('role_ui.list_roles', page=roles.prev_num, per_page=roles.per_page, sort=form.sort.data, status=form.status.data),
+          'href': url_for('role_ui.list_roles', page=roles.prev_num, per_page=roles.per_page, sort=form.sort.data, status=form.status.data, profession=form.profession.data),
         } if roles.has_prev else None,
         'next': {
-          'href': url_for('role_ui.list_roles', page=roles.next_num, per_page=roles.per_page, sort=form.sort.data, status=form.status.data),
+          'href': url_for('role_ui.list_roles', page=roles.next_num, per_page=roles.per_page, sort=form.sort.data, status=form.status.data, profession=form.profession.data),
         } if roles.has_next else None,
         'items': pages
       }) }}
@@ -111,7 +116,7 @@
         <a class="govuk-link" href="{{ url_for('role_ui.download') }}">CSV format</a>
       </li>
       <li>
-        <a class="govuk-link" href="{{ url_for('role_api.list_roles', page=roles.page, per_page=roles.per_page, sort=form.sort.data, status=form.status.data) }}">JSON format</a>
+        <a class="govuk-link" href="{{ url_for('role_api.list_roles', page=roles.page, per_page=roles.per_page, sort=form.sort.data, status=form.status.data, profession=form.profession.data) }}">JSON format</a>
       </li>
     </ul>
   </div>

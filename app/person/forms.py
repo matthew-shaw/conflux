@@ -99,6 +99,13 @@ class PersonSortFilterForm(FlaskForm):
         ],
         default="all",
     )
+    profession = SelectField(
+        "Profession",
+        widget=GovSelect(),
+        choices=[("", "Any")],
+        default="",
+        validators=[Optional()],
+    )
     per_page = SelectField(
         "Items per page",
         widget=GovSelect(),

@@ -22,6 +22,7 @@ def list_people() -> Response:
             employment_type=request.args.get("employment_type", "all", type=str),
             page=page,
             per_page=per_page,
+            profession=request.args.get("profession", "", type=str),
         )
 
         if page_out_of_range(people, page):

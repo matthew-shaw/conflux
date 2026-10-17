@@ -80,8 +80,9 @@ Create a `.env` file in the root of the repo and enter your specific config base
 ```dotenv
 CONTACT_EMAIL=admin@example.com
 DOMAIN=example.com
-GRADES=AA,AO,EO,HEO,SEO,SEO+,G7,G6,SCS1,SCS2
-LOCATIONS=Birkenhead,Coventry,Croydon,Durham,Fylde,Gloucester,Hull,Leicester,Nottingham,Peterborough,Plymouth,Swansea,Telford,Weymouth
+GRADES=AA,AO,EO,HEO,SEO,G7,G6,SCS1,SCS2
+LOCATIONS=London,Birmingham,Manchester,Glasgow,Newcastle,Sheffield,Leeds,Liverpool,Nottingham,Bradford
+PROFESSIONS=Software Development,Product and Delivery,Quality assurance testing,User-centred design
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=db
 POSTGRES_PASSWORD=smartestmanalive
@@ -91,6 +92,14 @@ SECRET_KEY=<see_below>
 VALKEY_HOST=cache
 VALKEY_PORT=6379
 ```
+
+`PROFESSIONS` is a comma-separated list of profession names for staged rollout. Values are trimmed and blank entries are ignored. Once roles are being created, a profession must be selected from the configured list; existing roles whose profession has since been removed retain their current value when edited.
+
+`GRADES`, `LOCATIONS`, and `PROFESSIONS` are parsed consistently: each accepts comma-separated values, trims surrounding whitespace, and ignores blank entries.
+
+The Roles page and `GET /api/v1/roles` support an optional `profession` filter. An empty value (the default) includes all roles, including roles without an assigned profession; a non-empty value matches the configured profession exactly. The filter can be combined with the existing status, sort, page, and per-page parameters.
+
+The People page and `GET /api/v1/people` support the same optional `profession` filter, matching people through their assigned role. An empty value (the default) includes people in roles without a profession. It can be combined with status, employment type, sort, page, and per-page parameters.
 
 You **must** set a new `SECRET_KEY`, which is used to securely sign the session cookie and CSRF tokens. It should be a long random `bytes` or `str`. You can use the output of this Python command to generate a new key:
 
@@ -108,7 +117,7 @@ You should now have the app running on <https://localhost/>. Accept the browsers
 
 ### Generate and load local demo data
 
-With the containers running and `GRADES` and `LOCATIONS` set in `.env`, generate fictional data and import it into the local Compose database:
+With the containers running and `GRADES`, `LOCATIONS` and `PROFESSIONS` set in `.env`, generate fictional data and import it into the local Compose database:
 
 ```shell
 uv run --locked python data/generate.py
@@ -116,6 +125,8 @@ uv run --locked python data/generate.py
 ```
 
 The generator creates linked teams, roles, people, services, components and service-component relationships as CSV files in `data/`. The import replaces existing Conflux data in the Compose database, so it asks for confirmation before proceeding. If an import fails, the transaction is rolled back.
+
+Generated people are assigned one of the locations in `LOCATIONS`. Generated roles are limited to the role families named in `PROFESSIONS`, using the values in the example configuration: Software Development, Product and Delivery, Quality assurance testing, and User-centred design. These role families are from the [Government Digital and Data Profession Capability Framework](https://understand-digital-data-roles-skills.service.gov.uk/).
 
 Role grades use the higher grade where the Government Digital and Data Profession Capability Framework lists a range. For levels without a published indicative grade, the generator carries forward the highest grade stated for that role family; trainee business analyst is assigned EO. Ensure `GRADES` includes all generated grades: EO, HEO, SEO, G7 and G6.
 

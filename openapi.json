@@ -54,6 +54,14 @@
             }
           },
           {
+            "name": "profession",
+            "in": "query",
+            "description": "Filter roles by exact profession. Omit this parameter to include all professions, including unassigned roles.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "page",
             "in": "query",
             "description": "Page number for paginated results.",
@@ -166,6 +174,14 @@
                 }
               ],
               "default": "all"
+            }
+          },
+          {
+            "name": "profession",
+            "in": "query",
+            "description": "Filter people by their assigned role's profession.",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -431,7 +447,7 @@
       "RoleNested": {
         "type": "object",
         "description": "A lightweight representation of a role.",
-        "required": ["id", "name", "grade", "updated_at"],
+        "required": ["id", "name", "grade", "profession", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -446,6 +462,11 @@
           "grade": {
             "description": "Grade associated with the role.",
             "$ref": "#/components/schemas/Grade"
+          },
+          "profession": {
+            "type": "string",
+            "nullable": true,
+            "description": "Profession associated with the role. This can be null for roles created before a profession was required."
           },
           "updated_at": {
             "type": "string",
@@ -570,7 +591,7 @@
       "Role": {
         "type": "object",
         "description": "Detailed representation of a role.",
-        "required": ["id", "name", "grade", "updated_at"],
+        "required": ["id", "name", "grade", "profession", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -585,6 +606,11 @@
           "grade": {
             "description": "Grade associated with the role.",
             "$ref": "#/components/schemas/Grade"
+          },
+          "profession": {
+            "type": "string",
+            "nullable": true,
+            "description": "Profession associated with the role. This can be null for roles created before a profession was required."
           },
           "updated_at": {
             "type": "string",
