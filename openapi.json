@@ -8,7 +8,7 @@
   "servers": [
     {
       "name": "Local development",
-      "url": "https://localhost/api/v1/",
+      "url": "https://localhost/api/v1",
       "description": "Local development server"
     }
   ],
@@ -57,14 +57,7 @@
             }
           },
           {
-            "name": "status",
-            "in": "query",
-            "description": "Filter roles by status.",
-            "schema": {
-              "type": "string",
-              "enum": ["active", "archived", "all"],
-              "default": "active"
-            }
+            "$ref": "#/components/parameters/Status"
           },
           {
             "name": "profession",
@@ -75,22 +68,10 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
+            "$ref": "#/components/parameters/Page"
           },
           {
-            "name": "per_page",
-            "in": "query",
-            "description": "Number of results per page for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 25
-            }
+            "$ref": "#/components/parameters/PerPage"
           }
         ],
         "responses": {
@@ -172,14 +153,7 @@
             }
           },
           {
-            "name": "status",
-            "in": "query",
-            "description": "Filter people by status.",
-            "schema": {
-              "type": "string",
-              "enum": ["active", "archived", "all"],
-              "default": "active"
-            }
+            "$ref": "#/components/parameters/Status"
           },
           {
             "name": "employment",
@@ -207,22 +181,10 @@
             }
           },
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
+            "$ref": "#/components/parameters/Page"
           },
           {
-            "name": "per_page",
-            "in": "query",
-            "description": "Number of results per page for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 25
-            }
+            "$ref": "#/components/parameters/PerPage"
           }
         ],
         "responses": {
@@ -304,32 +266,13 @@
             }
           },
           {
-            "name": "status",
-            "in": "query",
-            "description": "Filter teams by status.",
-            "schema": {
-              "type": "string",
-              "enum": ["active", "archived", "all"],
-              "default": "active"
-            }
+            "$ref": "#/components/parameters/Status"
           },
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
+            "$ref": "#/components/parameters/Page"
           },
           {
-            "name": "per_page",
-            "in": "query",
-            "description": "Number of results per page for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 25
-            }
+            "$ref": "#/components/parameters/PerPage"
           }
         ],
         "responses": {
@@ -411,32 +354,13 @@
             }
           },
           {
-            "name": "status",
-            "in": "query",
-            "description": "Filter services by status.",
-            "schema": {
-              "type": "string",
-              "enum": ["active", "archived", "all"],
-              "default": "active"
-            }
+            "$ref": "#/components/parameters/Status"
           },
           {
-            "name": "page",
-            "in": "query",
-            "description": "Page number for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
+            "$ref": "#/components/parameters/Page"
           },
           {
-            "name": "per_page",
-            "in": "query",
-            "description": "Number of results per page for paginated results.",
-            "schema": {
-              "type": "integer",
-              "default": 25
-            }
+            "$ref": "#/components/parameters/PerPage"
           }
         ],
         "responses": {
@@ -502,6 +426,37 @@
     }
   },
   "components": {
+    "parameters": {
+      "Status": {
+        "name": "status",
+        "in": "query",
+        "description": "Filter records by status.",
+        "schema": {
+          "type": "string",
+          "enum": ["active", "archived", "all"],
+          "default": "active"
+        }
+      },
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "description": "Page number for paginated results.",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "PerPage": {
+        "name": "per_page",
+        "in": "query",
+        "description": "Number of results per page. Values below 1 are treated as 20.",
+        "schema": {
+          "type": "integer",
+          "default": 25
+        }
+      }
+    },
     "responses": {
       "NotFound": {
         "description": "The requested resource or page was not found.",
@@ -581,19 +536,11 @@
           },
           "location": {
             "description": "Office location of the person.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Location"
-              }
-            ]
+            "$ref": "#/components/schemas/Location"
           },
           "employment": {
             "description": "Employment type of the person.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EmploymentType"
-              }
-            ]
+            "$ref": "#/components/schemas/EmploymentType"
           },
           "updated_at": {
             "type": "string",
@@ -624,11 +571,7 @@
           },
           "grade": {
             "description": "Grade associated with the role.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Grade"
-              }
-            ]
+            "$ref": "#/components/schemas/Grade"
           },
           "profession": {
             "type": ["string", "null"],
@@ -735,19 +678,11 @@
           },
           "location": {
             "description": "Office location of the person.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Location"
-              }
-            ]
+            "$ref": "#/components/schemas/Location"
           },
           "employment": {
             "description": "Employment type of the person.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/EmploymentType"
-              }
-            ]
+            "$ref": "#/components/schemas/EmploymentType"
           },
           "updated_at": {
             "type": "string",
@@ -761,27 +696,15 @@
           },
           "role": {
             "description": "Role performed by the person.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/RoleNested"
-              }
-            ]
+            "$ref": "#/components/schemas/RoleNested"
           },
           "team": {
             "description": "Team the person belongs to.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TeamNested"
-              }
-            ]
+            "$ref": "#/components/schemas/TeamNested"
           },
           "manager": {
             "description": "Manager of the person.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/PersonNested"
-              }
-            ]
+            "$ref": "#/components/schemas/PersonNested"
           },
           "reports": {
             "type": "array",
@@ -809,11 +732,7 @@
           },
           "grade": {
             "description": "Grade associated with the role.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Grade"
-              }
-            ]
+            "$ref": "#/components/schemas/Grade"
           },
           "profession": {
             "type": ["string", "null"],
@@ -910,11 +829,7 @@
           },
           "team": {
             "description": "Team that owns the service. Omitted when the service has no team.",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TeamNested"
-              }
-            ]
+            "$ref": "#/components/schemas/TeamNested"
           }
         }
       }
