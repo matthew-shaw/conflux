@@ -1,9 +1,9 @@
 {
-  "openapi": "3.0.3",
+  "openapi": "3.0.4",
   "info": {
     "title": "Conflux",
-    "version": "0.11.0",
-    "description": "Read-only API for roles, people, teams, services, and components."
+    "version": "0.13.0",
+    "description": "Read-only API for roles, people, teams, and services."
   },
   "servers": [
     {
@@ -23,10 +23,14 @@
     {
       "name": "Team",
       "description": "Operations related to Teams."
+    },
+    {
+      "name": "Service",
+      "description": "Operations related to Services."
     }
   ],
   "paths": {
-    "/roles": {
+    "/roles/": {
       "get": {
         "summary": "List roles",
         "description": "Returns a list of roles in the organisation, optionally filtered and sorted.",
@@ -67,16 +71,16 @@
             "description": "Page number for paginated results.",
             "schema": {
               "type": "integer",
-              "default": "1"
+              "default": 1
             }
           },
           {
             "name": "per_page",
             "in": "query",
-            "description": "Number of results per page for paginated results..",
+            "description": "Number of results per page for paginated results.",
             "schema": {
               "type": "integer",
-              "default": "25"
+              "default": 25
             }
           }
         ],
@@ -93,6 +97,12 @@
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
           }
         }
       }
@@ -127,12 +137,15 @@
             }
           },
           "404": {
-            "description": "Role not found"
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
           }
         }
       }
     },
-    "/people": {
+    "/people/": {
       "get": {
         "summary": "List people",
         "description": "Returns a list of people in the organisation, optionally filtered and sorted.",
@@ -190,16 +203,16 @@
             "description": "Page number for paginated results.",
             "schema": {
               "type": "integer",
-              "default": "1"
+              "default": 1
             }
           },
           {
             "name": "per_page",
             "in": "query",
-            "description": "Number of results per page for paginated results..",
+            "description": "Number of results per page for paginated results.",
             "schema": {
               "type": "integer",
-              "default": "25"
+              "default": 25
             }
           }
         ],
@@ -216,6 +229,12 @@
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
           }
         }
       }
@@ -250,12 +269,15 @@
             }
           },
           "404": {
-            "description": "Person not found"
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
           }
         }
       }
     },
-    "/teams": {
+    "/teams/": {
       "get": {
         "summary": "List teams",
         "description": "Returns a list of teams in the organisation, optionally filtered and sorted.",
@@ -288,16 +310,16 @@
             "description": "Page number for paginated results.",
             "schema": {
               "type": "integer",
-              "default": "1"
+              "default": 1
             }
           },
           {
             "name": "per_page",
             "in": "query",
-            "description": "Number of results per page for paginated results..",
+            "description": "Number of results per page for paginated results.",
             "schema": {
               "type": "integer",
-              "default": "25"
+              "default": 25
             }
           }
         ],
@@ -314,6 +336,12 @@
                 }
               }
             }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
           }
         }
       }
@@ -348,50 +376,164 @@
             }
           },
           "404": {
-            "description": "Team not found"
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
+          }
+        }
+      }
+    },
+    "/services/": {
+      "get": {
+        "summary": "List services",
+        "description": "Returns a list of services in the organisation, optionally filtered and sorted.",
+        "operationId": "listServices",
+        "tags": ["Service"],
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Field to sort services by.",
+            "schema": {
+              "type": "string",
+              "enum": ["name", "updated"],
+              "default": "name"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter services by status.",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "archived", "all"],
+              "default": "active"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number for paginated results.",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of results per page for paginated results.",
+            "schema": {
+              "type": "integer",
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of services",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServiceNested"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
+          }
+        }
+      }
+    },
+    "/services/{id}": {
+      "get": {
+        "summary": "Get a service by ID",
+        "description": "Returns detailed information about a specific service.",
+        "operationId": "getService",
+        "tags": ["Service"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Unique identifier of the service.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Service"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DatabaseError"
           }
         }
       }
     }
   },
   "components": {
+    "responses": {
+      "NotFound": {
+        "description": "The requested resource or page was not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "DatabaseError": {
+        "description": "A database error occurred.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
     "schemas": {
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message."
+          }
+        }
+      },
       "Grade": {
         "type": "string",
-        "description": "Civil Service grade associated with a role.",
-        "enum": [
-          "AA",
-          "AO",
-          "EO",
-          "HEO",
-          "SEO",
-          "SEO+",
-          "G7",
-          "G6",
-          "SCS1",
-          "SCS2"
-        ],
+        "description": "Civil Service grade associated with a role. Values are configured per deployment.",
         "example": "SEO"
       },
       "Location": {
         "type": "string",
-        "description": "Office location where a person is based.",
-        "enum": [
-          "Birkenhead",
-          "Coventry",
-          "Croydon",
-          "Durham",
-          "Fylde",
-          "Gloucester",
-          "Hull",
-          "Leicester",
-          "Nottingham",
-          "Peterborough",
-          "Plymouth",
-          "Swansea",
-          "Telford",
-          "Weymouth"
-        ],
+        "description": "Office location where a person is based. Values are configured per deployment.",
         "example": "Plymouth"
       },
       "EmploymentType": {
@@ -431,16 +573,29 @@
           },
           "location": {
             "description": "Office location of the person.",
-            "$ref": "#/components/schemas/Location"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              }
+            ]
           },
           "employment": {
             "description": "Employment type of the person.",
-            "$ref": "#/components/schemas/EmploymentType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmploymentType"
+              }
+            ]
           },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the person was last updated."
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the person was archived; omitted for active people."
           }
         }
       },
@@ -461,7 +616,11 @@
           },
           "grade": {
             "description": "Grade associated with the role.",
-            "$ref": "#/components/schemas/Grade"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Grade"
+              }
+            ]
           },
           "profession": {
             "type": "string",
@@ -472,6 +631,11 @@
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the role was last updated."
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the role was archived; omitted for active roles."
           }
         }
       },
@@ -494,13 +658,18 @@
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the team was last updated."
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the team was archived; omitted for active teams."
           }
         }
       },
       "ServiceNested": {
         "type": "object",
         "description": "A lightweight representation of a service.",
-        "required": ["id", "name", "updated_at"],
+        "required": ["id", "name", "description", "updated_at"],
         "properties": {
           "id": {
             "type": "string",
@@ -512,10 +681,20 @@
             "description": "Display name of the service.",
             "example": "Case Management"
           },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Description of the service."
+          },
           "updated_at": {
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the service was last updated."
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the service was archived; omitted for active services."
           }
         }
       },
@@ -528,7 +707,8 @@
           "email_address",
           "location",
           "employment",
-          "updated_at"
+          "updated_at",
+          "reports"
         ],
         "properties": {
           "id": {
@@ -550,11 +730,19 @@
           },
           "location": {
             "description": "Office location of the person.",
-            "$ref": "#/components/schemas/Location"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              }
+            ]
           },
           "employment": {
             "description": "Employment type of the person.",
-            "$ref": "#/components/schemas/EmploymentType"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmploymentType"
+              }
+            ]
           },
           "updated_at": {
             "type": "string",
@@ -564,20 +752,31 @@
           "archived_at": {
             "type": "string",
             "format": "date-time",
-            "nullable": true,
-            "description": "Timestamp when the person was archived, if applicable."
+            "description": "Timestamp when the person was archived; omitted for active people."
           },
           "role": {
             "description": "Role performed by the person.",
-            "$ref": "#/components/schemas/RoleNested"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RoleNested"
+              }
+            ]
           },
           "team": {
             "description": "Team the person belongs to.",
-            "$ref": "#/components/schemas/TeamNested"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamNested"
+              }
+            ]
           },
           "manager": {
             "description": "Manager of the person.",
-            "$ref": "#/components/schemas/PersonNested"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PersonNested"
+              }
+            ]
           },
           "reports": {
             "type": "array",
@@ -591,7 +790,7 @@
       "Role": {
         "type": "object",
         "description": "Detailed representation of a role.",
-        "required": ["id", "name", "grade", "profession", "updated_at"],
+        "required": ["id", "name", "grade", "profession", "updated_at", "people"],
         "properties": {
           "id": {
             "type": "string",
@@ -605,7 +804,11 @@
           },
           "grade": {
             "description": "Grade associated with the role.",
-            "$ref": "#/components/schemas/Grade"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Grade"
+              }
+            ]
           },
           "profession": {
             "type": "string",
@@ -616,6 +819,11 @@
             "type": "string",
             "format": "date-time",
             "description": "Timestamp when the role was last updated."
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the role was archived; omitted for active roles."
           },
           "people": {
             "type": "array",
@@ -629,7 +837,7 @@
       "Team": {
         "type": "object",
         "description": "Detailed representation of a team.",
-        "required": ["id", "name", "updated_at"],
+        "required": ["id", "name", "updated_at", "people", "services"],
         "properties": {
           "id": {
             "type": "string",
@@ -646,6 +854,11 @@
             "format": "date-time",
             "description": "Timestamp when the team was last updated."
           },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the team was archived; omitted for active teams."
+          },
           "people": {
             "type": "array",
             "description": "People assigned to this team.",
@@ -659,6 +872,46 @@
             "items": {
               "$ref": "#/components/schemas/ServiceNested"
             }
+          }
+        }
+      },
+      "Service": {
+        "type": "object",
+        "description": "Detailed representation of a service.",
+        "required": ["id", "name", "description", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier of the service."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the service.",
+            "example": "Case Management"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Description of the service."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the service was last updated."
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the service was archived; omitted for active services."
+          },
+          "team": {
+            "description": "Team that owns the service. Omitted when the service has no team.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TeamNested"
+              }
+            ]
           }
         }
       }
