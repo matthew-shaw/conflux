@@ -1,33 +1,120 @@
-# Get a list of active roles
-GET https://localhost/roles/?sort=name&status=active
-Accept: application/json
+@baseUrl = https://localhost/api/v1
+# Replace these sample IDs with UUIDs present in your local database.
+@roleId = be73522e-21c5-41e0-af03-543147404e52
+@personId = 1dbc8b9d-282b-415d-843b-1dd7f7225a9c
+@teamId = 8bb44ffb-280f-4eac-9450-832784415c0b
+@serviceId = 00000000-0000-0000-0000-000000000000
 
-### 
+### Roles
 
-# Get an individual role
-GET https://localhost/roles/be73522e-21c5-41e0-af03-543147404e52
-Accept: application/json
-
-###
-
-# Get a list of active teams
-GET https://localhost/teams/?sort=name&status=active
+# List active roles, sorted by name (default filters and pagination).
+GET {{baseUrl}}/roles/?sort=name&status=active&page=1&per_page=25
 Accept: application/json
 
 ###
 
-# Get an individual team
-GET https://localhost/teams/8bb44ffb-280f-4eac-9450-832784415c0b
+# List all roles, sorted by grade and filtered by profession.
+GET {{baseUrl}}/roles/?sort=grade&status=all&profession=Engineering&page=1&per_page=25
 Accept: application/json
 
 ###
 
-# Get a list of active people
-GET https://localhost/people/?sort=name&status=active
+# List archived roles.
+GET {{baseUrl}}/roles/?sort=updated&status=archived&page=1&per_page=25
 Accept: application/json
 
 ###
 
-# Get an individual person
-GET https://localhost/people/1dbc8b9d-282b-415d-843b-1dd7f7225a9c
+# Get a role and its active people.
+GET {{baseUrl}}/roles/{{roleId}}
+Accept: application/json
+
+### People
+
+# List active people, sorted by name.
+GET {{baseUrl}}/people/?sort=name&status=active&employment=all&page=1&per_page=25
+Accept: application/json
+
+###
+
+# Filter people by employment type.
+GET {{baseUrl}}/people/?sort=employment&status=active&employment=contractor&page=1&per_page=25
+Accept: application/json
+
+###
+
+# Filter people by their assigned role's profession.
+GET {{baseUrl}}/people/?sort=location&status=all&employment=employee&profession=Engineering&page=1&per_page=25
+Accept: application/json
+
+###
+
+# List archived people.
+GET {{baseUrl}}/people/?sort=updated&status=archived&employment=all&page=1&per_page=25
+Accept: application/json
+
+###
+
+# Get a person with their role, team, manager, and reports.
+GET {{baseUrl}}/people/{{personId}}
+Accept: application/json
+
+### Teams
+
+# List active teams, sorted by name.
+GET {{baseUrl}}/teams/?sort=name&status=active&page=1&per_page=25
+Accept: application/json
+
+###
+
+# List all teams, newest updated first.
+GET {{baseUrl}}/teams/?sort=updated&status=all&page=1&per_page=25
+Accept: application/json
+
+###
+
+# List archived teams.
+GET {{baseUrl}}/teams/?sort=name&status=archived&page=1&per_page=25
+Accept: application/json
+
+###
+
+# Get a team and its active people and owned services.
+GET {{baseUrl}}/teams/{{teamId}}
+Accept: application/json
+
+### Services
+
+# List active services, sorted by name.
+GET {{baseUrl}}/services/?sort=name&status=active&page=1&per_page=25
+Accept: application/json
+
+###
+
+# List all services, newest updated first.
+GET {{baseUrl}}/services/?sort=updated&status=all&page=1&per_page=25
+Accept: application/json
+
+###
+
+# List archived services.
+GET {{baseUrl}}/services/?sort=name&status=archived&page=1&per_page=25
+Accept: application/json
+
+###
+
+# Get a service and its owning team, if assigned.
+GET {{baseUrl}}/services/{{serviceId}}
+Accept: application/json
+
+### Error examples
+
+# A valid UUID that is not expected to exist returns 404.
+GET {{baseUrl}}/roles/00000000-0000-0000-0000-000000000000
+Accept: application/json
+
+###
+
+# A page beyond the available results returns 404.
+GET {{baseUrl}}/roles/?page=999999&per_page=25
 Accept: application/json
