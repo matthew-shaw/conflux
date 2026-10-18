@@ -718,7 +718,14 @@
       "Role": {
         "type": "object",
         "description": "Detailed representation of a role.",
-        "required": ["id", "name", "grade", "profession", "updated_at", "people"],
+        "required": [
+          "id",
+          "name",
+          "grade",
+          "profession",
+          "updated_at",
+          "people"
+        ],
         "properties": {
           "id": {
             "type": "string",
