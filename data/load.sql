@@ -20,7 +20,7 @@ COPY people (
     name,
     email_address,
     location,
-    employment_type,
+    employment,
     archived_at,
     updated_at,
     role_id,

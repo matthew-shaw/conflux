@@ -67,6 +67,7 @@ class RoleSortFilterForm(FlaskForm):
         choices=[
             ("name", "Name"),
             ("grade", "Grade"),
+            ("profession", "Profession"),
             ("updated", "Updated"),
         ],
         default="name",

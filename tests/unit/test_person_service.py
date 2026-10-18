@@ -6,40 +6,40 @@ from app.person.service import get_people
 
 
 def test_get_people_filters_employment_independently_from_status(app):
-    """GIVEN active and archived people of both employment types
+    """GIVEN active and archived employees and contractors
     WHEN employment and status filters are applied
     THEN both filters are respected independently."""
     with app.app_context():
         role = Role(name="Engineer", grade="Grade 7")
         db.session.add(role)
         db.session.flush()
-        permanent = Person(
-            name="Permanent Person",
-            email_address="permanent@example.com",
+        employee = Person(
+            name="Employee Person",
+            email_address="employee@example.com",
             location="London",
-            employment_type="permanent",
+            employment="employee",
             role_id=role.id,
         )
         contractor = Person(
             name="Contractor Person",
             email_address="contractor@example.com",
             location="London",
-            employment_type="contractor",
+            employment="contractor",
             role_id=role.id,
         )
         archived_contractor = Person(
             name="Archived Contractor",
             email_address="archived@example.com",
             location="London",
-            employment_type="contractor",
+            employment="contractor",
             role_id=role.id,
         )
         archived_contractor.archived_at = datetime.now(UTC)
-        db.session.add_all([permanent, contractor, archived_contractor])
+        db.session.add_all([employee, contractor, archived_contractor])
         db.session.commit()
 
-        active_contractors = get_people(status="active", employment_type="contractor", per_page=10)
-        all_contractors = get_people(status="all", employment_type="contractor", per_page=10)
+        active_contractors = get_people(status="active", employment="contractor", per_page=10)
+        all_contractors = get_people(status="all", employment="contractor", per_page=10)
 
         assert [person.name for person in active_contractors.items] == ["Contractor Person"]
         assert [person.name for person in all_contractors.items] == [
@@ -48,8 +48,8 @@ def test_get_people_filters_employment_independently_from_status(app):
         ]
 
 
-def test_get_people_sorts_employment_type_with_name_tiebreaker(app):
-    """GIVEN people with both employment types WHEN sorted by employment type THEN type and name order are used."""
+def test_get_people_sorts_employment_with_name_tiebreaker(app):
+    """GIVEN employees and contractors WHEN sorted by employment THEN type and name order are used."""
     with app.app_context():
         role = Role(name="Engineer", grade="Grade 7")
         db.session.add(role)
@@ -59,34 +59,73 @@ def test_get_people_sorts_employment_type_with_name_tiebreaker(app):
                 name="Zed Contractor",
                 email_address="zed@example.com",
                 location="London",
-                employment_type="contractor",
+                employment="contractor",
                 role_id=role.id,
             ),
             Person(
-                name="Beta Permanent",
+                name="Beta Employee",
                 email_address="beta@example.com",
                 location="London",
-                employment_type="permanent",
+                employment="employee",
                 role_id=role.id,
             ),
             Person(
                 name="Alpha Contractor",
                 email_address="alpha@example.com",
                 location="London",
-                employment_type="contractor",
+                employment="contractor",
                 role_id=role.id,
             ),
         ]
         db.session.add_all(people)
         db.session.commit()
 
-        result = get_people(status="all", sort="employment_type", per_page=10)
+        result = get_people(status="all", sort="employment", per_page=10)
 
         assert [person.name for person in result.items] == [
             "Alpha Contractor",
             "Zed Contractor",
-            "Beta Permanent",
+            "Beta Employee",
         ]
+
+
+def test_get_people_sorts_location_with_name_tiebreaker(app):
+    """GIVEN people with the same location
+    WHEN sorted by location
+    THEN people are ordered by name within each location."""
+    with app.app_context():
+        role = Role(name="Engineer", grade="Grade 7")
+        db.session.add(role)
+        db.session.flush()
+        people = [
+            Person(
+                name="Zed London",
+                email_address="zed@example.com",
+                location="London",
+                employment="employee",
+                role_id=role.id,
+            ),
+            Person(
+                name="Alice London",
+                email_address="alice@example.com",
+                location="London",
+                employment="contractor",
+                role_id=role.id,
+            ),
+            Person(
+                name="Bob Bristol",
+                email_address="bob@example.com",
+                location="Bristol",
+                employment="employee",
+                role_id=role.id,
+            ),
+        ]
+        db.session.add_all(people)
+        db.session.commit()
+
+        result = get_people(status="all", sort="location", per_page=10)
+
+        assert [person.name for person in result.items] == ["Bob Bristol", "Alice London", "Zed London"]
 
 
 def test_get_people_filters_by_role_profession_without_duplicates(app):
@@ -107,28 +146,28 @@ def test_get_people_filters_by_role_profession_without_duplicates(app):
                     name="Alice Engineer",
                     email_address="alice@example.com",
                     location="London",
-                    employment_type="permanent",
+                    employment="employee",
                     role_id=engineering.id,
                 ),
                 Person(
                     name="Bob Engineer",
                     email_address="bob@example.com",
                     location="London",
-                    employment_type="contractor",
+                    employment="contractor",
                     role_id=engineering.id,
                 ),
                 Person(
                     name="Cara Product",
                     email_address="cara@example.com",
                     location="London",
-                    employment_type="permanent",
+                    employment="employee",
                     role_id=product.id,
                 ),
                 Person(
                     name="Dan Analyst",
                     email_address="dan@example.com",
                     location="London",
-                    employment_type="permanent",
+                    employment="employee",
                     role_id=unassigned.id,
                 ),
             ]
@@ -145,10 +184,10 @@ def test_get_people_filters_by_role_profession_without_duplicates(app):
         assert result.items[0].role.profession == "Engineering"
 
 
-def test_get_people_profession_filter_combines_status_and_employment_type(app):
+def test_get_people_profession_filter_combines_status_and_employment(app):
     """
     GIVEN active and archived people assigned to a profession
-    WHEN profession, status, and employment type filters are combined
+    WHEN profession, status, and employment filters are combined
     THEN only the matching person is included.
     """
     with app.app_context():
@@ -159,14 +198,14 @@ def test_get_people_profession_filter_combines_status_and_employment_type(app):
             name="Active Contractor",
             email_address="active@example.com",
             location="London",
-            employment_type="contractor",
+            employment="contractor",
             role_id=role.id,
         )
         archived = Person(
             name="Archived Contractor",
             email_address="archived@example.com",
             location="London",
-            employment_type="contractor",
+            employment="contractor",
             role_id=role.id,
         )
         archived.archived_at = datetime.now(UTC)
@@ -175,7 +214,7 @@ def test_get_people_profession_filter_combines_status_and_employment_type(app):
 
         result = get_people(
             status="active",
-            employment_type="contractor",
+            employment="contractor",
             profession="Engineering",
             per_page=10,
         )

@@ -20,7 +20,7 @@ def test_api_view_includes_only_active_people(app, test_client):
             name="Active Person",
             email_address="active@example.com",
             location="London",
-            employment_type="permanent",
+            employment="employee",
             role_id=role.id,
             team_id=team.id,
         )
@@ -28,7 +28,7 @@ def test_api_view_includes_only_active_people(app, test_client):
             name="Archived Person",
             email_address="archived@example.com",
             location="London",
-            employment_type="permanent",
+            employment="employee",
             role_id=role.id,
             team_id=team.id,
         )

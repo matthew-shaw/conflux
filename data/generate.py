@@ -40,22 +40,22 @@ ROLES = (
     ("Delivery Manager", "G7", "Product and Delivery"),
     ("Senior Delivery Manager", "G7", "Product and Delivery"),
     ("Head of Delivery Management", "G7", "Product and Delivery"),
-    ("Associate Test Engineer", "EO", "Quality assurance testing"),
-    ("Test Engineer", "SEO", "Quality assurance testing"),
-    ("Senior Test Engineer", "G7", "Quality assurance testing"),
-    ("Lead Test Engineer", "G6", "Quality assurance testing"),
+    ("Associate Test Engineer", "EO", "Quality Assurance Testing"),
+    ("Test Engineer", "SEO", "Quality Assurance Testing"),
+    ("Senior Test Engineer", "G7", "Quality Assurance Testing"),
+    ("Lead Test Engineer", "G6", "Quality Assurance Testing"),
     ("Trainee Business Analyst", "EO", "Product and Delivery"),
     ("Junior Business Analyst", "HEO", "Product and Delivery"),
     ("Business Analyst", "SEO", "Product and Delivery"),
     ("Senior Business Analyst", "G7", "Product and Delivery"),
     ("Lead Business Analyst", "G7", "Product and Delivery"),
     ("Head of Business Analysis", "G7", "Product and Delivery"),
-    ("Associate User Researcher", "EO", "User-centred design"),
-    ("Junior User Researcher", "HEO", "User-centred design"),
-    ("User Researcher", "SEO", "User-centred design"),
-    ("Senior User Researcher", "G7", "User-centred design"),
-    ("Lead User Researcher", "G7", "User-centred design"),
-    ("Head of User Research", "G7", "User-centred design"),
+    ("Associate User Researcher", "EO", "User-Centred Design"),
+    ("Junior User Researcher", "HEO", "User-Centred Design"),
+    ("User Researcher", "SEO", "User-Centred Design"),
+    ("Senior User Researcher", "G7", "User-Centred Design"),
+    ("Lead User Researcher", "G7", "User-Centred Design"),
+    ("Head of User Research", "G7", "User-Centred Design"),
 )
 SERVICES = (
     ("Account Management", "Manages customer accounts and profile information."),
@@ -99,7 +99,7 @@ COMPONENT_NAMES = (
 )
 LOCALES = ("en_GB", "fr_FR", "es_ES", "de_DE", "it_IT")
 PEOPLE_COUNT = 200
-EMPLOYMENT_TYPES = ("permanent", "contractor")
+EMPLOYMENTS = ("employee", "contractor")
 
 
 def configured_values(name: str) -> list[str]:
@@ -175,7 +175,7 @@ def generate_demo_data() -> dict[str, int]:
                 "name": name,
                 "email_address": f"{email_name}.{person_id[:8]}@example.com",
                 "location": random.choice(locations),
-                "employment_type": random.choice(EMPLOYMENT_TYPES),
+                "employment": random.choice(EMPLOYMENTS),
                 "archived_at": "",
                 "updated_at": timestamp(),
                 "role_id": random.choice(roles)["id"],
@@ -221,7 +221,7 @@ def generate_demo_data() -> dict[str, int]:
             "name",
             "email_address",
             "location",
-            "employment_type",
+            "employment",
             "archived_at",
             "updated_at",
             "role_id",

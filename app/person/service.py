@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def get_people(
     sort: str = "name",
     status: str = "active",
-    employment_type: str = "all",
+    employment: str = "all",
     page: int = 1,
     per_page: int = 25,
     profession: str | None = None,
@@ -36,8 +36,8 @@ def get_people(
 
     sort_orders = {
         "name": (Person.name,),
-        "location": (Person.location,),
-        "employment_type": (Person.employment_type, Person.name),
+        "location": (Person.location, Person.name),
+        "employment": (Person.employment, Person.name),
         "updated": (Person.updated_at.desc(),),
     }
     query = query.order_by(*sort_orders.get(sort, ()))
@@ -49,8 +49,8 @@ def get_people(
     if (status_filter := status_filters.get(status)) is not None:
         query = query.where(status_filter)
 
-    if employment_type in Person.EMPLOYMENT_TYPES:
-        query = query.where(Person.employment_type == employment_type)
+    if employment in Person.EMPLOYMENTS:
+        query = query.where(Person.employment == employment)
 
     if profession:
         query = query.where(Person.role.has(Role.profession == profession))
@@ -66,7 +66,7 @@ def get_people(
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(
-            f"Database error retrieving people (sort={sort}, status={status}, employment_type={employment_type}, "
+            f"Database error retrieving people (sort={sort}, status={status}, employment={employment}, "
             f"profession={profession}, "
             f"page={page}, per_page={per_page})",
             exc_info=True,
@@ -100,7 +100,7 @@ def create_person(
     name: str,
     email_address: str,
     location: str,
-    employment_type: str,
+    employment: str,
     role_id: UUID,
     team_id: UUID | None,
     manager_id: UUID | None,
@@ -109,7 +109,7 @@ def create_person(
         name=name.title(),
         email_address=email_address.lower(),
         location=location,
-        employment_type=employment_type,
+        employment=employment,
         role_id=role_id,
         team_id=team_id,
         manager_id=manager_id,
@@ -138,7 +138,7 @@ def update_person(
     name: str,
     email_address: str,
     location: str,
-    employment_type: str,
+    employment: str,
     role_id: UUID,
     team_id: UUID | None,
     manager_id: UUID | None,
@@ -152,7 +152,7 @@ def update_person(
     person.name = name.title()
     person.email_address = email_address.lower()
     person.location = location
-    person.employment_type = employment_type
+    person.employment = employment
     person.role_id = role_id
     person.team_id = team_id
     person.manager_id = manager_id

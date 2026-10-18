@@ -179,13 +179,7 @@ def restore_service(id: UUID) -> None:
 def download_services() -> list[Service]:
     try:
         return list(
-            db.session.execute(
-                db.select(Service)
-                .options(
-                    selectinload(Service.team),
-                )
-                .order_by(Service.name)
-            )
+            db.session.execute(db.select(Service).options(selectinload(Service.team)).order_by(Service.name))
             .scalars()
             .all()
         )

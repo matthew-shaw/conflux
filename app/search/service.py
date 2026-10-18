@@ -22,6 +22,7 @@ def search_entries(query: str) -> list[dict[str, object]]:
                     or_(
                         Role.name.ilike(search_pattern),
                         Role.grade.ilike(search_pattern),
+                        Role.profession.ilike(search_pattern),
                     )
                 )
             )
@@ -34,6 +35,7 @@ def search_entries(query: str) -> list[dict[str, object]]:
                     or_(
                         Person.name.ilike(search_pattern),
                         Person.location.ilike(search_pattern),
+                        Person.employment.ilike(search_pattern),
                     )
                 )
             )
@@ -41,7 +43,13 @@ def search_entries(query: str) -> list[dict[str, object]]:
             .all()
         )
         teams = db.session.execute(db.select(Team).filter(Team.name.ilike(search_pattern))).scalars().all()
-        services = db.session.execute(db.select(Service).filter(Service.name.ilike(search_pattern))).scalars().all()
+        services = (
+            db.session.execute(
+                db.select(Service).filter(Service.name.ilike(search_pattern), Service.description.ilike(search_pattern))
+            )
+            .scalars()
+            .all()
+        )
 
         results: list[dict[str, object]] = []
         for role in roles:

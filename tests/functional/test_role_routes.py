@@ -47,7 +47,7 @@ def test_api_list_roles_does_not_load_people(app, test_client):
                     name=f"Person {index}",
                     email_address=f"person{index}@example.com",
                     location="London",
-                    employment_type="permanent",
+                    employment="employee",
                     role_id=role.id,
                 )
                 for index in range(100)
@@ -132,6 +132,7 @@ def test_ui_list_roles_uses_service_layer(monkeypatch, test_client):
     assert rendered["template"] == "list-roles.html"
     assert rendered["context"]["roles"].items == ["role1"]
     assert rendered["context"]["form"] is fake_form
+    assert requested["sort"] == "grade"
     assert requested["profession"] == "Engineering"
     assert requested["include_people"] is True
 
@@ -456,14 +457,14 @@ def test_api_view_includes_only_active_people(app, test_client):
             name="Active Person",
             email_address="active@example.com",
             location="London",
-            employment_type="permanent",
+            employment="employee",
             role_id=role.id,
         )
         p_archived = Person(
             name="Archived Person",
             email_address="archived@example.com",
             location="London",
-            employment_type="permanent",
+            employment="employee",
             role_id=role.id,
         )
         p_archived.archived_at = datetime.now(UTC)

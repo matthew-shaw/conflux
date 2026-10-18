@@ -12,8 +12,8 @@ class DummyQuery:
     def __init__(self) -> None:
         self.calls: list[tuple[str, object]] = []
 
-    def order_by(self, value):
-        self.calls.append(("order_by", value))
+    def order_by(self, *values):
+        self.calls.append(("order_by", *values))
         return self
 
     def options(self, value):
@@ -89,6 +89,26 @@ def test_get_roles_returns_all_when_status_all(monkeypatch):
 
     assert roles.items == ["role1"]
     assert fake_query.calls == [("order_by", "name_col")]
+
+
+@pytest.mark.parametrize("sort_field", ["grade", "profession"])
+def test_get_roles_adds_name_tiebreaker_to_non_name_sorts(monkeypatch, sort_field):
+    """GIVEN roles with equal primary sort values
+    WHEN roles are sorted by grade or profession
+    THEN the query orders by role name as a tie-breaker."""
+    fake_query = DummyQuery()
+    fake_db = SimpleNamespace(
+        select=lambda model: fake_query,
+        paginate=lambda *args, **kwargs: DummyPagination([]),
+    )
+    role = make_role_stub()
+    monkeypatch.setattr(role_service, "db", fake_db)
+    monkeypatch.setattr(role_service, "Role", role)
+
+    role_service.get_roles(sort=sort_field, status="all")
+
+    primary_sort = role.grade if sort_field == "grade" else role.profession
+    assert fake_query.calls == [("order_by", primary_sort, role.name)]
 
 
 def test_get_roles_filters_by_profession(monkeypatch):
