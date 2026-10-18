@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.4",
+  "openapi": "3.1.2",
   "info": {
     "title": "Conflux",
     "version": "0.13.0",
@@ -529,18 +529,18 @@
       "Grade": {
         "type": "string",
         "description": "Civil Service grade associated with a role. Values are configured per deployment.",
-        "example": "SEO"
+        "examples": ["SEO"]
       },
       "Location": {
         "type": "string",
         "description": "Office location where a person is based. Values are configured per deployment.",
-        "example": "Plymouth"
+        "examples": ["Plymouth"]
       },
       "EmploymentType": {
         "type": "string",
         "description": "Employment type of a person.",
         "enum": ["employee", "contractor"],
-        "example": "employee"
+        "examples": ["employee"]
       },
       "PersonNested": {
         "type": "object",
@@ -562,14 +562,13 @@
           "name": {
             "type": "string",
             "description": "Full name of the person.",
-            "example": "John Appleseed"
+            "examples": ["John Appleseed"]
           },
           "email_address": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "email",
-            "nullable": true,
             "description": "Email address of the person.",
-            "example": "john.appleseed@example.com"
+            "examples": ["john.appleseed@example.com"]
           },
           "location": {
             "description": "Office location of the person.",
@@ -612,7 +611,7 @@
           "name": {
             "type": "string",
             "description": "Name of the role.",
-            "example": "Senior Software Developer"
+            "examples": ["Senior Software Developer"]
           },
           "grade": {
             "description": "Grade associated with the role.",
@@ -623,8 +622,7 @@
             ]
           },
           "profession": {
-            "type": "string",
-            "nullable": true,
+            "type": ["string", "null"],
             "description": "Profession associated with the role. This can be null for roles created before a profession was required."
           },
           "updated_at": {
@@ -652,7 +650,7 @@
           "name": {
             "type": "string",
             "description": "Display name of the team.",
-            "example": "Byte Club"
+            "examples": ["Byte Club"]
           },
           "updated_at": {
             "type": "string",
@@ -679,11 +677,10 @@
           "name": {
             "type": "string",
             "description": "Display name of the service.",
-            "example": "Case Management"
+            "examples": ["Case Management"]
           },
           "description": {
-            "type": "string",
-            "nullable": true,
+            "type": ["string", "null"],
             "description": "Description of the service."
           },
           "updated_at": {
@@ -719,14 +716,13 @@
           "name": {
             "type": "string",
             "description": "Full name of the person.",
-            "example": "John Appleseed"
+            "examples": ["John Appleseed"]
           },
           "email_address": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "email",
-            "nullable": true,
             "description": "Email address of the person.",
-            "example": "john.appleseed@example.com"
+            "examples": ["john.appleseed@example.com"]
           },
           "location": {
             "description": "Office location of the person.",
@@ -800,7 +796,7 @@
           "name": {
             "type": "string",
             "description": "Name of the role.",
-            "example": "Senior Software Developer"
+            "examples": ["Senior Software Developer"]
           },
           "grade": {
             "description": "Grade associated with the role.",
@@ -811,8 +807,7 @@
             ]
           },
           "profession": {
-            "type": "string",
-            "nullable": true,
+            "type": ["string", "null"],
             "description": "Profession associated with the role. This can be null for roles created before a profession was required."
           },
           "updated_at": {
@@ -847,7 +842,7 @@
           "name": {
             "type": "string",
             "description": "Display name of the team.",
-            "example": "Byte Club"
+            "examples": ["Byte Club"]
           },
           "updated_at": {
             "type": "string",
@@ -888,11 +883,10 @@
           "name": {
             "type": "string",
             "description": "Display name of the service.",
-            "example": "Case Management"
+            "examples": ["Case Management"]
           },
           "description": {
-            "type": "string",
-            "nullable": true,
+            "type": ["string", "null"],
             "description": "Description of the service."
           },
           "updated_at": {
