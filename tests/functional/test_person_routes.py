@@ -198,6 +198,8 @@ def test_people_profession_filter_supports_role_changes_and_combined_controls(ap
 
     assert response.status_code == 200
     body = response.get_data(as_text=True)
+    assert 'name="profession" type="radio" value="Product" checked' in body
+    assert 'id="per_page" name="per_page"' in body
     assert "Alice Engineer" in body
     assert "Cara Product" not in body
     assert "profession=Product" in body

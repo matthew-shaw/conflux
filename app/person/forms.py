@@ -99,9 +99,9 @@ class PersonSortFilterForm(FlaskForm):
         ],
         default="all",
     )
-    profession = SelectField(
+    profession = RadioField(
         "Profession",
-        widget=GovSelect(),
+        widget=GovRadioInput(),
         choices=[("", "Any")],
         default="",
         validators=[Optional()],

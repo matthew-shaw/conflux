@@ -167,6 +167,8 @@ def test_role_profession_filter_combines_status_and_pagination(app, test_client)
 
     assert response.status_code == 200
     body = response.get_data(as_text=True)
+    assert 'name="profession" type="radio" value="Engineering" checked' in body
+    assert 'id="per_page" name="per_page"' in body
     assert "Showing 1 to 1 of 2 roles" in body
     assert "profession=Engineering" in body
     assert "Engineering Active" in body

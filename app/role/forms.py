@@ -78,9 +78,9 @@ class RoleSortFilterForm(FlaskForm):
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
     )
-    profession = SelectField(
+    profession = RadioField(
         "Profession",
-        widget=GovSelect(),
+        widget=GovRadioInput(),
         choices=[("", "Any")],
         default="",
         validators=[Optional()],

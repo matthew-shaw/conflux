@@ -32,7 +32,9 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
-      {{ form.profession() }}
+      {{ form.profession(params={
+        'classes': "govuk-radios--small"
+      }) }}
       {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
