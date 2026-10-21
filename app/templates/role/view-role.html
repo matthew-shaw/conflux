@@ -39,7 +39,7 @@
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
-            ]
+            ] if not role.archived_at else []
           }
         },
         {
@@ -56,7 +56,7 @@
                 'text': "Change",
                 'visuallyHiddenText': "grade"
               }
-            ]
+            ] if not role.archived_at else []
           }
         },
         {
@@ -73,7 +73,7 @@
                 'text': "Change",
                 'visuallyHiddenText': "profession"
               }
-            ]
+            ] if not role.archived_at else []
           }
         },
         {

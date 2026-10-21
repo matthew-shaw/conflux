@@ -50,6 +50,20 @@ def _set_profession_filter_choices(form: PersonSortFilterForm) -> None:
     form.profession.choices = [("", "Any")] + [(profession, profession) for profession in configured_professions]
 
 
+def _set_edit_choices(form: PersonForm) -> None:
+    try:
+        roles: list[Role] = get_active_roles()
+        teams: list[Team] = get_active_teams()
+        people: list[Person] = get_active_people()
+    except SQLAlchemyError:
+        logger.exception("Database error retrieving options for edit person form")
+        abort(503)
+    form.role.choices = [(role.id, role.name) for role in roles]
+    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
+    form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
+    form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
+
+
 @ui.route("/", methods=["GET"])
 def list_people() -> ResponseReturnValue:
     form: PersonSortFilterForm = PersonSortFilterForm(request.args)
@@ -160,21 +174,11 @@ def edit(id: UUID) -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(f"Database error fetching person {id} for edit")
         abort(503)
+    if person.archived_at is not None:
+        flash("This person cannot be changed because they have been archived.")
+        return redirect(url_for("person_ui.view", id=person.id))
     form: PersonForm = PersonForm()
-
-    # Add options
-    try:
-        roles: list[Role] = get_active_roles()
-        teams: list[Team] = get_active_teams()
-        people: list[Person] = get_active_people()
-    except SQLAlchemyError:
-        logger.exception("Database error retrieving options for edit person form")
-        abort(503)
-    form.role.choices = [(role.id, role.name) for role in roles]
-    form.team.choices = [("", "Select a team")] + [(str(team.id), team.name) for team in teams]
-    form.manager.choices = [("", "Select a manager")] + [(str(person.id), person.name) for person in people]
-
-    form.location.choices = [(location.lower(), location) for location in current_app.config["LOCATIONS"]]
+    _set_edit_choices(form)
 
     if request.method == "GET":
         form.name.data = person.name
@@ -208,7 +212,8 @@ def edit(id: UUID) -> ResponseReturnValue:
             return redirect(url_for("person_ui.list_people"))
         except ArchivedEntityError:
             logger.warning(f"Attempt to update archived person {id}")
-            flash("This person has been archived and cannot be edited.", "error")
+            flash("This person cannot be changed because they have been archived.")
+            return redirect(url_for("person_ui.view", id=person.id))
         except IntegrityError:
             form.name.errors.append("A person with this name already exists.")
         except SQLAlchemyError:

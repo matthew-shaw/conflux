@@ -39,7 +39,7 @@
                 'text': "Change",
                 'visuallyHiddenText': "name"
               }
-            ]
+            ] if not service.archived_at else []
           }
         },
         {
@@ -64,7 +64,7 @@
                   'visuallyHiddenText': "description"
                 }
               ]
-            )
+            ) if not service.archived_at else []
           }
         },
         {
@@ -101,19 +101,22 @@
                   'href': url_for('team_ui.view', id=service.team.id),
                   'text': "View",
                   'visuallyHiddenText': "team"
-                },
+                }
+              ] if service.team else []
+            ) + (
+              [
                 {
                   'href': url_for('service_ui.edit', id=service.id),
                   'text': "Change",
                   'visuallyHiddenText': "team"
                 }
-              ] if service.team else [
+              ] if service.team and not service.archived_at else [
                 {
                   'href': url_for('service_ui.edit', id=service.id),
                   'text': "Add",
                   'visuallyHiddenText': "team"
                 }
-              ]
+              ] if not service.team and not service.archived_at else []
             )
           }
         },

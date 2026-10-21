@@ -295,7 +295,7 @@ def test_ui_create_post_duplicate_shows_error(monkeypatch, test_client):
 
 def test_ui_edit_get_populates_form(monkeypatch, test_client):
     """GIVEN an existing role WHEN the edit page is viewed THEN the form is populated with current values."""
-    fake_role = SimpleNamespace(name="Old name", grade="Grade 1", profession="Engineering")
+    fake_role = SimpleNamespace(name="Old name", grade="Grade 1", profession="Engineering", archived_at=None)
     fake_form = DummyForm()
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
     monkeypatch.setattr(role_ui, "RoleForm", lambda *args, **kwargs: fake_form)
@@ -320,7 +320,7 @@ def test_ui_edit_get_populates_form(monkeypatch, test_client):
 
 def test_ui_edit_post_success_redirects(monkeypatch, test_client):
     """GIVEN a valid role edit WHEN posted THEN the user is redirected back to the role list."""
-    fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1", profession=None)
+    fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1", profession=None, archived_at=None)
     fake_form = DummyForm(submit=True, name="New name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
     monkeypatch.setattr(role_ui, "RoleForm", lambda *args, **kwargs: fake_form)
@@ -336,7 +336,7 @@ def test_ui_edit_post_duplicate_shows_error(monkeypatch, test_client):
     """GIVEN a duplicate role name
     WHEN edit_role fails with IntegrityError
     THEN the duplicate error is attached to the form."""
-    fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1", profession=None)
+    fake_role = SimpleNamespace(id="1", name="Old name", grade="Grade 1", profession=None, archived_at=None)
     fake_form = DummyForm(submit=True, name="New name", grade="Grade 1")
     monkeypatch.setattr(role_ui, "get_role", lambda id: fake_role)
     monkeypatch.setattr(role_ui, "RoleForm", lambda *args, **kwargs: fake_form)

@@ -129,6 +129,9 @@ def edit(id: UUID) -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(f"Database error fetching service {id} for edit")
         abort(503)
+    if service.archived_at is not None:
+        flash("This service cannot be changed because it has been archived.")
+        return redirect(url_for("service_ui.view", id=service.id))
     form: ServiceForm = ServiceForm(service=service)
 
     # Add options
@@ -160,7 +163,8 @@ def edit(id: UUID) -> ResponseReturnValue:
             return redirect(url_for("service_ui.list_services"))
         except ArchivedEntityError:
             logger.warning(f"Attempt to update archived service {id}")
-            flash("This service has been archived and cannot be edited.", "error")
+            flash("This service cannot be changed because it has been archived.")
+            return redirect(url_for("service_ui.view", id=service.id))
         except IntegrityError:
             form.name.errors.append("A service with this name already exists.")
         except SQLAlchemyError:

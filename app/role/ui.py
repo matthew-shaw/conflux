@@ -147,6 +147,9 @@ def edit(id: UUID) -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(f"Database error fetching role {id} for edit")
         abort(503)
+    if role.archived_at is not None:
+        flash("This role cannot be changed because it has been archived.")
+        return redirect(url_for("role_ui.view", id=role.id))
     form: RoleForm = RoleForm(role=role)
 
     # Add options
@@ -174,7 +177,8 @@ def edit(id: UUID) -> ResponseReturnValue:
             return redirect(url_for("role_ui.list_roles"))
         except ArchivedEntityError:
             logger.warning(f"Attempt to update archived role {id}")
-            flash("This role has been archived and cannot be edited.", "error")
+            flash("This role cannot be changed because it has been archived.")
+            return redirect(url_for("role_ui.view", id=role.id))
         except IntegrityError:
             form.name.errors.append("A role with this name already exists.")
             logger.warning(

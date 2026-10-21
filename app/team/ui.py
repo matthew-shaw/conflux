@@ -118,6 +118,9 @@ def edit(id: UUID) -> ResponseReturnValue:
     except SQLAlchemyError:
         logger.exception(f"Database error fetching team {id} for edit")
         abort(503)
+    if team.archived_at is not None:
+        flash("This team cannot be changed because it has been archived.")
+        return redirect(url_for("team_ui.view", id=team.id))
     form: TeamForm = TeamForm(team=team)
 
     if request.method == "GET":
@@ -137,7 +140,8 @@ def edit(id: UUID) -> ResponseReturnValue:
             return redirect(url_for("team_ui.list_teams"))
         except ArchivedEntityError:
             logger.warning(f"Attempt to update archived team {id}")
-            flash("This team has been archived and cannot be edited.", "error")
+            flash("This team cannot be changed because it has been archived.")
+            return redirect(url_for("team_ui.view", id=team.id))
         except IntegrityError:
             form.name.errors.append("A team with this name already exists.")
             logger.warning(
