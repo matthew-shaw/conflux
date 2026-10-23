@@ -25,6 +25,16 @@ Conflux models technology organisations through five connected concepts.
 
 Each person belongs to a team and performs a role. People contribute to services through the work carried out by their team.
 
+#### Open role gaps
+
+A gap is an unfilled position, recorded as a person marked **Gap** in the **People** list and on team and role pages. A gap has an employment type and a role, may have a team, but has no name, email address, location or manager. Each gap represents a single potential person, so there can be several identical gaps. Use **Add gap** on the People list (or on a team's page to preselect that team); only active teams and roles can be selected. Gaps are deleted if their team or role is later archived.
+
+Edit a gap like a person, but only its employment type, role and team can be changed. Gaps are never archived: use **Remove gap** on its page to delete it permanently, with no history retained.
+
+When adding a person whose employment type, team and role match a gap, choose whether to fill it or add the person separately. Filling turns that gap into the new person; adding separately leaves the gap open. When editing a person changes their employment type, team or role to match a gap, choosing to fill deletes that gap.
+
+When moving a person out of their current team, choose whether to leave a gap in that previous team. Choosing yes adds a gap there with the employment type and role they held before the change.
+
 ### Teams
 
 **A group of people with shared responsibility for delivering and supporting services.**

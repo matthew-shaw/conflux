@@ -68,7 +68,57 @@ class PersonForm(FlaskForm):
         validators=[Optional()],
         description="This field is optional.",
     )
+    fill_gap = RadioField(
+        "Fill the gap?",
+        widget=GovRadioInput(),
+        choices=[("yes", "Yes"), ("no", "No")],
+        validators=[Optional()],
+        description=("There is an existing gap with the same team, employment type and role."),
+    )
+    leave_gap = RadioField(
+        "Leave a gap in their previous team?",
+        widget=GovRadioInput(),
+        choices=[("yes", "Yes"), ("no", "No")],
+        validators=[Optional()],
+        description="This is only mandatory if moving from one team to another.",
+    )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
+
+
+class GapForm(FlaskForm):
+    """Record or edit a gap's employment type, role and optional team."""
+
+    employment = SelectField(
+        "Employment type",
+        widget=GovSelect(),
+        choices=[("employee", "Employee"), ("contractor", "Contractor")],
+        validators=[InputRequired(message="Select an employment type")],
+    )
+    role = SelectField(
+        "Role",
+        widget=GovSelect(),
+        default="",
+        validators=[InputRequired(message="Select a role")],
+    )
+    team = SelectField(
+        "Team",
+        widget=GovSelect(),
+        default="",
+        validators=[Optional()],
+        description="This field is optional.",
+    )
+    submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
+
+
+class DeleteGapForm(FlaskForm):
+    """Confirm permanent removal of a gap."""
+
+    confirm = BooleanField(
+        "I'm sure",
+        widget=GovCheckboxInput(),
+        validators=[InputRequired(message="Select if you want to remove this gap")],
+    )
+    submit: SubmitField = SubmitField("Remove gap", widget=GovSubmitInput())
 
 
 class PersonSortFilterForm(FlaskForm):
@@ -96,6 +146,16 @@ class PersonSortFilterForm(FlaskForm):
             ("all", "All"),
             ("employee", "Employee"),
             ("contractor", "Contractor"),
+        ],
+        default="all",
+    )
+    kind = RadioField(
+        "Type",
+        widget=GovRadioInput(),
+        choices=[
+            ("all", "All"),
+            ("people", "People"),
+            ("gaps", "Gaps"),
         ],
         default="all",
     )

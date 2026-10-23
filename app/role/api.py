@@ -41,7 +41,7 @@ def list_roles() -> Response:
 @api.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> Response:
     try:
-        role = get_role(id)
+        role = get_role(id, include_people=True)
         return jsonify(
             role.to_dict(
                 include_people=True,

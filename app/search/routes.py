@@ -22,7 +22,7 @@ def index() -> str:
         for item in results:
             if item["type"] == "Role":
                 item["url"] = url_for("role_ui.view", id=item["id"])
-            elif item["type"] == "Person":
+            elif item["type"] in {"Person", "Gap"}:
                 item["url"] = url_for("person_ui.view", id=item["id"])
             elif item["type"] == "Team":
                 item["url"] = url_for("team_ui.view", id=item["id"])

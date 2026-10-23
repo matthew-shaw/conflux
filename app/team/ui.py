@@ -52,6 +52,7 @@ def list_teams() -> ResponseReturnValue:
             status=form.status.data,
             page=page,
             per_page=form.per_page.data,
+            include_gaps=True,
         )
         if page_out_of_range(teams, page):
             abort(404)

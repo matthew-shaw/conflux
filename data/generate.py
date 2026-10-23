@@ -99,6 +99,7 @@ COMPONENT_NAMES = (
 )
 LOCALES = ("en_GB", "fr_FR", "es_ES", "de_DE", "it_IT")
 PEOPLE_COUNT = 200
+GAP_PERCENTAGE = 0.1
 EMPLOYMENTS = ("employee", "contractor")
 
 
@@ -176,11 +177,31 @@ def generate_demo_data() -> dict[str, int]:
                 "email_address": f"{email_name}.{person_id[:8]}@example.com",
                 "location": random.choice(locations),
                 "employment": random.choice(EMPLOYMENTS),
+                "is_gap": "false",
                 "archived_at": "",
                 "updated_at": timestamp(),
                 "role_id": random.choice(roles)["id"],
                 "team_id": random.choice(teams)["id"],
                 "manager_id": manager_id,
+            }
+        )
+
+    gap_count = round(PEOPLE_COUNT * GAP_PERCENTAGE)
+    for gap_number in range(gap_count):
+        person_id = str(uuid.uuid4())
+        people.append(
+            {
+                "id": person_id,
+                "name": "",
+                "email_address": "",
+                "location": "",
+                "employment": random.choice(EMPLOYMENTS),
+                "is_gap": "true",
+                "archived_at": "",
+                "updated_at": timestamp(),
+                "role_id": random.choice(roles)["id"],
+                "team_id": random.choice(teams)["id"] if gap_number % 4 else "",
+                "manager_id": "",
             }
         )
 
@@ -222,6 +243,7 @@ def generate_demo_data() -> dict[str, int]:
             "email_address",
             "location",
             "employment",
+            "is_gap",
             "archived_at",
             "updated_at",
             "role_id",

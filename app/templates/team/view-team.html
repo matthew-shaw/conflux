@@ -99,9 +99,33 @@
         }
       ]) %}
     {% endfor %}
+    {% for gap in team.gaps %}
+      {% set _ = rows.append([
+        {
+          'html': '<strong class="govuk-tag govuk-tag--yellow"><a href="%s" class="govuk-link govuk-!-font-weight-bold">%s</a></strong>' %
+            (
+              url_for("person_ui.view", id=gap.id),
+              gap.display_name|e
+            )
+        },
+        {
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("role_ui.view", id=gap.role.id),
+              gap.role.name|e
+            )
+        },
+        {
+          'text': "—"
+        },
+        {
+          'text': gap.employment.title()
+        }
+      ]) %}
+    {% endfor %}
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " person" if rows | length == 1 else rows | length ~ " people",
+        'caption': team.active_people | length ~ " " ~ ("person" if team.active_people | length == 1 else "people") ~ ", " ~ team.gaps | length ~ " open " ~ ("gap" if team.gaps | length == 1 else "gaps"),
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [
@@ -112,6 +136,9 @@
         ],
         'rows': rows
       }) }}
+    {% endif %}
+    {% if not team.archived_at %}
+      {{ govukButton({'text': 'Add gap', 'href': url_for('person_ui.create_gap', team=team.id)}) }}
     {% endif %}
 
     <h2 class="govuk-heading-m">{{ team.services | length }} {{ "service" if team.services | length == 1 else "services" }}</h2>

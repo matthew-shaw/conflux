@@ -1,3 +1,5 @@
+import json
+
 from flask import Response, abort, flash, redirect, render_template, request
 from flask.typing import ResponseReturnValue
 from flask_wtf.csrf import CSRFError  # type: ignore
@@ -40,6 +42,12 @@ def health() -> ResponseReturnValue:
 @bp.app_errorhandler(HTTPException)
 def handle_http_exception(error: HTTPException) -> ResponseReturnValue:
     code: int = error.code or 500
+    if code == 405:
+        response = error.get_response()
+        if request.path.startswith("/api/"):
+            response.set_data(json.dumps({"error": "Method not allowed"}))
+            response.mimetype = "application/json"
+        return response
     return render_template(f"{code}.html"), code
 
 

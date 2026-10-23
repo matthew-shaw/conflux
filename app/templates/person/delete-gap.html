@@ -1,0 +1,23 @@
+{%- extends "base.html" -%}
+
+{%- block pageTitle -%}{{ title }} – {{ config['SERVICE_NAME'] }}{%- endblock -%}
+
+{%- block content -%}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    {{ super() }}
+    <h1 class="govuk-heading-l">{{ title }}</h1>
+    <p class="govuk-body">
+      Remove this {{ gap.employment }} {{ gap.role.name }} gap{% if gap.team %} from {{ gap.team.name }}{% endif %}? This cannot be undone.
+    </p>
+    <form method="post" action="{{ url_for('person_ui.delete_gap', id=gap.id) }}" novalidate>
+      {{ form.csrf_token }}
+      {{ form.confirm() }}
+      <div class="govuk-button-group">
+        {{ form.submit(params={'classes': 'govuk-button--warning'}) }}
+        <a class="govuk-link" href="{{ url_for('person_ui.view', id=gap.id) }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{%- endblock -%}

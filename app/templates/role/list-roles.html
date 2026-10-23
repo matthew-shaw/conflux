@@ -63,6 +63,9 @@
           'text': role.active_people | length
         },
         {
+          'text': role.gaps | length
+        },
+        {
           'text': format_govuk_datetime(role.updated_at, include_day=False, truncate_month=True)
         }
       ]) %}
@@ -78,6 +81,7 @@
           { 'text': "Grade" },
           { 'text': "Profession" },
           { 'text': "People" },
+          { 'text': "Gaps" },
           { 'text': "Updated" }
         ],
         'rows': rows

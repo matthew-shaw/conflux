@@ -12,10 +12,11 @@ from uuid import UUID
 
 from flask_sqlalchemy.pagination import Pagination
 from sqlalchemy.exc import IntegrityError, NoResultFound, SQLAlchemyError
+from sqlalchemy.orm import selectinload
 
 from app import db
 from app.exceptions import ArchivedEntityError
-from app.models import Team
+from app.models import Person, Team
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +26,14 @@ def get_teams(
     status: str = "active",
     page: int = 1,
     per_page: int = 25,
+    include_gaps: bool = False,
 ) -> Pagination:
-    """Retrieve a paginated list of teams."""
+    """Retrieve a paginated list of teams, optionally eager-loading people and gaps."""
 
     # Start the base SELECT statement
     query = db.select(Team)
+    if include_gaps:
+        query = query.options(selectinload(Team.people))
 
     # Apply sorting
     if sort == "name":
@@ -75,7 +79,14 @@ def get_active_teams() -> list[Team]:
 
 def get_team(id: UUID) -> Team:
     try:
-        return db.session.execute(db.select(Team).filter_by(id=id)).scalar_one()
+        return db.session.execute(
+            db.select(Team)
+            .filter_by(id=id)
+            .options(
+                selectinload(Team.people).selectinload(Person.role),
+                selectinload(Team.services),
+            )
+        ).scalar_one()
     except NoResultFound:
         logger.debug(f"Team not found {id}", exc_info=True)
         raise
@@ -140,6 +151,7 @@ def archive_team(id: UUID) -> None:
     team.archived_at = datetime.now(UTC)
     logger.info(f"Archiving team {id}")
     try:
+        db.session.execute(db.delete(Person).where(Person.team_id == id, Person.is_gap.is_(True)))
         # Commit the archive action
         db.session.commit()
         logger.info(f"Archived team {id}")

@@ -4,6 +4,7 @@ import logging
 
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import selectinload
 
 from app import db
 from app.models import Person, Role, Service, Team
@@ -32,11 +33,12 @@ def search_entries(query: str) -> list[dict[str, object]]:
         people = (
             db.session.execute(
                 db.select(Person).filter(
+                    Person.is_gap.is_(False),
                     or_(
                         Person.name.ilike(search_pattern),
                         Person.location.ilike(search_pattern),
                         Person.employment.ilike(search_pattern),
-                    )
+                    ),
                 )
             )
             .scalars()
@@ -46,6 +48,25 @@ def search_entries(query: str) -> list[dict[str, object]]:
         services = (
             db.session.execute(
                 db.select(Service).filter(Service.name.ilike(search_pattern), Service.description.ilike(search_pattern))
+            )
+            .scalars()
+            .all()
+        )
+
+        gaps = (
+            db.session.execute(
+                db.select(Person)
+                .join(Person.role)
+                .outerjoin(Person.team)
+                .options(selectinload(Person.team), selectinload(Person.role))
+                .filter(
+                    Person.is_gap.is_(True),
+                    or_(
+                        Team.name.ilike(search_pattern),
+                        Role.name.ilike(search_pattern),
+                        Person.employment.ilike(search_pattern),
+                    ),
+                )
             )
             .scalars()
             .all()
@@ -89,6 +110,17 @@ def search_entries(query: str) -> list[dict[str, object]]:
                     "id": service.id,
                     "name": service.name,
                     "updated_at": service.updated_at,
+                    "url": None,
+                }
+            )
+
+        for gap in gaps:
+            results.append(
+                {
+                    "type": "Gap",
+                    "id": gap.id,
+                    "name": f"{gap.display_name} ({gap.team.name})" if gap.team else gap.display_name,
+                    "updated_at": gap.updated_at,
                     "url": None,
                 }
             )
