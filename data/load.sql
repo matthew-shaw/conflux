@@ -21,6 +21,7 @@ COPY people (
     email_address,
     location,
     employment,
+    is_gap,
     archived_at,
     updated_at,
     role_id,

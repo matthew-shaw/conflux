@@ -3,7 +3,7 @@
   "info": {
     "title": "Conflux",
     "version": "0.13.1",
-    "description": "Read-only API for roles, people, teams, and services."
+    "description": "Read-only API for roles, people (including open role gaps), teams, and services."
   },
   "servers": [
     {
@@ -178,6 +178,14 @@
             "description": "Filter people by their assigned role's profession.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "is_gap",
+            "in": "query",
+            "description": "Return only gaps (`true`) or only real people (`false`). Both are returned when omitted. Gaps are never included in the archived list.",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -508,13 +516,14 @@
       },
       "PersonNested": {
         "type": "object",
-        "description": "A lightweight representation of a person.",
+        "description": "A lightweight representation of a person. A gap is an unfilled vacancy represented as a person with `is_gap` set and no name, email address or location.",
         "required": [
           "id",
           "name",
           "email_address",
           "location",
           "employment",
+          "is_gap",
           "updated_at"
         ],
         "properties": {
@@ -524,8 +533,8 @@
             "description": "Unique identifier of the person."
           },
           "name": {
-            "type": "string",
-            "description": "Full name of the person.",
+            "type": ["string", "null"],
+            "description": "Full name of the person; null for gaps.",
             "examples": ["John Appleseed"]
           },
           "email_address": {
@@ -535,12 +544,16 @@
             "examples": ["john.appleseed@example.com"]
           },
           "location": {
-            "description": "Office location of the person.",
-            "$ref": "#/components/schemas/Location"
+            "description": "Office location of the person; null for gaps.",
+            "oneOf": [{"$ref": "#/components/schemas/Location"}, {"type": "null"}]
           },
           "employment": {
             "description": "Employment type of the person.",
             "$ref": "#/components/schemas/EmploymentType"
+          },
+          "is_gap": {
+            "type": "boolean",
+            "description": "Whether this entry is an unfilled gap rather than a real person. Gaps are never archived; they are deleted when filled or removed."
           },
           "updated_at": {
             "type": "string",
@@ -656,6 +669,7 @@
           "email_address",
           "location",
           "employment",
+          "is_gap",
           "updated_at",
           "reports"
         ],
@@ -666,8 +680,8 @@
             "description": "Unique identifier of the person."
           },
           "name": {
-            "type": "string",
-            "description": "Full name of the person.",
+            "type": ["string", "null"],
+            "description": "Full name of the person; null for gaps.",
             "examples": ["John Appleseed"]
           },
           "email_address": {
@@ -677,12 +691,16 @@
             "examples": ["john.appleseed@example.com"]
           },
           "location": {
-            "description": "Office location of the person.",
-            "$ref": "#/components/schemas/Location"
+            "description": "Office location of the person; null for gaps.",
+            "oneOf": [{"$ref": "#/components/schemas/Location"}, {"type": "null"}]
           },
           "employment": {
             "description": "Employment type of the person.",
             "$ref": "#/components/schemas/EmploymentType"
+          },
+          "is_gap": {
+            "type": "boolean",
+            "description": "Whether this entry is an unfilled gap rather than a real person. Gaps are never archived; they are deleted when filled or removed."
           },
           "updated_at": {
             "type": "string",
@@ -757,7 +775,7 @@
           },
           "people": {
             "type": "array",
-            "description": "People assigned to this role.",
+            "description": "Active people and open gaps performing this role.",
             "items": {
               "$ref": "#/components/schemas/PersonNested"
             }
@@ -791,7 +809,7 @@
           },
           "people": {
             "type": "array",
-            "description": "People assigned to this team.",
+            "description": "Active people and open gaps assigned to this team.",
             "items": {
               "$ref": "#/components/schemas/PersonNested"
             }

@@ -20,10 +20,17 @@
 </div>
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-one-quarter">
-    {{ govukButton({
-      'text': "Add person",
-      'href': url_for('person_ui.create')
-    }) }}
+    <div class="govuk-button-group">
+      {{ govukButton({
+        'text': "Add person",
+        'href': url_for('person_ui.create')
+      }) }}
+      {{ govukButton({
+        'text': "Add gap",
+        'href': url_for('person_ui.create_gap'),
+        'classes': "govuk-button--secondary"
+      }) }}
+    </div>
     <h2 class="govuk-heading-m">Sort and filter</h2>
     <form method="get" action="{{ url_for('person_ui.list_people') }}" novalidate>
       {{ form.sort(params={
@@ -38,6 +45,9 @@
       {{ form.profession(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.kind(params={
+        'classes': "govuk-radios--small"
+      }) }}
       {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
@@ -50,10 +60,9 @@
     {% for person in people.items %}
       {% set _ = rows.append([
         {
-          'html': '<a href="%s" class="govuk-link">%s</a>' %
-            (
+          'html': ('<strong class="govuk-tag govuk-tag--yellow"><a href="%s" class="govuk-link govuk-!-font-weight-bold">%s</a></strong>' if person.is_gap else '<a href="%s" class="govuk-link">%s</a>') % (
               url_for("person_ui.view", id=person.id),
-              person.name|e
+              person.display_name|e
             )
         },
         {
@@ -71,7 +80,7 @@
             ) if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
-          'text': person.location.title()
+          'text': person.location.title() if person.location else "—"
         },
         {
           'text': person.employment.title()
@@ -106,7 +115,7 @@
           {% set _ = pages.append(
             {
               'number': page,
-              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, profession=form.profession.data),
+              'href': url_for('person_ui.list_people', page=page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, kind=form.kind.data, profession=form.profession.data),
               'current': page == people.page
             }
           ) %}
@@ -119,10 +128,10 @@
 
       {{ govukPagination({
         'previous': {
-          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, profession=form.profession.data),
+          'href': url_for('person_ui.list_people', page=people.prev_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, kind=form.kind.data, profession=form.profession.data),
         } if people.has_prev else None,
         'next': {
-          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, profession=form.profession.data),
+          'href': url_for('person_ui.list_people', page=people.next_num, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, kind=form.kind.data, profession=form.profession.data),
         } if people.has_next else None,
         'items': pages
       }) }}
@@ -133,7 +142,7 @@
         <a class="govuk-link" href="{{ url_for('person_ui.download') }}">CSV format</a>
       </li>
       <li>
-        <a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, profession=form.profession.data) }}">JSON format</a>
+        <a class="govuk-link" href="{{ url_for('person_api.list_people', page=people.page, per_page=people.per_page, sort=form.sort.data, status=form.status.data, employment=form.employment.data, is_gap={'people': 'false', 'gaps': 'true'}.get(form.kind.data), profession=form.profession.data) }}">JSON format</a>
       </li>
     </ul>
   </div>

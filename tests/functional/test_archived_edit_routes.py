@@ -23,7 +23,7 @@ from app.team import ui as team_ui
 def test_archived_entity_edit_redirects_to_detail(ui, route, getter, message, method, monkeypatch, test_client):
     entity_id = UUID("00000000-0000-0000-0000-000000000001")
     entity = SimpleNamespace(id=entity_id, archived_at=datetime.now(UTC))
-    monkeypatch.setattr(ui, getter, lambda id: entity)
+    monkeypatch.setattr(ui, getter, lambda id, *args, **kwargs: entity)
 
     response = getattr(test_client, method)(f"/{route}/{entity_id}/edit", data={} if method == "post" else None)
 
@@ -48,6 +48,7 @@ def test_archived_entity_edit_redirects_to_detail(ui, route, getter, message, me
                 archived_at=archived_at,
                 updated_at=updated_at,
                 active_people=[],
+                gaps=[],
             ),
         ),
         (
@@ -103,7 +104,7 @@ def test_detail_page_only_offers_edit_actions_for_active_entities(
     entity_id = UUID("00000000-0000-0000-0000-000000000001")
     timestamp = datetime.now(UTC)
     entity = make_entity(entity_id, timestamp if archived else None, timestamp)
-    monkeypatch.setattr(ui, getter, lambda id: entity)
+    monkeypatch.setattr(ui, getter, lambda id, *args, **kwargs: entity)
 
     response = test_client.get(f"/{route}/{entity_id}")
 

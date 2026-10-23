@@ -129,7 +129,7 @@ def create() -> ResponseReturnValue:
 @ui.route("/<uuid:id>", methods=["GET"])
 def view(id: UUID) -> ResponseReturnValue:
     try:
-        role: Role = get_role(id)
+        role: Role = get_role(id, include_people=True, include_gaps=True)
     except NoResultFound:
         abort(404)
     except SQLAlchemyError:

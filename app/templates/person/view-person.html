@@ -6,7 +6,7 @@
 {%- from 'govuk_frontend_jinja/components/table/macro.html' import govukTable -%}
 {%- from 'govuk_frontend_jinja/components/tag/macro.html' import govukTag -%}
 
-{%- block pageTitle -%}{{ person.name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
+{%- block pageTitle -%}{{ person.display_name }} – {{config['SERVICE_NAME']}}{%- endblock -%}
 
 {%- block beforeContent -%}
 {{ super() }}
@@ -20,6 +20,112 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     {{ super() }}
+    {% if person.is_gap %}
+    <span class="govuk-caption-l">Gap</span>
+    <h1 class="govuk-heading-l">{{ person.display_name }}</h1>
+
+    {{ govukSummaryList({
+      'rows': [
+        {
+          'key': {
+            'text': "Role"
+          },
+          'value': {
+            'text': person.role.name
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('role_ui.view', id=person.role.id),
+                'text': "View",
+                'visuallyHiddenText': "role"
+              },
+              {
+                'href': url_for('person_ui.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "role"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Team"
+          },
+          'value': {
+            'text': person.team.name if person.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+          },
+          'actions': {
+            'items': (
+              [
+                {
+                  'href': url_for('team_ui.view', id=person.team.id),
+                  'text': "View",
+                  'visuallyHiddenText': "team"
+                },
+                {
+                  'href': url_for('person_ui.edit', id=person.id),
+                  'text': "Change",
+                  'visuallyHiddenText': "team"
+                }
+              ] if person.team else [
+                {
+                  'href': url_for('person_ui.edit', id=person.id),
+                  'text': "Add",
+                  'visuallyHiddenText': "team"
+                }
+              ]
+            )
+          }
+        },
+        {
+          'key': {
+            'text': "Employment type"
+          },
+          'value': {
+            'text': person.employment|title
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person_ui.edit', id=person.id),
+                'text': "Change",
+                'visuallyHiddenText': "employment type"
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Status"
+          },
+          'value': {
+            'html': govukTag({
+              'text': "Gap",
+              'classes': "govuk-tag--yellow"
+            })
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('person_ui.delete_gap', id=person.id),
+                'text': "Remove gap",
+                'visuallyHiddenText': ""
+              }
+            ]
+          }
+        },
+        {
+          'key': {
+            'text': "Updated"
+          },
+          'value': {
+            'text': format_govuk_datetime(person.updated_at, include_day=False, include_time=True)
+          }
+        }
+      ]
+    }) }}
+    {% else %}
     <span class="govuk-caption-l">Person</span>
     <h1 class="govuk-heading-l">{{ person.name }}</h1>
 
@@ -267,6 +373,7 @@
         ],
         'rows': rows
       }) }}
+    {% endif %}
     {% endif %}
   </div>
 </div>

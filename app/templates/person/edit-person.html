@@ -21,6 +21,11 @@
         }
       }) %}
         {{ form.csrf_token}}
+        {% if form.fill_gap.errors %}
+          {{ form.fill_gap(params={
+            'classes': "govuk-radios--inline govuk-radios--small"
+          }) }}
+        {% endif %}
         {{ form.name(params={
           'spellcheck': false
         }) }}
@@ -41,6 +46,11 @@
         {{ form.team(params={
           'classes': "govuk-!-width-one-half"
         }) }}
+        {% if show_leave_gap %}
+          {{ form.leave_gap(params={
+            'classes': "govuk-radios--inline govuk-radios--small"
+          }) }}
+        {% endif %}
         {{ form.manager(params={
           'classes': "govuk-!-width-one-half"
         }) }}

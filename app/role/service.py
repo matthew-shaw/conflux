@@ -16,7 +16,7 @@ from sqlalchemy.orm import selectinload
 
 from app import db
 from app.exceptions import ArchivedEntityError
-from app.models import Role
+from app.models import Person, Role
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def get_roles(
     profession: str | None = None,
     include_people: bool = False,
 ) -> Pagination:
-    """Retrieve a paginated list of roles, optionally eager-loading people for the UI."""
+    """Retrieve a paginated list of roles, optionally eager-loading related people and gaps."""
 
     # Start the base SELECT statement
     query = db.select(Role)
@@ -86,9 +86,12 @@ def get_active_roles() -> list[Role]:
         raise
 
 
-def get_role(id: UUID) -> Role:
+def get_role(id: UUID, include_people: bool = False, include_gaps: bool = False) -> Role:
     try:
-        return db.session.execute(db.select(Role).filter_by(id=id)).scalar_one()
+        query = db.select(Role).filter_by(id=id)
+        if include_people or include_gaps:
+            query = query.options(selectinload(Role.people).selectinload(Person.team))
+        return db.session.execute(query).scalar_one()
     except NoResultFound:
         logger.debug(f"Role not found {id}", exc_info=True)
         raise
@@ -169,6 +172,7 @@ def archive_role(id: UUID) -> None:
     role.archived_at = datetime.now(UTC)
     logger.info(f"Archiving role {id}")
     try:
+        db.session.execute(db.delete(Person).where(Person.role_id == id, Person.is_gap.is_(True)))
         # Commit the archive action
         db.session.commit()
         logger.info(f"Archived role {id}")
