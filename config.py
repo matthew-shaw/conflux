@@ -27,7 +27,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
-    VERSION = "0.13.1"
+    VERSION = "0.14.0"
 
 
 class TestConfig(Config):

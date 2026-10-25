@@ -2,7 +2,7 @@
   "openapi": "3.2.0",
   "info": {
     "title": "Conflux",
-    "version": "0.13.1",
+    "version": "0.14.0",
     "description": "Read-only API for roles, people, teams, and services."
   },
   "servers": [
