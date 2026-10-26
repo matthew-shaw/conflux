@@ -132,7 +132,11 @@ def test_role_profession_create_rejects_missing_or_unconfigured_value(app, test_
 
     response = test_client.post(
         "/roles/new",
-        data={"name": "Software Engineer", "grade": "Grade 7", "profession": profession},
+        data={
+            "name": "Software Engineer",
+            "grade": "Grade 7",
+            "profession": profession,
+        },
     )
 
     assert response.status_code == 200

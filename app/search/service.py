@@ -45,7 +45,10 @@ def search_entries(query: str) -> list[dict[str, object]]:
         teams = db.session.execute(db.select(Team).filter(Team.name.ilike(search_pattern))).scalars().all()
         services = (
             db.session.execute(
-                db.select(Service).filter(Service.name.ilike(search_pattern), Service.description.ilike(search_pattern))
+                db.select(Service).filter(
+                    Service.name.ilike(search_pattern),
+                    Service.description.ilike(search_pattern),
+                )
             )
             .scalars()
             .all()

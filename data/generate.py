@@ -215,7 +215,11 @@ def generate_demo_data() -> dict[str, int]:
         )
 
     write_csv("teams.csv", ("id", "name", "type", "archived_at", "updated_at"), teams)
-    write_csv("roles.csv", ("id", "name", "grade", "profession", "updated_at", "archived_at"), roles)
+    write_csv(
+        "roles.csv",
+        ("id", "name", "grade", "profession", "updated_at", "archived_at"),
+        roles,
+    )
     write_csv(
         "people.csv",
         (

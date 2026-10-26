@@ -15,7 +15,14 @@ ARCHIVED_AT = datetime(2024, 2, 3, 4, 5, 6, tzinfo=UTC)
 
 
 @pytest.mark.parametrize(
-    ("blueprint", "service_function", "url", "resource", "expected_header", "expected_row"),
+    (
+        "blueprint",
+        "service_function",
+        "url",
+        "resource",
+        "expected_header",
+        "expected_row",
+    ),
     [
         pytest.param(
             person_ui,
@@ -125,7 +132,15 @@ ARCHIVED_AT = datetime(2024, 2, 3, 4, 5, 6, tzinfo=UTC)
                 team_id="team-1",
                 team=SimpleNamespace(name="platform team"),
             ),
-            ["ID", "NAME", "DESCRIPTION", "ARCHIVED_AT", "UPDATED_AT", "TEAM_ID", "TEAM_NAME"],
+            [
+                "ID",
+                "NAME",
+                "DESCRIPTION",
+                "ARCHIVED_AT",
+                "UPDATED_AT",
+                "TEAM_ID",
+                "TEAM_NAME",
+            ],
             [
                 "service-1",
                 "Case Management",

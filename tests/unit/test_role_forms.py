@@ -50,7 +50,10 @@ def test_create_rejects_unconfigured_professions(app, profession):
 
     with app.test_request_context("/", method="POST", data={"profession": profession}):
         form = RoleForm()
-        form.profession.choices = [("", "Select a profession"), ("Engineering", "Engineering")]
+        form.profession.choices = [
+            ("", "Select a profession"),
+            ("Engineering", "Engineering"),
+        ]
 
         assert not form.profession.validate(form)
         assert form.profession.data == profession
