@@ -15,12 +15,6 @@ down_revision = "0f0c4d079798"
 branch_labels = None
 depends_on = None
 
-GAP_SHAPE = (
-    "(is_gap = false AND name IS NOT NULL AND location IS NOT NULL) OR "
-    "(is_gap = true AND name IS NULL AND email_address IS NULL AND location IS NULL "
-    "AND manager_id IS NULL)"
-)
-
 people = sa.table(
     "people",
     sa.column("is_gap", sa.Boolean()),
@@ -35,9 +29,6 @@ def upgrade() -> None:
         batch_op.alter_column("location", existing_type=sa.VARCHAR(), nullable=True)
         batch_op.create_index(batch_op.f("ix_people_is_gap"), ["is_gap"], unique=False)
 
-    with op.batch_alter_table("people", schema=None) as batch_op:
-        batch_op.create_check_constraint("ck_people_gap_shape", GAP_SHAPE)
-
 
 def downgrade() -> None:
     """Remove all gap people and reset Person table."""
@@ -46,7 +37,6 @@ def downgrade() -> None:
     connection.execute(sa.delete(people).where(people.c.is_gap.is_(True)))
 
     with op.batch_alter_table("people", schema=None) as batch_op:
-        batch_op.drop_constraint("ck_people_gap_shape", type_="check")
         batch_op.drop_index(batch_op.f("ix_people_is_gap"))
         batch_op.alter_column("location", existing_type=sa.VARCHAR(), nullable=False)
         batch_op.alter_column("name", existing_type=sa.VARCHAR(), nullable=False)

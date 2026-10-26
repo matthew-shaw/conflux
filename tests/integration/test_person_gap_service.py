@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 
 import pytest
 from flask import Flask
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from app import db
 from app.models import Person
@@ -81,30 +81,26 @@ def test_create_gap_has_no_personal_details(app: Flask, gap_catalog: dict[str, U
         assert stored.to_dict()["is_gap"] is True
 
 
-def test_gap_shape_is_enforced_by_the_database(app: Flask, gap_catalog: dict[str, UUID]) -> None:
+@pytest.mark.parametrize("missing", ["name", "location"])
+def test_create_person_requires_person_details(app: Flask, gap_catalog: dict[str, UUID], missing: str) -> None:
     """
-    GIVEN a gap with a location, or a real person without one
-    WHEN either is persisted
-    THEN the check constraint rejects it
+    GIVEN a real person without a name or location
+    WHEN the service is asked to create the person
+    THEN it rejects the invalid person shape before persistence
     """
     with app.app_context():
-        for invalid in (
-            Person(
-                name=None,
-                email_address=None,
-                location="london",
+        details: dict[str, str | None] = {"name": "Someone", "location": "london"}
+        details[missing] = None
+        with pytest.raises(ValueError, match="name and location"):
+            create_person(
+                name=details["name"],
+                email_address="someone@example.com",
+                location=details["location"],
                 employment="employee",
                 role_id=gap_catalog["role"],
-                is_gap=True,
-            ),
-            Person(
-                name="Someone", email_address=None, location=None, employment="employee", role_id=gap_catalog["role"]
-            ),
-        ):
-            db.session.add(invalid)
-            with pytest.raises(IntegrityError):
-                db.session.commit()
-            db.session.rollback()
+                team_id=None,
+                manager_id=None,
+            )
         assert _count_people() == 0
 
 

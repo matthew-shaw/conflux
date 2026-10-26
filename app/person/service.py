@@ -168,6 +168,13 @@ def _lock_active_assignment(role_id: UUID, team_id: UUID | None) -> None:
         ).scalar_one()
 
 
+def _require_person_details(name: str | None, location: str | None) -> tuple[str, str]:
+    """Require the details that distinguish a real person from a gap."""
+    if name is None or location is None:
+        raise ValueError("Real people must have a name and location")
+    return name, location
+
+
 def create_gap(employment: str, role_id: UUID, team_id: UUID | None) -> Person:
     """Create a gap for an active role and optional active team."""
     try:
@@ -197,6 +204,10 @@ def update_gap(id: UUID, employment: str, role_id: UUID, team_id: UUID | None) -
         gap = get_gap(id)
         if gap.role_id != role_id or gap.team_id != team_id:
             _lock_active_assignment(role_id, team_id)
+        gap.name = None
+        gap.email_address = None
+        gap.location = None
+        gap.manager_id = None
         gap.employment = employment
         gap.role_id = role_id
         gap.team_id = team_id
@@ -223,9 +234,9 @@ def delete_gap(id: UUID) -> None:
 
 
 def create_person(
-    name: str,
+    name: str | None,
     email_address: str,
-    location: str,
+    location: str | None,
     employment: str,
     role_id: UUID,
     team_id: UUID | None,
@@ -237,6 +248,7 @@ def create_person(
     When `fill_gap` is set and a gap matches the employment type, team and role,
     that gap is converted into the new person rather than adding another row.
     """
+    name, location = _require_person_details(name, location)
     try:
         gap = find_matching_gap(employment, team_id, role_id) if fill_gap else None
         if gap is not None:
@@ -276,9 +288,9 @@ def create_person(
 
 def update_person(
     id: UUID,
-    name: str,
+    name: str | None,
     email_address: str,
-    location: str,
+    location: str | None,
     employment: str,
     role_id: UUID,
     team_id: UUID | None,
@@ -293,6 +305,7 @@ def update_person(
     out of a team, a gap with their previous employment type and role is left in
     that previous team. Gaps themselves are edited with `update_gap`.
     """
+    name, location = _require_person_details(name, location)
     # Retrieve the person or raise 404 if not found
     person = get_person(id)
     if person.is_gap:

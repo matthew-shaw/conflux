@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, ClassVar
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Table, false
+from sqlalchemy import DateTime, ForeignKey, Table, false
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -170,15 +170,6 @@ class Person(BaseModel):
     """
 
     __tablename__ = "people"
-    __table_args__ = (
-        CheckConstraint(
-            "(is_gap = false AND name IS NOT NULL AND location IS NOT NULL) OR "
-            "(is_gap = true AND name IS NULL AND email_address IS NULL AND location IS NULL "
-            "AND manager_id IS NULL)",
-            name="ck_people_gap_shape",
-        ),
-    )
-
     EMPLOYMENTS: ClassVar[tuple[str, str]] = ("employee", "contractor")
 
     # Attributes
