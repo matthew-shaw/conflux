@@ -83,6 +83,15 @@
 
 @use "govuk-frontend/dist/govuk/overrides";
 
+.conflux-dashboard-mini-panel {
+  padding: govuk-spacing(4) govuk-spacing(2);
+
+  .govuk-panel__title {
+    font-size: 2.25rem;
+    line-height: 1.111;
+  }
+}
+
 /*
 // Alternatively, you can import the specific groups of overrides
 // you need for your project:
