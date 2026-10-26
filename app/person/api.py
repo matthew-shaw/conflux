@@ -23,6 +23,7 @@ def list_people() -> Response:
             page=page,
             per_page=per_page,
             profession=request.args.get("profession", "", type=str),
+            is_gap={"true": True, "false": False}.get(request.args.get("is_gap", "", type=str).lower()),
         )
 
         if page_out_of_range(people, page):

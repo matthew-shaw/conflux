@@ -21,6 +21,11 @@
         }
       }) %}
         {{ form.csrf_token}}
+        {% if form.fill_gap.errors %}
+          {{ form.fill_gap(params={
+            'classes': "govuk-radios--inline govuk-radios--small"
+          }) }}
+        {% endif %}
         {{ form.name(params={
           'spellcheck': false
         }) }}
@@ -28,7 +33,7 @@
           'type': 'email',
           'autocomplete': 'email',
           'spellcheck': false,
-          'value': '@' + config['DOMAIN']
+          'value': form.email_address.data or '@' + config['DOMAIN']
         }) }}
         {{ form.employment(params={
           'classes': "govuk-!-width-one-half"

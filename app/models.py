@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, ClassVar
 
-from sqlalchemy import DateTime, ForeignKey, Table
+from sqlalchemy import DateTime, ForeignKey, Table, false
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -63,7 +63,13 @@ class Role(BaseModel):
 
     @property
     def active_people(self) -> list[Person]:
-        return [person for person in self.people if person.archived_at is None]
+        """Return active real people, excluding gaps."""
+        return [person for person in self.people if person.archived_at is None and not person.is_gap]
+
+    @property
+    def gaps(self) -> list[Person]:
+        """Return the open gaps, which are people flagged as unfilled vacancies."""
+        return [person for person in self.people if person.is_gap]
 
     def __init__(
         self,
@@ -87,7 +93,7 @@ class Role(BaseModel):
         if self.archived_at:
             data["archived_at"] = self.archived_at.isoformat().replace("+00:00", "Z")
         if include_people:
-            data["people"] = [person.to_dict() for person in self.active_people]
+            data["people"] = [person.to_dict() for person in self.active_people + self.gaps]
         return data
 
 
@@ -125,7 +131,13 @@ class Team(BaseModel):
 
     @property
     def active_people(self) -> list[Person]:
-        return [person for person in self.people if person.archived_at is None]
+        """Return active real people, excluding gaps."""
+        return [person for person in self.people if person.archived_at is None and not person.is_gap]
+
+    @property
+    def gaps(self) -> list[Person]:
+        """Return the open gaps, which are people flagged as unfilled vacancies."""
+        return [person for person in self.people if person.is_gap]
 
     def __init__(
         self,
@@ -143,7 +155,7 @@ class Team(BaseModel):
         if self.archived_at:
             data["archived_at"] = self.archived_at.isoformat().replace("+00:00", "Z")
         if include_people:
-            data["people"] = [person.to_dict() for person in self.active_people]
+            data["people"] = [person.to_dict() for person in self.active_people + self.gaps]
         if include_services:
             data["services"] = [service.to_dict() for service in self.services]
         return data
@@ -152,18 +164,21 @@ class Team(BaseModel):
 class Person(BaseModel):
     """
     Represents a person who belongs to a team and performs a role.
+
+    A person flagged as a gap is an unfilled vacancy: it has an employment type and
+    role, may have a team, and has no name, email address, location or manager.
     """
 
     __tablename__ = "people"
-
     EMPLOYMENTS: ClassVar[tuple[str, str]] = ("employee", "contractor")
 
     # Attributes
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name: Mapped[str] = mapped_column(nullable=False, index=True)
-    email_address: Mapped[str] = mapped_column(nullable=True, unique=True, index=True)
-    location: Mapped[str] = mapped_column(nullable=False, index=True)
+    name: Mapped[str | None] = mapped_column(nullable=True, index=True)
+    email_address: Mapped[str | None] = mapped_column(nullable=True, unique=True, index=True)
+    location: Mapped[str | None] = mapped_column(nullable=True, index=True)
     employment: Mapped[str] = mapped_column(nullable=False, index=True)
+    is_gap: Mapped[bool] = mapped_column(default=False, server_default=false(), nullable=False, index=True)
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -202,13 +217,14 @@ class Person(BaseModel):
     def __init__(
         self,
         *,
-        name: str,
-        email_address: str,
-        location: str,
+        name: str | None,
+        email_address: str | None,
+        location: str | None,
         employment: str,
         role_id: uuid.UUID,
         team_id: uuid.UUID | None = None,
         manager_id: uuid.UUID | None = None,
+        is_gap: bool = False,
     ) -> None:
         self.name = name
         self.email_address = email_address
@@ -217,6 +233,14 @@ class Person(BaseModel):
         self.role_id = role_id
         self.team_id = team_id
         self.manager_id = manager_id
+        self.is_gap = is_gap
+
+    @property
+    def display_name(self) -> str:
+        """Return the person's name, or a vacancy label naming the role for a gap."""
+        if self.is_gap or self.name is None:
+            return "Gap"
+        return self.name
 
     def to_dict(
         self,
@@ -231,6 +255,7 @@ class Person(BaseModel):
             "email_address": self.email_address,
             "location": self.location,
             "employment": self.employment,
+            "is_gap": self.is_gap,
             "updated_at": (self.updated_at.isoformat().replace("+00:00", "Z") if self.updated_at else None),
         }
         if self.archived_at:

@@ -133,9 +133,33 @@
         }
       ]) %}
     {% endfor %}
+    {% for gap in role.gaps %}
+      {% set _ = rows.append([
+        {
+          'html': '<strong class="govuk-tag govuk-tag--yellow"><a href="%s" class="govuk-link govuk-!-font-weight-bold">%s</a></strong>' %
+            (
+              url_for("person_ui.view", id=gap.id),
+              gap.display_name|e
+            )
+        },
+        {
+          'html': '<a href="%s" class="govuk-link">%s</a>' %
+            (
+              url_for("team_ui.view", id=gap.team.id),
+              gap.team.name|e
+            ) if gap.team else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+        },
+        {
+          'text': "—"
+        },
+        {
+          'text': gap.employment.title()
+        }
+      ]) %}
+    {% endfor %}
     {% if rows %}
       {{ govukTable({
-        'caption': rows | length ~ " person" if rows | length == 1 else rows | length ~ " people",
+        'caption': role.active_people | length ~ " " ~ ("person" if role.active_people | length == 1 else "people") ~ ", " ~ role.gaps | length ~ " open " ~ ("gap" if role.gaps | length == 1 else "gaps"),
         'captionClasses': "govuk-table__caption--m",
         'firstCellIsHeader': true,
         'head': [

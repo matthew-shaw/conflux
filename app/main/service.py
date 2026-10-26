@@ -19,8 +19,13 @@ def get_dashboard_counts() -> dict[str, int]:
             or 0,
             "teams": db.session.scalar(db.select(func.count()).select_from(Team).where(Team.archived_at.is_(None)))
             or 0,
-            "people": db.session.scalar(db.select(func.count()).select_from(Person).where(Person.archived_at.is_(None)))
+            "people": db.session.scalar(
+                db.select(func.count())
+                .select_from(Person)
+                .where(Person.archived_at.is_(None), Person.is_gap.is_(False))
+            )
             or 0,
+            "gaps": db.session.scalar(db.select(func.count()).select_from(Person).where(Person.is_gap.is_(True))) or 0,
             "services": db.session.scalar(
                 db.select(func.count()).select_from(Service).where(Service.archived_at.is_(None))
             )

@@ -5,7 +5,7 @@ from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models import Person, Role
+from app.models import Person, Role, Team
 from app.role import api as role_api
 from app.role import ui as role_ui
 
@@ -75,12 +75,19 @@ def test_api_list_roles_does_not_load_people(app, test_client):
 def test_api_view_uses_service_layer(monkeypatch, test_client):
     """GIVEN the role API detail endpoint WHEN a role is requested THEN the service layer is used to fetch that role."""
     fake_role = SimpleNamespace(to_dict=lambda include_people=False: {"id": "42"})
-    monkeypatch.setattr(role_api, "get_role", lambda id: fake_role)
+    requested = {}
+
+    def fake_get_role(id, **kwargs):
+        requested.update(kwargs)
+        return fake_role
+
+    monkeypatch.setattr(role_api, "get_role", fake_get_role)
 
     response = test_client.get("/api/v1/roles/00000000-0000-0000-0000-000000000000")
 
     assert response.status_code == 200
     assert response.get_json() == {"id": "42"}
+    assert requested["include_people"] is True
 
 
 def test_ui_list_roles_uses_service_layer(monkeypatch, test_client):
@@ -191,6 +198,73 @@ def test_role_profession_filter_combines_status_and_pagination(app, test_client)
     body = response.get_data(as_text=True)
     assert "Unassigned Active" in body
     assert "None" in body
+
+
+def test_role_pages_include_gap_counts_and_detail_rows(app, test_client):
+    """
+    GIVEN a role with an active person and open gaps for two teams
+    WHEN the roles list and role detail pages are viewed
+    THEN the list counts gaps and the detail page shows gaps with people
+    """
+    app.config["RATELIMIT_ENABLED"] = False
+    with app.app_context():
+        role = Role(name="Engineer", grade="Grade 7", profession="Engineering")
+        first_team = Team(name="Delivery")
+        second_team = Team(name="Operations")
+        db.session.add_all([role, first_team, second_team])
+        db.session.flush()
+        db.session.add(
+            Person(
+                name="Active Person",
+                email_address="active@example.com",
+                location="London",
+                employment="employee",
+                role_id=role.id,
+                team_id=first_team.id,
+            )
+        )
+        db.session.add_all(
+            [
+                Person(
+                    name=None,
+                    email_address=None,
+                    location=None,
+                    employment="employee",
+                    role_id=role.id,
+                    team_id=first_team.id,
+                    is_gap=True,
+                ),
+                Person(
+                    name=None,
+                    email_address=None,
+                    location=None,
+                    employment="employee",
+                    role_id=role.id,
+                    team_id=second_team.id,
+                    is_gap=True,
+                ),
+            ]
+        )
+        role_id = role.id
+        db.session.commit()
+
+    list_response = test_client.get("/roles/")
+    assert list_response.status_code == 200
+    list_body = list_response.get_data(as_text=True)
+    assert "People" in list_body
+    assert "Gaps" in list_body
+    assert '<td class="govuk-table__cell">2</td>' in list_body
+
+    detail_response = test_client.get(f"/roles/{role_id}")
+    assert detail_response.status_code == 200
+    detail_body = detail_response.get_data(as_text=True)
+    assert "1 person, 2 open gaps" in detail_body
+    assert "Active Person" in detail_body
+    assert "Delivery" in detail_body
+    assert "Operations" in detail_body
+    table = detail_body.split("<table", maxsplit=1)[1].split("</table>", maxsplit=1)[0]
+    gap_row = next(row for row in table.split("<tr") if "Gap" in row and "Delivery" in row)
+    assert gap_row.index("Gap") < gap_row.index("Delivery")
 
 
 class DummyForm:

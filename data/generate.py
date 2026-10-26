@@ -57,6 +57,20 @@ ROLES = (
     ("Lead User Researcher", "G7", "User-Centred Design"),
     ("Head of User Research", "G7", "User-Centred Design"),
 )
+DEFAULT_GRADES = tuple(dict.fromkeys(grade for _, grade, _ in ROLES))
+DEFAULT_PROFESSIONS = tuple(dict.fromkeys(profession for _, _, profession in ROLES))
+DEFAULT_LOCATIONS = (
+    "London",
+    "Birmingham",
+    "Manchester",
+    "Glasgow",
+    "Newcastle",
+    "Sheffield",
+    "Leeds",
+    "Liverpool",
+    "Nottingham",
+    "Bradford",
+)
 SERVICES = (
     ("Account Management", "Manages customer accounts and profile information."),
     ("Access Gateway", "Provides secure access to internal digital services."),
@@ -99,15 +113,14 @@ COMPONENT_NAMES = (
 )
 LOCALES = ("en_GB", "fr_FR", "es_ES", "de_DE", "it_IT")
 PEOPLE_COUNT = 200
+GAP_PERCENTAGE = 0.1
 EMPLOYMENTS = ("employee", "contractor")
 
 
-def configured_values(name: str) -> list[str]:
-    """Return non-empty comma-separated configuration values."""
+def configured_values(name: str, defaults: tuple[str, ...]) -> list[str]:
+    """Return configured values, or defaults when none are configured."""
     values = [value.strip() for value in os.environ.get(name, "").split(",") if value.strip()]
-    if not values:
-        raise SystemExit(f"Set {name} in the project .env file before generating demo data.")
-    return values
+    return values or list(defaults)
 
 
 def timestamp() -> str:
@@ -126,18 +139,17 @@ def write_csv(filename: str, fieldnames: tuple[str, ...], rows: list[dict[str, s
 
 def generate_demo_data() -> dict[str, int]:
     """Generate linked teams, roles, people, services and components."""
-    configured_grades = set(configured_values("GRADES"))
-    locations = configured_values("LOCATIONS")
-    professions = configured_values("PROFESSIONS")
-    available_professions = {profession for _, _, profession in ROLES}
-    unknown_professions = sorted(set(professions) - available_professions)
-    if unknown_professions:
-        raise SystemExit(f"Remove unsupported professions from PROFESSIONS in .env: {', '.join(unknown_professions)}")
-    selected_roles = [role for role in ROLES if role[2] in professions]
-    required_grades = {grade for _, grade, _ in selected_roles}
-    missing_grades = sorted(required_grades - configured_grades)
-    if missing_grades:
-        raise SystemExit(f"Add these framework grades to GRADES in .env: {', '.join(missing_grades)}")
+    configured_grades = configured_values("GRADES", DEFAULT_GRADES)
+    locations = configured_values("LOCATIONS", DEFAULT_LOCATIONS)
+    professions = configured_values("PROFESSIONS", DEFAULT_PROFESSIONS)
+    selected_roles = [
+        (
+            title,
+            grade if grade in configured_grades else random.choice(configured_grades),
+            profession if profession in professions else random.choice(professions),
+        )
+        for title, grade, profession in ROLES
+    ]
     fakers = {locale: Faker(locale) for locale in LOCALES}
 
     teams = [
@@ -176,11 +188,31 @@ def generate_demo_data() -> dict[str, int]:
                 "email_address": f"{email_name}.{person_id[:8]}@example.com",
                 "location": random.choice(locations),
                 "employment": random.choice(EMPLOYMENTS),
+                "is_gap": "false",
                 "archived_at": "",
                 "updated_at": timestamp(),
                 "role_id": random.choice(roles)["id"],
                 "team_id": random.choice(teams)["id"],
                 "manager_id": manager_id,
+            }
+        )
+
+    gap_count = round(PEOPLE_COUNT * GAP_PERCENTAGE)
+    for gap_number in range(gap_count):
+        person_id = str(uuid.uuid4())
+        people.append(
+            {
+                "id": person_id,
+                "name": "",
+                "email_address": "",
+                "location": "",
+                "employment": random.choice(EMPLOYMENTS),
+                "is_gap": "true",
+                "archived_at": "",
+                "updated_at": timestamp(),
+                "role_id": random.choice(roles)["id"],
+                "team_id": random.choice(teams)["id"] if gap_number % 4 else "",
+                "manager_id": "",
             }
         )
 
@@ -222,6 +254,7 @@ def generate_demo_data() -> dict[str, int]:
             "email_address",
             "location",
             "employment",
+            "is_gap",
             "archived_at",
             "updated_at",
             "role_id",

@@ -16,8 +16,8 @@ class DummyQuery:
         self.calls.append(("order_by", *values))
         return self
 
-    def options(self, value):
-        self.calls.append(("options", value))
+    def options(self, *values):
+        self.calls.extend(("options", value) for value in values)
         return self
 
     def where(self, value):
@@ -61,12 +61,12 @@ def test_get_roles_builds_query(monkeypatch, include_people):
     )
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "Role", make_role_stub())
-    monkeypatch.setattr(role_service, "selectinload", lambda value: "people_eager")
+    monkeypatch.setattr(role_service, "selectinload", lambda value: f"{value}_eager")
 
     roles = role_service.get_roles(sort="updated", status="archived", include_people=include_people)
 
     assert roles.items == ["role1", "role2"]
-    expected_options = [("options", "people_eager")] if include_people else []
+    expected_options = [("options", "people_relationship_eager")] if include_people else []
     assert fake_query.calls == [
         *expected_options,
         ("order_by", "updated_desc"),
@@ -144,6 +144,10 @@ def test_get_role_uses_session_execute(monkeypatch):
             executed["filtered_id"] = id
             return self
 
+        def options(self, *options):
+            executed["options"] = executed.get("options", ()) + options
+            return self
+
     def fake_execute(query):
         executed["query"] = query
         return SimpleNamespace(scalar_one=lambda: sentinel)
@@ -154,8 +158,12 @@ def test_get_role_uses_session_execute(monkeypatch):
     )
     monkeypatch.setattr(role_service, "db", fake_db)
 
-    assert role_service.get_role(UUID("00000000-0000-0000-0000-000000000000")) is sentinel
+    assert (
+        role_service.get_role(UUID("00000000-0000-0000-0000-000000000000"), include_people=True, include_gaps=True)
+        is sentinel
+    )
     assert isinstance(executed["query"], FakeSelect)
+    assert len(executed["options"]) == 1
 
 
 def test_create_role_commits_and_returns_role(monkeypatch):
@@ -328,22 +336,34 @@ def test_update_role_rolls_back_on_integrity_error(monkeypatch):
 
 
 def test_archive_role_sets_archived_at_and_commits(monkeypatch):
-    """GIVEN an active role WHEN archive_role is called THEN archived_at is set and the session commits."""
+    """
+    GIVEN an active role with related gaps
+    WHEN archive_role is called
+    THEN gaps are deleted before the role is archived and committed
+    """
     fake_role = SimpleNamespace(archived_at=None)
-    commit_called = False
+    events = []
 
-    def fake_commit():
-        nonlocal commit_called
-        commit_called = True
+    def fake_delete(model):
+        events.append(("delete", model))
+        return SimpleNamespace(where=lambda *conditions: events.append(("where", conditions)) or conditions)
 
-    fake_db = SimpleNamespace(session=SimpleNamespace(commit=fake_commit, rollback=lambda: None))
+    fake_db = SimpleNamespace(
+        delete=fake_delete,
+        session=SimpleNamespace(
+            execute=lambda statement: events.append(("execute", statement)),
+            commit=lambda: events.append(("commit", None)),
+            rollback=lambda: None,
+        ),
+    )
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "get_role", lambda id: fake_role)
 
     role_service.archive_role(UUID("00000000-0000-0000-0000-000000000000"))
 
     assert fake_role.archived_at is not None
-    assert commit_called is True
+    assert [event[0] for event in events] == ["delete", "where", "execute", "commit"]
+    assert events[0][1] is role_service.Person
 
 
 def test_restore_role_clears_archived_at_and_commits(monkeypatch):

@@ -35,7 +35,7 @@
               )
           },
           { 'text': result.type },
-          { 'text': format_govuk_datetime(result.updated_at, include_day=False, truncate_month=True) }
+          { 'text': format_govuk_datetime(result.updated_at, include_day=False, truncate_month=True) if result.updated_at else 'Not applicable' }
         ]) %}
       {% endfor %}
 
