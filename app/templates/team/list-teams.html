@@ -32,6 +32,7 @@
       {{ form.status(params={
         'classes': "govuk-radios--small"
       }) }}
+      {{ form.type() }}
       {{ form.per_page() }}
       {{ govukButton({
         'text': "Apply",
@@ -49,6 +50,9 @@
               url_for("team_ui.view", id=team.id),
               team.name|e
             )
+        },
+        {
+          'html': team.type if team.type else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': team.active_people | length
@@ -69,6 +73,7 @@
         'firstCellIsHeader': true,
         'head': [
           { 'text': "Name" },
+          { 'text': "Type" },
           { 'text': "People" },
           { 'text': "Services" },
           { 'text': "Updated" }
@@ -84,7 +89,7 @@
           {% set _ = pages.append(
             {
               'number': page,
-              'href': url_for('team_ui.list_teams', page=page, per_page=teams.per_page, sort=form.sort.data, status=form.status.data),
+              'href': url_for('team_ui.list_teams', page=page, per_page=teams.per_page, sort=form.sort.data, status=form.status.data, type=form.type.data),
               'current': page == teams.page
             }
           ) %}
@@ -97,10 +102,10 @@
 
       {{ govukPagination({
         'previous': {
-          'href': url_for('team_ui.list_teams', page=teams.prev_num, per_page=teams.per_page, sort=form.sort.data, status=form.status.data),
+          'href': url_for('team_ui.list_teams', page=teams.prev_num, per_page=teams.per_page, sort=form.sort.data, status=form.status.data, type=form.type.data),
         } if teams.has_prev else None,
         'next': {
-          'href': url_for('team_ui.list_teams', page=teams.next_num, per_page=teams.per_page, sort=form.sort.data, status=form.status.data),
+          'href': url_for('team_ui.list_teams', page=teams.next_num, per_page=teams.per_page, sort=form.sort.data, status=form.status.data, type=form.type.data),
         } if teams.has_next else None,
         'items': pages
       }) }}
@@ -111,7 +116,7 @@
         <a class="govuk-link" href="{{ url_for('team_ui.download') }}">CSV format</a>
       </li>
       <li>
-        <a class="govuk-link" href="{{ url_for('team_api.list_teams', page=teams.page, per_page=teams.per_page, sort=form.sort.data, status=form.status.data) }}">JSON format</a>
+        <a class="govuk-link" href="{{ url_for('team_api.list_teams', page=teams.page, per_page=teams.per_page, sort=form.sort.data, status=form.status.data, type=form.type.data) }}">JSON format</a>
       </li>
     </ul>
   </div>

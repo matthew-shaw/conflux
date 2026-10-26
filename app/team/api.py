@@ -22,6 +22,7 @@ def list_teams() -> Response:
             status=request.args.get("status", "active", type=str),
             page=page,
             per_page=per_page,
+            type=request.args.get("type", type=str),
         )
 
         if page_out_of_range(teams, page):

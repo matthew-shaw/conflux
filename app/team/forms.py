@@ -1,3 +1,6 @@
+from typing import Any
+
+from flask import current_app
 from flask_wtf import FlaskForm
 from govuk_frontend_wtf.wtforms_widgets import (
     GovCheckboxInput,
@@ -26,11 +29,23 @@ class TeamForm(FlaskForm):
         validators=[InputRequired(message="Enter a name")],
         description="The team name must be unique.",
     )
+    type = SelectField(
+        "Type",
+        choices=[("", "Select a team type")],
+        widget=GovSelect(),
+        validators=[InputRequired(message="Select a team type")],
+    )
     submit: SubmitField = SubmitField("Save", widget=GovSubmitInput())
 
-    def __init__(self, *args, team=None, **kwargs):
+    def __init__(self, *args: Any, team: Team | None = None, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.team = team
+        configured_types = current_app.config.get("TEAM_TYPES", [])
+        choices = [("", "Select a team type")]
+        choices.extend((team_type, team_type) for team_type in configured_types)
+        if team and team.type and team.type not in configured_types:
+            choices.append((team.type, team.type))
+        self.type.choices = choices
 
     def validate_name(self, field):
         existing_team = Team.query.filter_by(name=field.data).first()
@@ -45,6 +60,7 @@ class TeamSortFilterForm(FlaskForm):
         widget=GovRadioInput(),
         choices=[
             ("name", "Name"),
+            ("type", "Type"),
             ("updated", "Updated"),
         ],
         default="name",
@@ -54,6 +70,12 @@ class TeamSortFilterForm(FlaskForm):
         widget=GovRadioInput(),
         choices=[("all", "All"), ("active", "Active"), ("archived", "Archived")],
         default="active",
+    )
+    type = SelectField(
+        "Type",
+        choices=[("", "Any")],
+        widget=GovSelect(),
+        default="",
     )
     per_page = SelectField(
         "Items per page",
@@ -66,6 +88,11 @@ class TeamSortFilterForm(FlaskForm):
         default=25,
         coerce=int,
     )
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        configured_types = current_app.config.get("TEAM_TYPES", [])
+        self.type.choices = [("", "Any")] + [(team_type, team_type) for team_type in configured_types]
 
 
 class ArchiveTeamForm(FlaskForm):

@@ -18,6 +18,7 @@ class Config:
     GRADES: ClassVar[list[str]] = _parse_comma_separated_setting("GRADES")
     LOCATIONS: ClassVar[list[str]] = _parse_comma_separated_setting("LOCATIONS")
     PROFESSIONS: ClassVar[list[str]] = _parse_comma_separated_setting("PROFESSIONS")
+    TEAM_TYPES: ClassVar[list[str]] = _parse_comma_separated_setting("TEAM_TYPES")
     RATELIMIT_HEADERS_ENABLED = True
     RATELIMIT_STORAGE_URI = os.environ.get("VALKEY_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")

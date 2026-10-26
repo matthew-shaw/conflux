@@ -68,8 +68,8 @@ If a test fails after your changes, do not modify the test to force it to pass. 
 
 ## Configuration & Security
 
-- Configuration is environment-variable driven (`DATABASE_URL`, `VALKEY_URL`, `SECRET_KEY`, `DOMAIN`, `GRADES`, `LOCATIONS`). Do not hardcode configuration values.
-- Maintain consistency across all layers when modifying enumerated domain values (`GRADES` and `LOCATIONS`).
+- Configuration is environment-variable driven (`DATABASE_URL`, `VALKEY_URL`, `SECRET_KEY`, `DOMAIN`, `GRADES`, `LOCATIONS`, `TEAM_TYPES`). Do not hardcode configuration values.
+- Maintain consistency across all layers when modifying enumerated domain values (`GRADES`, `LOCATIONS`, and `TEAM_TYPES`).
 - Never expose, log, or hardcode the `SECRET_KEY`.
 - Always use the `SECRET_KEY` for session cookie signing and CSRF token protection.
 

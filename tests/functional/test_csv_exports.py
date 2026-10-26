@@ -98,13 +98,15 @@ ARCHIVED_AT = datetime(2024, 2, 3, 4, 5, 6, tzinfo=UTC)
             SimpleNamespace(
                 id="team-1",
                 name="engineering team",
+                type=None,
                 archived_at=ARCHIVED_AT,
                 updated_at=UPDATED_AT,
             ),
-            ["ID", "NAME", "ARCHIVED_AT", "UPDATED_AT"],
+            ["ID", "NAME", "TYPE", "ARCHIVED_AT", "UPDATED_AT"],
             [
                 "team-1",
                 "Engineering Team",
+                "",
                 "2024-02-03T04:05:06Z",
                 "2024-01-02T03:04:05Z",
             ],

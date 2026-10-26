@@ -73,6 +73,31 @@ def test_role_profession_create_edit_and_display(app, test_client):
     assert b"Engineering" in response.data
 
 
+def test_unset_role_profession_uses_red_none_tag(app, test_client) -> None:
+    """
+    GIVEN a role without a profession
+    WHEN the roles list and detail pages are viewed
+    THEN the profession is displayed as a red GOV.UK tag labelled None.
+    """
+    app.config["GRADES"] = ["Grade 7"]
+    with app.app_context():
+        role = Role(name="Unassigned Role", grade="Grade 7")
+        db.session.add(role)
+        db.session.commit()
+        role_id = role.id
+
+    list_response = test_client.get("/roles/")
+    detail_response = test_client.get(f"/roles/{role_id}")
+    list_html = " ".join(list_response.get_data(as_text=True).split())
+    detail_html = " ".join(detail_response.get_data(as_text=True).split())
+    expected_tag = '<strong class="govuk-tag govuk-tag--red"> None </strong>'
+
+    assert list_response.status_code == 200
+    assert expected_tag in list_html
+    assert detail_response.status_code == 200
+    assert expected_tag in detail_html
+
+
 def test_role_profession_edit_preserves_removed_choice(app, test_client):
     """
     GIVEN a saved profession removed from config
