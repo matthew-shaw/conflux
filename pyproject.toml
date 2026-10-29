@@ -1,6 +1,6 @@
 [project]
 name = "conflux"
-version = "0.13.1"
+version = "0.14.0"
 description = "Conflux is an operational knowledge platform that helps organisations understand ownership, responsibility, and dependency across people, teams, services, and components."
 readme = "README.md"
 authors = [

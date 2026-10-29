@@ -241,7 +241,12 @@ def test_update_role_commits_updated_name(monkeypatch):
     monkeypatch.setattr(role_service, "db", fake_db)
     monkeypatch.setattr(role_service, "get_role", lambda id: updated_role)
 
-    role_service.update_role(UUID("00000000-0000-0000-0000-000000000000"), "New name", "Grade 1", "Engineering")
+    role_service.update_role(
+        UUID("00000000-0000-0000-0000-000000000000"),
+        "New name",
+        "Grade 1",
+        "Engineering",
+    )
 
     assert updated_role.name == "New name"
     assert commit_called is True

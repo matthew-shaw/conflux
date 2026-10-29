@@ -129,6 +129,7 @@ def generate_demo_data() -> dict[str, int]:
     configured_grades = set(configured_values("GRADES"))
     locations = configured_values("LOCATIONS")
     professions = configured_values("PROFESSIONS")
+    team_types = configured_values("TEAM_TYPES")
     available_professions = {profession for _, _, profession in ROLES}
     unknown_professions = sorted(set(professions) - available_professions)
     if unknown_professions:
@@ -144,6 +145,7 @@ def generate_demo_data() -> dict[str, int]:
         {
             "id": str(uuid.uuid4()),
             "name": name,
+            "type": random.choice(team_types),
             "archived_at": "",
             "updated_at": timestamp(),
         }
@@ -212,8 +214,12 @@ def generate_demo_data() -> dict[str, int]:
             {"service_id": service["id"], "component_id": component_id} for component_id in linked_components
         )
 
-    write_csv("teams.csv", ("id", "name", "archived_at", "updated_at"), teams)
-    write_csv("roles.csv", ("id", "name", "grade", "profession", "updated_at", "archived_at"), roles)
+    write_csv("teams.csv", ("id", "name", "type", "archived_at", "updated_at"), teams)
+    write_csv(
+        "roles.csv",
+        ("id", "name", "grade", "profession", "updated_at", "archived_at"),
+        roles,
+    )
     write_csv(
         "people.csv",
         (

@@ -7,7 +7,7 @@ TRUNCATE TABLE
     components
 RESTART IDENTITY CASCADE;
 
-COPY teams (id, name, archived_at, updated_at)
+COPY teams (id, name, type, archived_at, updated_at)
 FROM '/data/teams.csv'
 WITH (FORMAT csv, HEADER true);
 

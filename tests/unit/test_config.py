@@ -5,7 +5,7 @@ import pytest
 import config
 
 
-@pytest.mark.parametrize("setting_name", ["GRADES", "LOCATIONS", "PROFESSIONS"])
+@pytest.mark.parametrize("setting_name", ["GRADES", "LOCATIONS", "PROFESSIONS", "TEAM_TYPES"])
 @pytest.mark.parametrize("setting", [None, "", " ,  "])
 def test_list_configuration_is_empty_for_blank_settings(
     monkeypatch: pytest.MonkeyPatch,
@@ -27,7 +27,7 @@ def test_list_configuration_is_empty_for_blank_settings(
     assert getattr(loaded_config.Config, setting_name) == []
 
 
-@pytest.mark.parametrize("setting_name", ["GRADES", "LOCATIONS", "PROFESSIONS"])
+@pytest.mark.parametrize("setting_name", ["GRADES", "LOCATIONS", "PROFESSIONS", "TEAM_TYPES"])
 def test_list_configuration_trims_and_preserves_values(
     monkeypatch: pytest.MonkeyPatch,
     setting_name: str,

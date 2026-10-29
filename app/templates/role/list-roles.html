@@ -57,7 +57,7 @@
           'text': role.grade
         },
         {
-          'text': role.profession or "None"
+          'html': role.profession if role.profession else govukTag({'text': "None", 'classes': "govuk-tag--red"})
         },
         {
           'text': role.active_people | length

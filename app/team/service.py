@@ -25,6 +25,7 @@ def get_teams(
     status: str = "active",
     page: int = 1,
     per_page: int = 25,
+    type: str | None = None,
 ) -> Pagination:
     """Retrieve a paginated list of teams."""
 
@@ -34,6 +35,8 @@ def get_teams(
     # Apply sorting
     if sort == "name":
         query = query.order_by(Team.name)
+    elif sort == "type":
+        query = query.order_by(Team.type, Team.name)
     elif sort == "updated":
         query = query.order_by(Team.updated_at.desc())
 
@@ -43,6 +46,9 @@ def get_teams(
     elif status == "archived":
         query = query.where(Team.archived_at.is_not(None))
     # No filter if status == "all"
+
+    if type:
+        query = query.where(Team.type == type)
 
     try:
         return db.paginate(
@@ -55,7 +61,8 @@ def get_teams(
     except SQLAlchemyError:
         db.session.rollback()
         logger.debug(
-            f"Database error retrieving teams (sort={sort}, status={status}, page={page}, per_page={per_page})",
+            f"Database error retrieving teams (sort={sort}, status={status}, type={type}, "
+            f"page={page}, per_page={per_page})",
             exc_info=True,
         )
         raise
@@ -83,9 +90,11 @@ def get_team(id: UUID) -> Team:
 
 def create_team(
     name: str,
+    type: str | None = None,
 ) -> Team:
     team: Team = Team(
         name=name,
+        type=type,
     )
     # Add the new team instance to the session
     db.session.add(team)
@@ -109,6 +118,7 @@ def create_team(
 def update_team(
     id: UUID,
     name: str,
+    type: str | None = None,
 ) -> None:
     # Retrieve the team or raise 404 if not found
     team = get_team(id)
@@ -117,6 +127,7 @@ def update_team(
         raise ArchivedEntityError(f"Cannot update archived team {id}")
     # Update the team's attributes with the new values
     team.name = name
+    team.type = type
     logger.info(f"Updating team {id} -> name={name}")
     try:
         # Commit the update transaction

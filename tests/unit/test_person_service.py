@@ -125,7 +125,11 @@ def test_get_people_sorts_location_with_name_tiebreaker(app):
 
         result = get_people(status="all", sort="location", per_page=10)
 
-        assert [person.name for person in result.items] == ["Bob Bristol", "Alice London", "Zed London"]
+        assert [person.name for person in result.items] == [
+            "Bob Bristol",
+            "Alice London",
+            "Zed London",
+        ]
 
 
 def test_get_people_filters_by_role_profession_without_duplicates(app):

@@ -91,7 +91,11 @@ def test_search_without_query_does_not_call_search_service(
     THEN the search service is not called and no empty-state message is shown.
     """
     app.config["RATELIMIT_ENABLED"] = False
-    monkeypatch.setattr(search_routes, "search_entries", lambda query: pytest.fail("Search service was called"))
+    monkeypatch.setattr(
+        search_routes,
+        "search_entries",
+        lambda query: pytest.fail("Search service was called"),
+    )
 
     response = test_client.get("/search/")
 

@@ -13,10 +13,30 @@ from app.team import ui as team_ui
 @pytest.mark.parametrize(
     ("ui", "route", "getter", "message"),
     [
-        (role_ui, "roles", "get_role", "This role cannot be changed because it has been archived."),
-        (person_ui, "people", "get_person", "This person cannot be changed because they have been archived."),
-        (team_ui, "teams", "get_team", "This team cannot be changed because it has been archived."),
-        (service_ui, "services", "get_service", "This service cannot be changed because it has been archived."),
+        (
+            role_ui,
+            "roles",
+            "get_role",
+            "This role cannot be changed because it has been archived.",
+        ),
+        (
+            person_ui,
+            "people",
+            "get_person",
+            "This person cannot be changed because they have been archived.",
+        ),
+        (
+            team_ui,
+            "teams",
+            "get_team",
+            "This team cannot be changed because it has been archived.",
+        ),
+        (
+            service_ui,
+            "services",
+            "get_service",
+            "This service cannot be changed because it has been archived.",
+        ),
     ],
 )
 @pytest.mark.parametrize("method", ["get", "post"])

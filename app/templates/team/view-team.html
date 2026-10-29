@@ -64,6 +64,23 @@
         },
         {
           'key': {
+            'text': "Type"
+          },
+          'value': {
+            'text': team.type if team.type else govukTag({'text': "None", 'classes': "govuk-tag--red"})
+          },
+          'actions': {
+            'items': [
+              {
+                'href': url_for('team_ui.edit', id=team.id),
+                'text': "Change",
+                'visuallyHiddenText': "type"
+              }
+            ] if not team.archived_at else []
+          }
+        },
+        {
+          'key': {
             'text': "Updated"
           },
           'value': {

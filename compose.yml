@@ -10,6 +10,7 @@ services:
       GRADES: ${GRADES}
       LOCATIONS: ${LOCATIONS}
       PROFESSIONS: ${PROFESSIONS}
+      TEAM_TYPES: ${TEAM_TYPES}
       SECRET_KEY: ${SECRET_KEY}
       VALKEY_URL: redis://${VALKEY_HOST}:${VALKEY_PORT}
     expose:

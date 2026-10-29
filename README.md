@@ -83,6 +83,7 @@ DOMAIN=example.com
 GRADES=AA,AO,EO,HEO,SEO,G7,G6,SCS1,SCS2
 LOCATIONS=London,Birmingham,Manchester,Glasgow,Newcastle,Sheffield,Leeds,Liverpool,Nottingham,Bradford
 PROFESSIONS=Software Development,Product and Delivery,Quality Assurance Testing,User-Centred Design
+TEAM_TYPES=Stream-aligned,Enabling,Complex Subsystem,Platform
 POSTGRES_DB=mimisbrunnr
 POSTGRES_HOST=db
 POSTGRES_PASSWORD=smartestmanalive
@@ -95,7 +96,9 @@ VALKEY_PORT=6379
 
 `PROFESSIONS` is a comma-separated list of profession names for staged rollout. Values are trimmed and blank entries are ignored. Once roles are being created, a profession must be selected from the configured list; existing roles whose profession has since been removed retain their current value when edited.
 
-`GRADES`, `LOCATIONS`, and `PROFESSIONS` are parsed consistently: each accepts comma-separated values, trims surrounding whitespace, and ignores blank entries.
+`GRADES`, `LOCATIONS`, `PROFESSIONS`, and `TEAM_TYPES` are parsed consistently: each accepts comma-separated values, trims surrounding whitespace, and ignores blank entries.
+
+`TEAM_TYPES` is a comma-separated list of team types used when creating and editing teams, and for filtering and sorting teams. The example values are the four Team Topologies team types; you can configure a different list for your organisation.
 
 The Roles page and `GET /api/v1/roles` support an optional `profession` filter. An empty value (the default) includes all roles, including roles without an assigned profession; a non-empty value matches the configured profession exactly. The filter can be combined with the existing status, sort, page, and per-page parameters.
 
@@ -119,7 +122,7 @@ You should now have the app running on <https://localhost/>. Accept the browsers
 
 ### Generate and load local demo data
 
-With the containers running and `GRADES`, `LOCATIONS` and `PROFESSIONS` set in `.env`, generate fictional data and import it into the local Compose database:
+With the containers running and `GRADES`, `LOCATIONS`, `PROFESSIONS` and `TEAM_TYPES` set in `.env`, generate fictional data and import it into the local Compose database:
 
 ```shell
 uv run --locked python data/generate.py
@@ -128,7 +131,7 @@ uv run --locked python data/generate.py
 
 The generator creates linked teams, roles, people, services, components and service-component relationships as CSV files in `data/`. The import replaces existing Conflux data in the Compose database, so it asks for confirmation before proceeding. If an import fails, the transaction is rolled back.
 
-Generated people are assigned one of the locations in `LOCATIONS`. Generated roles are limited to the role families named in `PROFESSIONS`, using the values in the example configuration: Software Development, Product and Delivery, Quality Assurance Testing, and User-Centred Design. These role families are from the [Government Digital and Data Profession Capability Framework](https://understand-digital-data-roles-skills.service.gov.uk/).
+Generated teams are assigned a type from `TEAM_TYPES`. Generated people are assigned one of the locations in `LOCATIONS`. Generated roles are limited to the role families named in `PROFESSIONS`, using the values in the example configuration: Software Development, Product and Delivery, Quality Assurance Testing, and User-Centred Design. These role families are from the [Government Digital and Data Profession Capability Framework](https://understand-digital-data-roles-skills.service.gov.uk/).
 
 Role grades use the higher grade where the Government Digital and Data Profession Capability Framework lists a range. For levels without a published indicative grade, the generator carries forward the highest grade stated for that role family; trainee business analyst is assigned EO. Ensure `GRADES` includes all generated grades: EO, HEO, SEO, G7 and G6.
 

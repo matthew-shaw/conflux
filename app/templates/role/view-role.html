@@ -64,7 +64,7 @@
             'text': "Profession"
           },
           'value': {
-            'text': role.profession or "None"
+            'text': role.profession if role.profession else govukTag({'text': "None", 'classes': "govuk-tag--red"})
           },
           'actions': {
             'items': [

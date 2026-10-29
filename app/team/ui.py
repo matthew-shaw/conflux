@@ -52,13 +52,14 @@ def list_teams() -> ResponseReturnValue:
             status=form.status.data,
             page=page,
             per_page=form.per_page.data,
+            type=form.type.data,
         )
         if page_out_of_range(teams, page):
             abort(404)
     except SQLAlchemyError:
         logger.exception(
             "Database error listing teams "
-            f"(sort={form.sort.data},status={form.status.data},"
+            f"(sort={form.sort.data},status={form.status.data},type={form.type.data},"
             f"page={page},per_page={form.per_page.data})"
         )
         abort(503)
@@ -79,6 +80,7 @@ def create() -> ResponseReturnValue:
         try:
             team = create_team(
                 name=form.name.data,
+                type=form.type.data,
             )
             team_url = url_for("team_ui.view", id=team.id)
             flash(
@@ -125,11 +127,13 @@ def edit(id: UUID) -> ResponseReturnValue:
 
     if request.method == "GET":
         form.name.data = team.name
+        form.type.data = team.type
     elif form.validate_on_submit():
         try:
             update_team(
                 id=id,
                 name=form.name.data,
+                type=form.type.data,
             )
             team_url = url_for("team_ui.view", id=team.id)
             flash(
@@ -231,6 +235,7 @@ def download() -> ResponseReturnValue:
             (
                 "ID",
                 "NAME",
+                "TYPE",
                 "ARCHIVED_AT",
                 "UPDATED_AT",
             )
@@ -245,6 +250,7 @@ def download() -> ResponseReturnValue:
                 (
                     team.id,
                     team.name.title(),
+                    team.type or "",
                     (team.archived_at.isoformat().replace("+00:00", "Z") if team.archived_at else ""),
                     team.updated_at.isoformat().replace("+00:00", "Z"),
                 )
